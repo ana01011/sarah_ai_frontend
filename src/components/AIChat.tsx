@@ -119,8 +119,8 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
           suggestions: ["📊 Show detailed metrics", "⚡ Apply optimizations", "📋 Export report", "🔧 Schedule maintenance"]
         },
         {
-          content: "Excellent question! 💡 The current training pipeline is running smoothly with a throughput of 2,847 requests per second. I notice some bottlenecks in the preprocessing stage. Here's what I recommend: 1) Increase batch size, 2) Optimize data loading, 3) Enable mixed precision training.",
-          suggestions: ["🚀 Apply recommendations", "📈 View pipeline details", "⏰ Schedule optimization", "💾 Save configuration"]
+          content: "you mean my font? haha what do you think it is not good or do you have a better suggestion?",
+          suggestions: ["🚀 change font", "📈 View font details", " suggest a font", "💾 upload a new font"]
         },
         {
           content: "I'm monitoring 12 active models across your GPU clusters. 🧠 Model accuracy has improved by 2.3% over the last hour! The transformer models are showing particularly strong performance. Would you like me to generate a detailed performance report or suggest parameter adjustments?",
