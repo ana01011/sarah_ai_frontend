@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, Brain, Cpu, Database, Zap, TrendingUp, AlertTriangle, CheckCircle, MessageCircle, Settings, Bell, Search, Filter, Download, Share, Maximize, BarChart3, Users, Globe } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { ThemeSelector } from './ThemeSelector';
 import { MetricsCard } from './MetricsCard';
 import { NeuralNetworkViz } from './NeuralNetworkViz';
 import { PerformanceChart } from './PerformanceChart';
@@ -12,6 +14,7 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
+  const { currentTheme } = useTheme();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [notifications, setNotifications] = useState(3);
@@ -62,52 +65,107 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
+    <div 
+      className="min-h-screen overflow-hidden transition-all duration-500"
+      style={{ 
+        background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
+        color: currentTheme.colors.text
+      }}
+    >
       {/* Animated Background */}
       <div className="fixed inset-0 opacity-20">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-amber-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-2000"></div>
+        <div 
+          className="absolute top-0 left-0 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse"
+          style={{ backgroundColor: currentTheme.colors.primary }}
+        ></div>
+        <div 
+          className="absolute top-0 right-0 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"
+          style={{ backgroundColor: currentTheme.colors.secondary }}
+        ></div>
+        <div 
+          className="absolute bottom-0 left-1/2 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-2000"
+          style={{ backgroundColor: currentTheme.colors.accent }}
+        ></div>
       </div>
 
       {/* Header */}
-      <header className="relative z-10 backdrop-blur-md bg-white/5 border-b border-white/10">
+      <header 
+        className="relative z-10 backdrop-blur-md border-b"
+        style={{ 
+          backgroundColor: currentTheme.colors.surface + '80',
+          borderColor: currentTheme.colors.border
+        }}
+      >
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full blur opacity-30 animate-pulse"></div>
-                <Brain className="w-10 h-10 text-blue-400 animate-pulse relative z-10" />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full animate-ping"></div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full"></div>
+                <div 
+                  className="absolute -inset-2 rounded-full blur opacity-30 animate-pulse"
+                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
+                ></div>
+                <Brain 
+                  className="w-10 h-10 animate-pulse relative z-10" 
+                  style={{ color: currentTheme.colors.primary }}
+                />
+                <div 
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full animate-ping"
+                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                ></div>
+                <div 
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full"
+                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                ></div>
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                <h1 
+                  className="text-3xl font-bold bg-clip-text text-transparent"
+                  style={{ 
+                    backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
+                  }}
+                >
                   SARAH
                 </h1>
-                <p className="text-sm text-slate-400 flex items-center space-x-2">
+                <p className="text-sm flex items-center space-x-2" style={{ color: currentTheme.colors.textSecondary }}>
                   <span>AI Operations Dashboard</span>
                   <span>•</span>
-                  <span className="text-emerald-400">v3.7.2</span>
+                  <span style={{ color: currentTheme.colors.secondary }}>v3.7.2</span>
                 </p>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Theme Selector */}
+              <ThemeSelector />
+              
               {/* Search */}
               <div className="relative">
                 <button
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
                   className="p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 >
-                  <Search className="w-5 h-5 text-slate-400 hover:text-white" />
+                  <Search 
+                    className="w-5 h-5 hover:text-white transition-colors" 
+                    style={{ color: currentTheme.colors.textSecondary }}
+                  />
                 </button>
                 {isSearchOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-80 bg-slate-800/95 backdrop-blur-md border border-white/20 rounded-xl p-4 shadow-2xl">
+                  <div 
+                    className="absolute top-full right-0 mt-2 w-80 backdrop-blur-md border rounded-xl p-4 shadow-2xl"
+                    style={{ 
+                      backgroundColor: currentTheme.colors.surface + 'f0',
+                      borderColor: currentTheme.colors.border
+                    }}
+                  >
                     <input
                       type="text"
                       placeholder="Search metrics, models, or data..."
-                      className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/50"
+                      className="w-full border rounded-lg px-4 py-2 focus:outline-none transition-colors"
+                      style={{ 
+                        backgroundColor: currentTheme.colors.background + '80',
+                        borderColor: currentTheme.colors.border,
+                        color: currentTheme.colors.text
+                      }}
                     />
                   </div>
                 )}
@@ -118,9 +176,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 onClick={handleNotificationClick}
                 className="relative p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
               >
-                <Bell className="w-5 h-5 text-slate-400 hover:text-white" />
+                <Bell 
+                  className="w-5 h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
                 {notifications > 0 && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
+                  <div 
+                    className="absolute -top-1 -right-1 w-5 h-5 text-white text-xs rounded-full flex items-center justify-center animate-pulse"
+                    style={{ backgroundColor: currentTheme.colors.error }}
+                  >
                     {notifications}
                   </div>
                 )}
@@ -131,7 +195,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 onClick={handleExportData}
                 className="p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
               >
-                <Download className="w-5 h-5 text-slate-400 hover:text-white" />
+                <Download 
+                  className="w-5 h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
               </button>
 
               {/* Share */}
@@ -139,26 +206,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 onClick={handleShareDashboard}
                 className="p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
               >
-                <Share className="w-5 h-5 text-slate-400 hover:text-white" />
+                <Share 
+                  className="w-5 h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
               </button>
 
               {/* Settings */}
               <button className="p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95">
-                <Settings className="w-5 h-5 text-slate-400 hover:text-white" />
+                <Settings 
+                  className="w-5 h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
               </button>
 
               <div className="text-right">
-                <p className="text-sm font-mono text-emerald-400">
+                <p className="text-sm font-mono" style={{ color: currentTheme.colors.secondary }}>
                   {currentTime.toLocaleTimeString()}
                 </p>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
                   {currentTime.toLocaleDateString()}
                 </p>
               </div>
               
               <div className="flex items-center space-x-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
-                <span className="text-sm text-emerald-400">All Systems Operational</span>
+                <CheckCircle className="w-4 h-4" style={{ color: currentTheme.colors.success }} />
+                <span className="text-sm" style={{ color: currentTheme.colors.success }}>All Systems Operational</span>
               </div>
               
               {/* AI Chat Button */}
@@ -169,15 +242,35 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                          hover:border-emerald-500/50 rounded-xl px-6 py-3 transition-all duration-300 
                          hover:scale-110 active:scale-95 hover:shadow-xl hover:shadow-blue-500/30
                          backdrop-blur-sm overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
+                  borderColor: currentTheme.colors.primary + '50',
+                  boxShadow: `0 10px 25px -5px ${currentTheme.shadows.primary}`
+                }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)' }}
+                ></div>
                 <div className="flex items-center space-x-2">
                   <div className="relative">
-                    <MessageCircle className="w-5 h-5 text-blue-400 group-hover:text-emerald-400 transition-colors" />
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-ping"></div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full"></div>
+                    <MessageCircle 
+                      className="w-5 h-5 transition-colors" 
+                      style={{ color: currentTheme.colors.primary }}
+                    />
+                    <div 
+                      className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping"
+                      style={{ backgroundColor: currentTheme.colors.secondary }}
+                    ></div>
+                    <div 
+                      className="absolute -top-1 -right-1 w-3 h-3 rounded-full"
+                      style={{ backgroundColor: currentTheme.colors.secondary }}
+                    ></div>
                   </div>
-                  <span className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors relative z-10">
+                  <span 
+                    className="text-sm font-semibold transition-colors relative z-10"
+                    style={{ color: currentTheme.colors.text }}
+                  >
                     Ask Sarah
                   </span>
                 </div>
@@ -190,39 +283,45 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
       {/* Main Content */}
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-8">
         {/* Quick Stats Bar */}
-        <div className="mb-8 bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6">
+        <div 
+          className="mb-8 backdrop-blur-md border rounded-2xl p-6"
+          style={{ 
+            background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
+            borderColor: currentTheme.colors.border
+          }}
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center group cursor-pointer hover:scale-105 transition-transform duration-200">
               <div className="flex items-center justify-center space-x-2 mb-2">
-                <Users className="w-5 h-5 text-blue-400" />
-                <span className="text-sm text-slate-400">Active Users</span>
+                <Users className="w-5 h-5" style={{ color: currentTheme.colors.primary }} />
+                <span className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>Active Users</span>
               </div>
-              <p className="text-2xl font-bold text-white font-mono">1,247</p>
-              <p className="text-xs text-emerald-400">+12% today</p>
+              <p className="text-2xl font-bold font-mono" style={{ color: currentTheme.colors.text }}>1,247</p>
+              <p className="text-xs" style={{ color: currentTheme.colors.success }}>+12% today</p>
             </div>
             <div className="text-center group cursor-pointer hover:scale-105 transition-transform duration-200">
               <div className="flex items-center justify-center space-x-2 mb-2">
-                <Globe className="w-5 h-5 text-emerald-400" />
-                <span className="text-sm text-slate-400">Global Reach</span>
+                <Globe className="w-5 h-5" style={{ color: currentTheme.colors.secondary }} />
+                <span className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>Global Reach</span>
               </div>
-              <p className="text-2xl font-bold text-white font-mono">47</p>
-              <p className="text-xs text-emerald-400">countries</p>
+              <p className="text-2xl font-bold font-mono" style={{ color: currentTheme.colors.text }}>47</p>
+              <p className="text-xs" style={{ color: currentTheme.colors.success }}>countries</p>
             </div>
             <div className="text-center group cursor-pointer hover:scale-105 transition-transform duration-200">
               <div className="flex items-center justify-center space-x-2 mb-2">
-                <BarChart3 className="w-5 h-5 text-amber-400" />
-                <span className="text-sm text-slate-400">Data Processed</span>
+                <BarChart3 className="w-5 h-5" style={{ color: currentTheme.colors.accent }} />
+                <span className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>Data Processed</span>
               </div>
-              <p className="text-2xl font-bold text-white font-mono">2.4TB</p>
-              <p className="text-xs text-emerald-400">today</p>
+              <p className="text-2xl font-bold font-mono" style={{ color: currentTheme.colors.text }}>2.4TB</p>
+              <p className="text-xs" style={{ color: currentTheme.colors.success }}>today</p>
             </div>
             <div className="text-center group cursor-pointer hover:scale-105 transition-transform duration-200">
               <div className="flex items-center justify-center space-x-2 mb-2">
-                <Zap className="w-5 h-5 text-purple-400" />
-                <span className="text-sm text-slate-400">Uptime</span>
+                <Zap className="w-5 h-5" style={{ color: currentTheme.colors.info }} />
+                <span className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>Uptime</span>
               </div>
-              <p className="text-2xl font-bold text-white font-mono">99.98%</p>
-              <p className="text-xs text-emerald-400">30 days</p>
+              <p className="text-2xl font-bold font-mono" style={{ color: currentTheme.colors.text }}>99.98%</p>
+              <p className="text-xs" style={{ color: currentTheme.colors.success }}>30 days</p>
             </div>
           </div>
         </div>
@@ -234,14 +333,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
             value={`${aiMetrics.accuracy.toFixed(1)}%`}
             change="+2.3%"
             icon={TrendingUp}
-            color="emerald"
+            color="success"
           />
           <MetricsCard
             title="Throughput"
             value={`${aiMetrics.throughput.toLocaleString()}`}
             change="+15.2%"
             icon={Zap}
-            color="blue"
+            color="primary"
             suffix=" req/s"
           />
           <MetricsCard
@@ -249,7 +348,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
             value={`${aiMetrics.latency.toFixed(1)}`}
             change="-8.7%"
             icon={Activity}
-            color="amber"
+            color="warning"
             suffix="ms"
           />
           <MetricsCard
@@ -257,21 +356,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
             value={`${aiMetrics.gpuUtilization.toFixed(0)}%`}
             change="+5.1%"
             icon={Cpu}
-            color="purple"
+            color="info"
           />
           <MetricsCard
             title="Memory"
             value={`${aiMetrics.memoryUsage.toFixed(0)}%`}
             change="-2.4%"
             icon={Database}
-            color="rose"
+            color="error"
           />
           <MetricsCard
             title="Active Models"
             value={aiMetrics.activeModels.toString()}
             change="+3"
             icon={Brain}
-            color="cyan"
+            color="secondary"
           />
         </div>
 

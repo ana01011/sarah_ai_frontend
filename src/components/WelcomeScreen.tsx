@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Brain, ArrowRight, Sparkles, Zap, Shield, Cpu } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface WelcomeScreenProps {
   onEnter: () => void;
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
+  const { currentTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [currentSystem, setCurrentSystem] = useState(0);
@@ -42,19 +44,36 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden relative">
+    <div 
+      className="min-h-screen overflow-hidden relative transition-all duration-500"
+      style={{ 
+        background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
+        color: currentTheme.colors.text
+      }}
+    >
       {/* Animated Background */}
       <div className="fixed inset-0">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse opacity-20"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000 opacity-20"></div>
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-amber-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-2000 opacity-20"></div>
+        <div 
+          className="absolute top-0 left-0 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse opacity-20"
+          style={{ backgroundColor: currentTheme.colors.primary }}
+        ></div>
+        <div 
+          className="absolute top-0 right-0 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000 opacity-20"
+          style={{ backgroundColor: currentTheme.colors.secondary }}
+        ></div>
+        <div 
+          className="absolute bottom-0 left-1/2 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-2000 opacity-20"
+          style={{ backgroundColor: currentTheme.colors.accent }}
+        ></div>
         
         {/* Floating particles */}
         {Array.from({ length: 20 }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-2 h-2 bg-blue-400 rounded-full opacity-30 animate-ping"
+            className="absolute w-2 h-2 rounded-full opacity-30 animate-ping"
+            style={{ backgroundColor: currentTheme.colors.primary }}
             style={{
+              backgroundColor: currentTheme.colors.primary,
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 3}s`,
@@ -69,61 +88,84 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
           {/* Logo and Branding */}
           <div className="mb-12">
             <div className="relative inline-block">
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full blur-lg opacity-30 animate-pulse"></div>
-              <Brain className="w-24 h-24 text-blue-400 mx-auto relative animate-pulse" />
+              <div 
+                className="absolute -inset-4 rounded-full blur-lg opacity-30 animate-pulse"
+                style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
+              ></div>
+              <Brain 
+                className="w-24 h-24 mx-auto relative animate-pulse" 
+                style={{ color: currentTheme.colors.primary }}
+              />
             </div>
             
-            <h1 className="text-8xl font-bold bg-gradient-to-r from-blue-400 via-emerald-400 to-amber-400 bg-clip-text text-transparent mt-8 mb-4 animate-pulse">
+            <h1 
+              className="text-8xl font-bold bg-clip-text text-transparent mt-8 mb-4 animate-pulse"
+              style={{ 
+                backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary}, ${currentTheme.colors.accent})`
+              }}
+            >
               SARAH
             </h1>
             
-            <p className="text-2xl text-slate-300 mb-2 font-light">
+            <p className="text-2xl mb-2 font-light" style={{ color: currentTheme.colors.textSecondary }}>
               Synthetic Autonomous Reasoning & Analysis Hub
             </p>
             
-            <div className="flex items-center justify-center space-x-2 text-emerald-400">
-              <Sparkles className="w-5 h-5 animate-spin" />
+            <div className="flex items-center justify-center space-x-2" style={{ color: currentTheme.colors.secondary }}>
+              <Sparkles className="w-5 h-5 animate-spin" style={{ color: currentTheme.colors.secondary }} />
               <span className="text-lg font-mono">AI Operations Platform v3.7.2</span>
-              <Sparkles className="w-5 h-5 animate-spin" />
+              <Sparkles className="w-5 h-5 animate-spin" style={{ color: currentTheme.colors.secondary }} />
             </div>
           </div>
 
           {/* Loading Section */}
           {isLoading ? (
             <div className="space-y-8">
-              <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-8 max-w-md mx-auto">
+              <div 
+                className="backdrop-blur-md border rounded-2xl p-8 max-w-md mx-auto"
+                style={{ 
+                  backgroundColor: currentTheme.colors.surface + '80',
+                  borderColor: currentTheme.colors.border
+                }}
+              >
                 <div className="space-y-6">
                   <div className="flex items-center justify-center space-x-3">
-                    <Cpu className="w-6 h-6 text-blue-400 animate-spin" />
+                    <Cpu className="w-6 h-6 animate-spin" style={{ color: currentTheme.colors.primary }} />
                     <span className="text-lg font-medium">Initializing Systems</span>
                   </div>
                   
                   <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Loading {systems[currentSystem]}...</span>
-                      <span className="text-emerald-400 font-mono">{progress}%</span>
+                    <div className="flex justify-between text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+                      <span>Loading {systems[currentSystem]}...</span>
+                      <span className="font-mono" style={{ color: currentTheme.colors.secondary }}>{progress}%</span>
                     </div>
                     
-                    <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
+                    <div 
+                      className="w-full rounded-full h-3 overflow-hidden"
+                      style={{ backgroundColor: currentTheme.colors.background }}
+                    >
                       <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-300 ease-out"
-                        style={{ width: `${progress}%` }}
+                        className="h-full transition-all duration-300 ease-out"
+                        style={{ 
+                          background: `linear-gradient(90deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                          width: `${progress}%`
+                        }}
                       />
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-3 gap-4 text-xs">
                     <div className="text-center">
-                      <Shield className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
-                      <span className="text-slate-400">Secure</span>
+                      <Shield className="w-4 h-4 mx-auto mb-1" style={{ color: currentTheme.colors.secondary }} />
+                      <span style={{ color: currentTheme.colors.textSecondary }}>Secure</span>
                     </div>
                     <div className="text-center">
-                      <Zap className="w-4 h-4 text-amber-400 mx-auto mb-1" />
-                      <span className="text-slate-400">Fast</span>
+                      <Zap className="w-4 h-4 mx-auto mb-1" style={{ color: currentTheme.colors.accent }} />
+                      <span style={{ color: currentTheme.colors.textSecondary }}>Fast</span>
                     </div>
                     <div className="text-center">
-                      <Brain className="w-4 h-4 text-blue-400 mx-auto mb-1" />
-                      <span className="text-slate-400">Smart</span>
+                      <Brain className="w-4 h-4 mx-auto mb-1" style={{ color: currentTheme.colors.primary }} />
+                      <span style={{ color: currentTheme.colors.textSecondary }}>Smart</span>
                     </div>
                   </div>
                 </div>
@@ -131,60 +173,77 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
             </div>
           ) : (
             <div className="space-y-8 animate-fade-in">
-              <div className="backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-8 max-w-2xl mx-auto">
+              <div 
+                className="backdrop-blur-md border rounded-2xl p-8 max-w-2xl mx-auto"
+                style={{ 
+                  backgroundColor: currentTheme.colors.surface + '80',
+                  borderColor: currentTheme.colors.border
+                }}
+              >
                 <div className="space-y-6">
-                  <div className="flex items-center justify-center space-x-2 text-emerald-400">
-                    <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+                  <div className="flex items-center justify-center space-x-2" style={{ color: currentTheme.colors.secondary }}>
+                    <div 
+                      className="w-3 h-3 rounded-full animate-pulse"
+                      style={{ backgroundColor: currentTheme.colors.secondary }}
+                    ></div>
                     <span className="text-lg font-medium">All Systems Online</span>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-6 text-sm">
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-slate-400">GPU Clusters</span>
-                        <span className="text-emerald-400">✓ Active</span>
+                        <span style={{ color: currentTheme.colors.textSecondary }}>GPU Clusters</span>
+                        <span style={{ color: currentTheme.colors.secondary }}>✓ Active</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Neural Networks</span>
-                        <span className="text-emerald-400">✓ Ready</span>
+                        <span style={{ color: currentTheme.colors.textSecondary }}>Neural Networks</span>
+                        <span style={{ color: currentTheme.colors.secondary }}>✓ Ready</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Data Pipeline</span>
-                        <span className="text-emerald-400">✓ Streaming</span>
+                        <span style={{ color: currentTheme.colors.textSecondary }}>Data Pipeline</span>
+                        <span style={{ color: currentTheme.colors.secondary }}>✓ Streaming</span>
                       </div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Model Registry</span>
-                        <span className="text-emerald-400">✓ Synced</span>
+                        <span style={{ color: currentTheme.colors.textSecondary }}>Model Registry</span>
+                        <span style={{ color: currentTheme.colors.secondary }}>✓ Synced</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Security Layer</span>
-                        <span className="text-emerald-400">✓ Protected</span>
+                        <span style={{ color: currentTheme.colors.textSecondary }}>Security Layer</span>
+                        <span style={{ color: currentTheme.colors.secondary }}>✓ Protected</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">API Gateway</span>
-                        <span className="text-emerald-400">✓ Online</span>
+                        <span style={{ color: currentTheme.colors.textSecondary }}>API Gateway</span>
+                        <span style={{ color: currentTheme.colors.secondary }}>✓ Online</span>
                       </div>
                     </div>
                   </div>
                   
                   <button
                     onClick={onEnter}
-                    className="w-full bg-gradient-to-r from-blue-500 to-emerald-500 hover:from-blue-600 hover:to-emerald-600 
-                             text-white font-semibold py-5 px-8 rounded-xl transition-all duration-300 
+                    className="w-full font-semibold py-5 px-8 rounded-xl transition-all duration-300 
                              hover:scale-110 active:scale-95 hover:shadow-2xl hover:shadow-blue-500/30 
                              flex items-center justify-center space-x-3 group relative overflow-hidden
-                             backdrop-blur-sm border border-white/20"
+                             backdrop-blur-sm border"
+                    style={{
+                      background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                      color: currentTheme.id === 'light' ? '#ffffff' : currentTheme.colors.text,
+                      borderColor: currentTheme.colors.border,
+                      boxShadow: `0 10px 25px -5px ${currentTheme.shadows.primary}`
+                    }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' }}
+                    ></div>
                     <span className="text-lg">Enter Dashboard</span>
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform relative z-10" />
                   </button>
                 </div>
               </div>
               
-              <p className="text-slate-400 text-sm">
+              <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
                 Advanced AI Operations • Real-time Analytics • Neural Network Management
               </p>
             </div>

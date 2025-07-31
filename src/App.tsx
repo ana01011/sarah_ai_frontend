@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { Dashboard } from './components/Dashboard';
 
@@ -15,13 +16,15 @@ function App() {
   };
 
   return (
-    <>
-      {showWelcome ? (
-        <WelcomeScreen onEnter={handleEnterDashboard} />
-      ) : (
-        <Dashboard onBackToWelcome={handleBackToWelcome} />
-      )}
-    </>
+    <ThemeProvider>
+      <>
+        {showWelcome ? (
+          <WelcomeScreen onEnter={handleEnterDashboard} />
+        ) : (
+          <Dashboard onBackToWelcome={handleBackToWelcome} />
+        )}
+      </>
+    </ThemeProvider>
   );
 }
 
