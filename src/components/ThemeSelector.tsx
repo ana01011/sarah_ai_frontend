@@ -32,7 +32,7 @@ export const ThemeSelector: React.FC = () => {
 
       {isOpen && (
         <div 
-          className="absolute top-full right-0 mt-2 w-80 backdrop-blur-md border rounded-2xl p-6 shadow-2xl z-50 animate-fade-in"
+          className="absolute top-full right-0 mt-2 w-80 sm:w-96 backdrop-blur-md border rounded-2xl p-4 sm:p-6 shadow-2xl z-[9999] animate-fade-in"
           style={{ 
             backgroundColor: currentTheme.colors.surface + 'f0',
             borderColor: currentTheme.colors.border,
@@ -40,10 +40,10 @@ export const ThemeSelector: React.FC = () => {
           }}
         >
           <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2" style={{ color: currentTheme.colors.text }}>
+            <h3 className="text-base sm:text-lg font-semibold mb-2" style={{ color: currentTheme.colors.text }}>
               Choose Theme
             </h3>
-            <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+            <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
               Select a theme that matches your personality
             </p>
           </div>
@@ -60,7 +60,7 @@ export const ThemeSelector: React.FC = () => {
                     setTheme(theme.id);
                     setIsOpen(false);
                   }}
-                  className="w-full p-4 rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95 group relative overflow-hidden"
+                  className="w-full p-3 sm:p-4 rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95 group relative overflow-hidden"
                   style={{
                     backgroundColor: isSelected 
                       ? theme.colors.primary + '20' 
@@ -82,26 +82,26 @@ export const ThemeSelector: React.FC = () => {
                   />
                   
                   <div className="relative z-10 flex items-center space-x-4">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2 sm:space-x-3 flex-1">
                       <div 
                         className="p-2 rounded-lg"
                         style={{ backgroundColor: theme.colors.primary + '20' }}
                       >
                         <Icon 
-                          className="w-5 h-5" 
+                          className="w-4 h-4 sm:w-5 sm:h-5" 
                           style={{ color: theme.colors.primary }}
                         />
                       </div>
                       
                       <div className="text-left">
                         <h4 
-                          className="font-semibold text-sm"
+                          className="font-semibold text-xs sm:text-sm"
                           style={{ color: theme.colors.text }}
                         >
                           {theme.name}
                         </h4>
                         <p 
-                          className="text-xs"
+                          className="text-xs hidden sm:block"
                           style={{ color: theme.colors.textSecondary }}
                         >
                           {theme.description}
@@ -110,27 +110,27 @@ export const ThemeSelector: React.FC = () => {
                     </div>
 
                     {/* Color preview */}
-                    <div className="flex space-x-1 ml-auto">
+                    <div className="flex space-x-1">
                       <div 
-                        className="w-3 h-3 rounded-full"
+                        className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
                         style={{ backgroundColor: theme.colors.primary }}
                       />
                       <div 
-                        className="w-3 h-3 rounded-full"
+                        className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
                         style={{ backgroundColor: theme.colors.secondary }}
                       />
                       <div 
-                        className="w-3 h-3 rounded-full"
+                        className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
                         style={{ backgroundColor: theme.colors.accent }}
                       />
                     </div>
 
                     {isSelected && (
                       <div 
-                        className="p-1 rounded-full ml-2"
+                        className="p-1 rounded-full"
                         style={{ backgroundColor: theme.colors.primary }}
                       >
-                        <Check className="w-3 h-3 text-white" />
+                        <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
                       </div>
                     )}
                   </div>
@@ -140,7 +140,7 @@ export const ThemeSelector: React.FC = () => {
           </div>
 
           <div className="mt-4 pt-4 border-t" style={{ borderColor: currentTheme.colors.border }}>
-            <p className="text-xs text-center" style={{ color: currentTheme.colors.textSecondary }}>
+            <p className="text-xs text-center hidden sm:block" style={{ color: currentTheme.colors.textSecondary }}>
               Theme preferences are saved automatically
             </p>
           </div>

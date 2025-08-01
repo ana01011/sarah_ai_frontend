@@ -84,22 +84,22 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
       </div>
 
       <div className="relative z-10 flex items-center justify-center min-h-screen">
-        <div className="text-center max-w-4xl mx-auto px-6">
+        <div className="text-center max-w-4xl mx-auto px-4 sm:px-6">
           {/* Logo and Branding */}
-          <div className="mb-12">
+          <div className="mb-8 sm:mb-12">
             <div className="relative inline-block">
               <div 
                 className="absolute -inset-4 rounded-full blur-lg opacity-30 animate-pulse"
                 style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
               ></div>
               <Brain 
-                className="w-24 h-24 mx-auto relative animate-pulse" 
+                className="w-16 h-16 sm:w-24 sm:h-24 mx-auto relative animate-pulse" 
                 style={{ color: currentTheme.colors.primary }}
               />
             </div>
             
             <h1 
-              className="text-8xl font-bold bg-clip-text text-transparent mt-8 mb-4 animate-pulse"
+              className="text-5xl sm:text-8xl font-bold bg-clip-text text-transparent mt-6 sm:mt-8 mb-3 sm:mb-4 animate-pulse"
               style={{ 
                 backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary}, ${currentTheme.colors.accent})`
               }}
@@ -107,41 +107,41 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
               SARAH
             </h1>
             
-            <p className="text-2xl mb-2 font-light" style={{ color: currentTheme.colors.textSecondary }}>
+            <p className="text-lg sm:text-2xl mb-2 font-light" style={{ color: currentTheme.colors.textSecondary }}>
               Synthetic Autonomous Reasoning & Analysis Hub
             </p>
             
-            <div className="flex items-center justify-center space-x-2" style={{ color: currentTheme.colors.secondary }}>
-              <Sparkles className="w-5 h-5 animate-spin" style={{ color: currentTheme.colors.secondary }} />
-              <span className="text-lg font-mono">AI Operations Platform v3.7.2</span>
-              <Sparkles className="w-5 h-5 animate-spin" style={{ color: currentTheme.colors.secondary }} />
+            <div className="flex items-center justify-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.secondary }}>
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" style={{ color: currentTheme.colors.secondary }} />
+              <span className="text-sm sm:text-lg font-mono">AI Operations Platform v3.7.2</span>
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" style={{ color: currentTheme.colors.secondary }} />
             </div>
           </div>
 
           {/* Loading Section */}
           {isLoading ? (
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               <div 
-                className="backdrop-blur-md border rounded-2xl p-8 max-w-md mx-auto"
+                className="backdrop-blur-md border rounded-2xl p-6 sm:p-8 max-w-md mx-auto"
                 style={{ 
                   backgroundColor: currentTheme.colors.surface + '80',
                   borderColor: currentTheme.colors.border
                 }}
               >
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="flex items-center justify-center space-x-3">
-                    <Cpu className="w-6 h-6 animate-spin" style={{ color: currentTheme.colors.primary }} />
-                    <span className="text-lg font-medium">Initializing Systems</span>
+                    <Cpu className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" style={{ color: currentTheme.colors.primary }} />
+                    <span className="text-base sm:text-lg font-medium">Initializing Systems</span>
                   </div>
                   
                   <div className="space-y-3">
-                    <div className="flex justify-between text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+                    <div className="flex justify-between text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
                       <span>Loading {systems[currentSystem]}...</span>
                       <span className="font-mono" style={{ color: currentTheme.colors.secondary }}>{progress}%</span>
                     </div>
                     
                     <div 
-                      className="w-full rounded-full h-3 overflow-hidden"
+                      className="w-full rounded-full h-2 sm:h-3 overflow-hidden"
                       style={{ backgroundColor: currentTheme.colors.background }}
                     >
                       <div
@@ -156,15 +156,15 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
                   
                   <div className="grid grid-cols-3 gap-4 text-xs">
                     <div className="text-center">
-                      <Shield className="w-4 h-4 mx-auto mb-1" style={{ color: currentTheme.colors.secondary }} />
+                      <Shield className="w-3 h-3 sm:w-4 sm:h-4 mx-auto mb-1" style={{ color: currentTheme.colors.secondary }} />
                       <span style={{ color: currentTheme.colors.textSecondary }}>Secure</span>
                     </div>
                     <div className="text-center">
-                      <Zap className="w-4 h-4 mx-auto mb-1" style={{ color: currentTheme.colors.accent }} />
+                      <Zap className="w-3 h-3 sm:w-4 sm:h-4 mx-auto mb-1" style={{ color: currentTheme.colors.accent }} />
                       <span style={{ color: currentTheme.colors.textSecondary }}>Fast</span>
                     </div>
                     <div className="text-center">
-                      <Brain className="w-4 h-4 mx-auto mb-1" style={{ color: currentTheme.colors.primary }} />
+                      <Brain className="w-3 h-3 sm:w-4 sm:h-4 mx-auto mb-1" style={{ color: currentTheme.colors.primary }} />
                       <span style={{ color: currentTheme.colors.textSecondary }}>Smart</span>
                     </div>
                   </div>
@@ -172,24 +172,24 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
               </div>
             </div>
           ) : (
-            <div className="space-y-8 animate-fade-in">
+            <div className="space-y-6 sm:space-y-8 animate-fade-in">
               <div 
-                className="backdrop-blur-md border rounded-2xl p-8 max-w-2xl mx-auto"
+                className="backdrop-blur-md border rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto"
                 style={{ 
                   backgroundColor: currentTheme.colors.surface + '80',
                   borderColor: currentTheme.colors.border
                 }}
               >
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="flex items-center justify-center space-x-2" style={{ color: currentTheme.colors.secondary }}>
                     <div 
                       className="w-3 h-3 rounded-full animate-pulse"
                       style={{ backgroundColor: currentTheme.colors.secondary }}
                     ></div>
-                    <span className="text-lg font-medium">All Systems Online</span>
+                    <span className="text-base sm:text-lg font-medium">All Systems Online</span>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-6 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-xs sm:text-sm">
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span style={{ color: currentTheme.colors.textSecondary }}>GPU Clusters</span>
@@ -222,7 +222,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
                   
                   <button
                     onClick={onEnter}
-                    className="w-full font-semibold py-5 px-8 rounded-xl transition-all duration-300 
+                    className="w-full font-semibold py-4 sm:py-5 px-6 sm:px-8 rounded-xl transition-all duration-300 
                              hover:scale-110 active:scale-95 hover:shadow-2xl hover:shadow-blue-500/30 
                              flex items-center justify-center space-x-3 group relative overflow-hidden
                              backdrop-blur-sm border"
@@ -237,13 +237,13 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' }}
                     ></div>
-                    <span className="text-lg">Enter Dashboard</span>
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform relative z-10" />
+                    <span className="text-base sm:text-lg">Enter Dashboard</span>
+                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-2 transition-transform relative z-10" />
                   </button>
                 </div>
               </div>
               
-              <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+              <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
                 Advanced AI Operations • Real-time Analytics • Neural Network Management
               </p>
             </div>
