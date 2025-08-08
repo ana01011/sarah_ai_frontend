@@ -205,6 +205,7 @@ export const AgentDashboard: React.FC = () => {
 
         {/* Specialized Dashboard */}
         {renderSpecializedDashboard()}
+            </p>
       </div>
     </div>
   );
