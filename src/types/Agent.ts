@@ -27,7 +27,7 @@ export const agents: Agent[] = [
     avatar: '👔',
     specialties: ['Strategic Planning', 'Leadership', 'Business Development', 'Stakeholder Management'],
     description: 'Visionary leader driving company strategy and growth initiatives',
-    themeId: 'executive-gold',
+    themeId: 'dark',
     metrics: { performance: 98, efficiency: 95, experience: 99, availability: 85 }
   },
   {
@@ -75,7 +75,7 @@ export const agents: Agent[] = [
     avatar: '⚙️',
     specialties: ['Operations Management', 'Process Optimization', 'Supply Chain', 'Quality Assurance'],
     description: 'Operations expert ensuring seamless business execution and efficiency',
-    themeId: 'operations-orange',
+    themeId: 'dark',
     metrics: { performance: 95, efficiency: 98, experience: 94, availability: 92 }
   },
 

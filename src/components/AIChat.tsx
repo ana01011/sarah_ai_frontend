@@ -46,17 +46,15 @@ interface Message {
 interface AIChatProps {
   isOpen: boolean;
   onClose: () => void;
-  size?: { width: number; height: number };
-  onResize?: (size: { width: number; height: number }) => void;
   agentContext?: any;
+  isIntegrated?: boolean;
 }
 
 export const AIChat: React.FC<AIChatProps> = ({ 
   isOpen, 
   onClose, 
-  size = { width: 400, height: 600 },
-  onResize,
-  agentContext 
+  agentContext,
+  isIntegrated = false
 }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -88,12 +86,10 @@ export const AIChat: React.FC<AIChatProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [isResizing, setIsResizing] = useState(false);
   const { currentTheme } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const chatRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -235,31 +231,138 @@ export const AIChat: React.FC<AIChatProps> = ({
     playSound('notification');
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!onResize) return;
-    setIsResizing(true);
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startWidth = size.width;
-    const startHeight = size.height;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const newWidth = Math.max(300, Math.min(800, startWidth + (startX - e.clientX)));
-      const newHeight = Math.max(400, Math.min(800, startHeight + (startY - e.clientY)));
-      onResize({ width: newWidth, height: newHeight });
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
-
   if (!isOpen) return null;
+
+  if (isIntegrated) {
+    return (
+      <div className="h-full flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b"
+             style={{ borderColor: currentTheme.colors.border }}>
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <Brain className="w-6 h-6 animate-pulse" 
+                     style={{ color: currentTheme.colors.primary }} />
+              <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping"
+                   style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+            </div>
+            <div>
+              <h3 className="font-bold" style={{ color: currentTheme.colors.text }}>
+                {agentContext ? `${agentContext.name}` : 'Sarah AI'}
+              </h3>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full animate-pulse" 
+                     style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                <span className="text-xs" style={{ color: currentTheme.colors.secondary }}>
+                  Online
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
+                <div
+                  className="p-4 rounded-xl backdrop-blur-md border transition-all duration-300"
+                  style={{
+                    background: message.sender === 'user' 
+                      ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
+                      : currentTheme.colors.surface + '40',
+                    borderColor: message.sender === 'user' 
+                      ? currentTheme.colors.primary + '40'
+                      : currentTheme.colors.border,
+                    color: currentTheme.colors.text
+                  }}
+                >
+                  <p className="text-sm leading-relaxed">{message.content}</p>
+                </div>
+                
+                {message.suggestions && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {message.suggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="px-3 py-1.5 text-xs border rounded-full transition-all duration-200 hover:scale-105"
+                        style={{
+                          background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
+                          borderColor: currentTheme.colors.border,
+                          color: currentTheme.colors.textSecondary
+                        }}
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          
+          {isTyping && (
+            <div className="flex justify-start">
+              <div className="border rounded-xl p-4 backdrop-blur-md"
+                   style={{
+                     backgroundColor: currentTheme.colors.surface + '40',
+                     borderColor: currentTheme.colors.border
+                   }}>
+                <div className="flex items-center space-x-3">
+                  <Brain className="w-4 h-4 animate-pulse" style={{ color: currentTheme.colors.primary }} />
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: currentTheme.colors.primary }}></div>
+                    <div className="w-2 h-2 rounded-full animate-bounce delay-100" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                    <div className="w-2 h-2 rounded-full animate-bounce delay-200" style={{ backgroundColor: currentTheme.colors.accent }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        <div className="p-4 border-t" style={{ borderColor: currentTheme.colors.border }}>
+          <div className="flex items-center space-x-3">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="Ask me anything..."
+              className="flex-1 border rounded-lg px-4 py-3 focus:outline-none transition-all duration-200"
+              style={{
+                backgroundColor: currentTheme.colors.surface + '40',
+                borderColor: currentTheme.colors.border,
+                color: currentTheme.colors.text
+              }}
+            />
+            <button
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim()}
+              className="p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+              style={{
+                background: !inputValue.trim() 
+                  ? `linear-gradient(135deg, ${currentTheme.colors.textSecondary}60, ${currentTheme.colors.textSecondary}60)`
+                  : `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                color: currentTheme.colors.text
+              }}
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -279,41 +382,22 @@ export const AIChat: React.FC<AIChatProps> = ({
       
       <div className={`fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm transition-all duration-300 ${isMaximized ? 'p-0' : ''}`}>
         <div 
-          ref={chatRef}
           className={`backdrop-blur-xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-500 relative ${
           isMaximized 
             ? 'w-full h-full rounded-none' 
             : 'rounded-xl sm:rounded-2xl hover:scale-[1.01]'
-        } ${isResizing ? 'select-none' : ''}`}
+        }`}
         style={{
-          width: isMaximized ? '100%' : `${size.width}px`,
-          height: isMaximized ? '100%' : `${size.height}px`,
+          width: isMaximized ? '100%' : '400px',
+          height: isMaximized ? '100%' : '600px',
           minWidth: '300px',
           minHeight: '400px',
           maxWidth: isMaximized ? '100%' : '800px',
-          maxHeight: isMaximized ? '100%' : '800px'
-        }}
-        style={{
-          ...(!isMaximized && {
-            width: `${size.width}px`,
-            height: `${size.height}px`,
-          }),
+          maxHeight: isMaximized ? '100%' : '800px',
           background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
           borderColor: currentTheme.colors.border,
           boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
         }}>
-          {/* Resize Handle */}
-          {!isMaximized && onResize && (
-            <div
-              className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize opacity-0 hover:opacity-100 transition-opacity"
-              onMouseDown={handleMouseDown}
-              style={{
-                background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                borderRadius: '0 0 4px 0'
-              }}
-            />
-          )}
-
           {/* Enhanced Header */}
           <div className="flex items-center justify-between p-3 sm:p-6 border-b backdrop-blur-md"
                style={{

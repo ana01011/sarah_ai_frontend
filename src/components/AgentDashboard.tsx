@@ -11,16 +11,8 @@ import { AIChat } from './AIChat';
 import { useState, useEffect } from 'react';
 
 export const AgentDashboard: React.FC = () => {
-  const { currentTheme, setTheme } = useTheme();
+  const { currentTheme } = useTheme();
   const { selectedAgent, setCurrentView } = useAgent();
-  const [isChatOpen, setIsChatOpen] = useState(true);
-
-  // Apply agent theme when component mounts or agent changes
-  useEffect(() => {
-    if (selectedAgent && selectedAgent.themeId) {
-      setTheme(selectedAgent.themeId);
-    }
-  }, [selectedAgent, setTheme]);
 
   if (!selectedAgent) {
     setCurrentView('dashboard');
@@ -226,15 +218,31 @@ export const AgentDashboard: React.FC = () => {
         </div>
 
         {/* Specialized Dashboard */}
-        {renderSpecializedDashboard()}
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+          <div className="xl:col-span-3">
+            {renderSpecializedDashboard()}
+          </div>
+          
+          {/* Integrated Chat */}
+          <div className="xl:col-span-1">
+            <div 
+              className="backdrop-blur-xl border rounded-2xl h-full"
+              style={{
+                background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
+                borderColor: currentTheme.colors.border,
+                minHeight: '600px'
+              }}
+            >
+              <AIChat 
+                isOpen={true} 
+                onClose={() => {}} 
+                agentContext={selectedAgent}
+                isIntegrated={true}
+              />
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* AI Chat */}
-      <AIChat 
-        isOpen={isChatOpen} 
-        onClose={() => setIsChatOpen(false)}
-        agentContext={selectedAgent}
-      />
     </div>
   );
 };
