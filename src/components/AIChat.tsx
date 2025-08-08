@@ -45,22 +45,32 @@ interface Message {
 interface AIChatProps {
   isOpen: boolean;
   onClose: () => void;
+  agentContext?: any;
 }
 
-export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
+export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: "Hello! I'm Sarah, your advanced AI assistant. I can help you with system monitoring, data analysis, model optimization, code generation, and much more. What would you like to explore today?",
+      content: agentContext 
+        ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. I specialize in ${agentContext.specialties.join(', ')}. How can I assist you with ${agentContext.department.toLowerCase()} matters today?`
+        : "Hello! I'm Sarah, your advanced AI assistant. I can help you with system monitoring, data analysis, model optimization, code generation, and much more. What would you like to explore today?",
       sender: 'ai',
       timestamp: new Date(),
       suggestions: [
-        "🚀 Show me system performance",
-        "📊 Analyze model accuracy trends", 
-        "⚡ Check GPU utilization",
-        "🔧 Optimize training pipeline",
-        "💡 Generate code snippets",
-        "📈 Create performance reports"
+        ...(agentContext ? [
+          `📊 Show ${agentContext.department.toLowerCase()} metrics`,
+          `💡 ${agentContext.specialties[0]} insights`,
+          `🎯 ${agentContext.role} recommendations`,
+          `📈 Department performance`
+        ] : [
+          "🚀 Show me system performance",
+          "📊 Analyze model accuracy trends", 
+          "⚡ Check GPU utilization",
+          "🔧 Optimize training pipeline",
+          "💡 Generate code snippets",
+          "📈 Create performance reports"
+        ])
       ]
     }
   ]);
@@ -248,15 +258,17 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
               </div>
               <div>
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                  Sarah AI Assistant
+                  {agentContext ? `${agentContext.name} - ${agentContext.role}` : 'Sarah AI Assistant'}
                 </h2>
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   <div className="flex items-center space-x-1 text-emerald-400">
                     <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                    <span className="text-xs sm:text-sm font-medium">Online • {selectedModel}</span>
+                    <span className="text-xs sm:text-sm font-medium">
+                      Online • {agentContext ? `${agentContext.department} Mode` : selectedModel}
+                    </span>
                   </div>
                   <div className="text-xs text-slate-400 bg-white/10 px-2 py-1 rounded-full hidden sm:block">
-                    Advanced Mode
+                    {agentContext ? `${agentContext.level} Level` : 'Advanced Mode'}
                   </div>
                 </div>
               </div>
@@ -317,10 +329,16 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
                   {message.sender === 'ai' && (
                     <div className="flex items-center space-x-2 mb-2 sm:mb-3">
                       <div className="relative">
-                        <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+                        {agentContext ? (
+                          <span className="text-lg">{agentContext.avatar}</span>
+                        ) : (
+                          <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+                        )}
                         <div className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full"></div>
                       </div>
-                      <span className="text-xs sm:text-sm text-slate-400 font-medium">Sarah AI</span>
+                      <span className="text-xs sm:text-sm text-slate-400 font-medium">
+                        {agentContext ? agentContext.name : 'Sarah AI'}
+                      </span>
                       <span className="text-xs text-slate-500">
                         {message.timestamp.toLocaleTimeString()}
                       </span>
@@ -518,16 +536,24 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <div className="flex items-center space-x-2">
                   <Code className="w-3 h-3 text-blue-400" />
-                  <span className="text-slate-400 hidden sm:inline">Code generation ready</span>
-                  <span className="text-slate-400 sm:hidden">Code ready</span>
+                  <span className="text-slate-400 hidden sm:inline">
+                    {agentContext ? `${agentContext.department} mode active` : 'Code generation ready'}
+                  </span>
+                  <span className="text-slate-400 sm:hidden">
+                    {agentContext ? agentContext.department : 'Code ready'}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2 hidden sm:flex">
                   <BarChart3 className="w-3 h-3 text-emerald-400" />
-                  <span className="text-slate-400">Analytics enabled</span>
+                  <span className="text-slate-400">
+                    {agentContext ? `${agentContext.level} level access` : 'Analytics enabled'}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Zap className="w-3 h-3 text-amber-400 animate-pulse" />
-                  <span className="text-amber-400 font-medium text-xs">Sarah AI v3.7.2</span>
+                  <span className="text-amber-400 font-medium text-xs">
+                    {agentContext ? `${agentContext.name} AI` : 'Sarah AI v3.7.2'}
+                  </span>
                 </div>
               </div>
             </div>
