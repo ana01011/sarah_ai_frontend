@@ -591,7 +591,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const theme = themes.find(t => t.id === savedTheme);
       if (theme) {
         setCurrentTheme(theme);
+      } else {
+        // If saved theme doesn't exist, default to dark
+        setCurrentTheme(themes.find(t => t.id === 'dark') || themes[0]);
       }
+    } else {
+      // If no saved theme, default to dark
+      setCurrentTheme(themes.find(t => t.id === 'dark') || themes[0]);
     }
   }, []);
 

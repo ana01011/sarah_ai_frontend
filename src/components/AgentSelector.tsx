@@ -19,7 +19,7 @@ export const AgentSelector: React.FC = () => {
   const handleAgentSelect = (agent: any) => {
     setSelectedAgent(agent);
     setTheme(agent.themeId);
-    setCurrentView('dashboard');
+    setCurrentView('agent-dashboard');
   };
 
   const filteredAgents = agents.filter(agent => {

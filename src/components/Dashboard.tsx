@@ -8,7 +8,7 @@ import { PerformanceChart } from './PerformanceChart';
 import { SystemStatus } from './SystemStatus';
 import { ProcessingPipeline } from './ProcessingPipeline';
 import { AIChat } from './AIChat';
-import { useState } from 'react';
+import { useAgent } from '../contexts/AgentContext';
 
 interface DashboardProps {
   onBackToWelcome?: () => void;
@@ -16,6 +16,7 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   const { currentTheme } = useTheme();
+  const { setCurrentView } = useAgent();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatSize, setChatSize] = useState({ width: 400, height: 600 });
@@ -217,6 +218,36 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                   className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
                   style={{ color: currentTheme.colors.textSecondary }}
                 />
+              </button>
+
+              {/* Agents Tab */}
+              <button
+                onClick={() => setCurrentView('selector')}
+                className="relative group border rounded-xl px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 
+                         hover:scale-110 active:scale-95 hover:shadow-xl backdrop-blur-sm overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, ${currentTheme.colors.secondary}20, ${currentTheme.colors.accent}20)`,
+                  borderColor: currentTheme.colors.secondary + '50',
+                  boxShadow: `0 10px 25px -5px ${currentTheme.shadows.secondary}`
+                }}
+              >
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)' }}
+                ></div>
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <Users 
+                    className="w-4 h-4 sm:w-5 sm:h-5 transition-colors" 
+                    style={{ color: currentTheme.colors.secondary }}
+                  />
+                  <span 
+                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
+                    style={{ color: currentTheme.colors.text }}
+                  >
+                    <span className="hidden sm:inline">AI Agents</span>
+                    <span className="sm:hidden">Agents</span>
+                  </span>
+                </div>
               </button>
 
               {/* Settings */}

@@ -5,15 +5,15 @@ interface AgentContextType {
   selectedAgent: Agent | null;
   setSelectedAgent: (agent: Agent | null) => void;
   agents: Agent[];
-  currentView: 'welcome' | 'selector' | 'dashboard';
-  setCurrentView: (view: 'welcome' | 'selector' | 'dashboard') => void;
+  currentView: 'welcome' | 'dashboard' | 'selector' | 'agent-dashboard';
+  setCurrentView: (view: 'welcome' | 'dashboard' | 'selector' | 'agent-dashboard') => void;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
 
 export const AgentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
-  const [currentView, setCurrentView] = useState<'welcome' | 'selector' | 'dashboard'>('welcome');
+  const [currentView, setCurrentView] = useState<'welcome' | 'dashboard' | 'selector' | 'agent-dashboard'>('welcome');
 
   return (
     <AgentContext.Provider value={{

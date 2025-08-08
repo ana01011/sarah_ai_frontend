@@ -2,6 +2,7 @@ import React from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AgentProvider, useAgent } from './contexts/AgentContext';
 import { WelcomeScreen } from './components/WelcomeScreen';
+import { Dashboard } from './components/Dashboard';
 import { AgentSelector } from './components/AgentSelector';
 import { AgentDashboard } from './components/AgentDashboard';
 
@@ -11,13 +12,15 @@ const AppContent: React.FC = () => {
   const renderCurrentView = () => {
     switch (currentView) {
       case 'welcome':
-        return <WelcomeScreen onEnter={() => setCurrentView('selector')} />;
+        return <WelcomeScreen onEnter={() => setCurrentView('dashboard')} />;
+      case 'dashboard':
+        return <Dashboard />;
       case 'selector':
         return <AgentSelector />;
-      case 'dashboard':
+      case 'agent-dashboard':
         return <AgentDashboard />;
       default:
-        return <WelcomeScreen onEnter={() => setCurrentView('selector')} />;
+        return <WelcomeScreen onEnter={() => setCurrentView('dashboard')} />;
     }
   };
 

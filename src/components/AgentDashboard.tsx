@@ -16,7 +16,7 @@ export const AgentDashboard: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   if (!selectedAgent) {
-    setCurrentView('selector');
+    setCurrentView('dashboard');
     return null;
   }
 
@@ -113,7 +113,7 @@ export const AgentDashboard: React.FC = () => {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => setCurrentView('selector')}
+              onClick={() => setCurrentView('dashboard')}
               className="p-3 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
               style={{ 
                 backgroundColor: currentTheme.colors.surface + '80',
