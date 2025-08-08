@@ -73,39 +73,24 @@ export const AgentDashboard: React.FC = () => {
             <div className="text-center">
               <p className="text-lg font-semibold mb-2" style={{ color: currentTheme.colors.text }}>
                 Specialized Dashboard Coming Soon
-              </p>
-              <p style={{ color: currentTheme.colors.textSecondary }}>
-                This agent's dedicated dashboard is under development
-              </p>
-            </div>
-          </div>
-        );
-    }
-  };
-
-  return (
-    <div 
-      className="min-h-screen transition-all duration-500 p-4 sm:p-6"
-      style={{ 
-        background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
-        color: currentTheme.colors.text
-      }}
-    >
-      {/* Animated Background */}
-      <div className="fixed inset-0 opacity-10">
-        <div 
-          className="absolute top-0 left-0 w-[32rem] h-[32rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
-          style={{ backgroundColor: currentTheme.colors.primary }}
-        />
-        <div 
-          className="absolute top-0 right-0 w-[28rem] h-[28rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
-          style={{ backgroundColor: currentTheme.colors.secondary }}
-        />
-        <div 
-          className="absolute bottom-0 left-1/2 w-[30rem] h-[30rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
-          style={{ backgroundColor: currentTheme.colors.accent }}
-        />
       </div>
+
+        {/* Integrated Chat Section */}
+        <div 
+          className="mb-8 backdrop-blur-xl border rounded-2xl overflow-hidden"
+          style={{
+            background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
+            borderColor: currentTheme.colors.border,
+            height: '400px'
+          }}
+        >
+          <AIChat 
+            isOpen={true} 
+            onClose={() => {}} 
+            agentContext={selectedAgent}
+            isIntegrated={true}
+          />
+        </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
@@ -218,30 +203,7 @@ export const AgentDashboard: React.FC = () => {
         </div>
 
         {/* Specialized Dashboard */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-          <div className="xl:col-span-3">
-            {renderSpecializedDashboard()}
-          </div>
-          
-          {/* Integrated Chat */}
-          <div className="xl:col-span-1">
-            <div 
-              className="backdrop-blur-xl border rounded-2xl h-full"
-              style={{
-                background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
-                borderColor: currentTheme.colors.border,
-                minHeight: '600px'
-              }}
-            >
-              <AIChat 
-                isOpen={true} 
-                onClose={() => {}} 
-                agentContext={selectedAgent}
-                isIntegrated={true}
-              />
-            </div>
-          </div>
-        </div>
+        {renderSpecializedDashboard()}
       </div>
     </div>
   );

@@ -317,7 +317,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        {/* Integrated Chat Section */}
+        <div 
+          className="mb-4 sm:mb-8 backdrop-blur-xl border rounded-2xl overflow-hidden"
+          style={{
+            background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
+            borderColor: currentTheme.colors.border,
+            height: '400px'
+          }}
+        >
+          <AIChat 
+            isOpen={true} 
+            onClose={() => {}} 
+            isIntegrated={true}
+          />
+        </div>
+
         {/* Quick Stats Bar */}
         <div 
           className="mb-4 sm:mb-8 backdrop-blur-md border rounded-2xl p-4 sm:p-6"
@@ -428,15 +444,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
           <PerformanceChart metrics={aiMetrics} />
           <ProcessingPipeline />
         </div>
-      </main>
-      
-      {/* AI Chat */}
-      <AIChat 
-        isOpen={isChatOpen} 
-        onClose={() => setIsChatOpen(false)}
-        size={chatSize}
-        onResize={setChatSize}
-      />
+      </div>
     </div>
   );
 };

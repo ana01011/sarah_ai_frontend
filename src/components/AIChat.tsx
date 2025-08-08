@@ -235,9 +235,9 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   if (isIntegrated) {
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col bg-transparent">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b"
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b"
              style={{ borderColor: currentTheme.colors.border }}>
           <div className="flex items-center space-x-3">
             <div className="relative">
@@ -262,7 +262,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -270,7 +270,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             >
               <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
                 <div
-                  className="p-4 rounded-xl backdrop-blur-md border transition-all duration-300"
+                  className="p-3 sm:p-4 rounded-xl backdrop-blur-md border transition-all duration-300"
                   style={{
                     background: message.sender === 'user' 
                       ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
@@ -281,16 +281,16 @@ export const AIChat: React.FC<AIChatProps> = ({
                     color: currentTheme.colors.text
                   }}
                 >
-                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
                 </div>
                 
                 {message.suggestions && (
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
                     {message.suggestions.map((suggestion, index) => (
                       <button
                         key={index}
                         onClick={() => handleSuggestionClick(suggestion)}
-                        className="px-3 py-1.5 text-xs border rounded-full transition-all duration-200 hover:scale-105"
+                        className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs border rounded-full transition-all duration-200 hover:scale-105"
                         style={{
                           background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
                           borderColor: currentTheme.colors.border,
@@ -329,8 +329,8 @@ export const AIChat: React.FC<AIChatProps> = ({
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t" style={{ borderColor: currentTheme.colors.border }}>
-          <div className="flex items-center space-x-3">
+        <div className="p-4 sm:p-6 border-t" style={{ borderColor: currentTheme.colors.border }}>
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <input
               ref={inputRef}
               type="text"
@@ -338,7 +338,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder="Ask me anything..."
-              className="flex-1 border rounded-lg px-4 py-3 focus:outline-none transition-all duration-200"
+              className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
               style={{
                 backgroundColor: currentTheme.colors.surface + '40',
                 borderColor: currentTheme.colors.border,
@@ -348,7 +348,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             <button
               onClick={handleSendMessage}
               disabled={!inputValue.trim()}
-              className="p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+              className="p-2 sm:p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
               style={{
                 background: !inputValue.trim() 
                   ? `linear-gradient(135deg, ${currentTheme.colors.textSecondary}60, ${currentTheme.colors.textSecondary}60)`
@@ -356,7 +356,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 color: currentTheme.colors.text
               }}
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
