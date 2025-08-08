@@ -83,16 +83,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
         ></div>
         <div 
           className="absolute top-0 right-0 w-[28rem] h-[28rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
-          style={{ backgroundColor: currentTheme.colors.secondary }}
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-8 mb-4 sm:mb-8">
         ></div>
-        <div 
+        <div className="xl:col-span-2 order-2 xl:order-1">
           className="absolute bottom-0 left-1/2 w-[30rem] h-[30rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
           style={{ backgroundColor: currentTheme.colors.accent }}
         ></div>
         <div 
-          className="absolute top-1/2 left-1/4 w-[24rem] h-[24rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-3000"
+        <div className="order-1 xl:order-2">
           style={{ backgroundColor: currentTheme.colors.primary + '40' }}
         ></div>
+
+        {/* Integrated Chat */}
+        <div className="order-3 xl:order-3">
+          <div 
+            className="backdrop-blur-xl border rounded-2xl h-full"
+            style={{
+              background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
+              borderColor: currentTheme.colors.border,
+              minHeight: '600px'
+            }}
+          >
+            <AIChat 
+              isOpen={true} 
+              onClose={() => {}} 
+              isIntegrated={true}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Header */}
