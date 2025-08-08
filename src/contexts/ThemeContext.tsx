@@ -583,7 +583,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(themes[0]);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(themes.find(t => t.id === 'dark') || themes[0]);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('sarah-theme');

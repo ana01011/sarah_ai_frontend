@@ -46,10 +46,18 @@ interface Message {
 interface AIChatProps {
   isOpen: boolean;
   onClose: () => void;
+  size?: { width: number; height: number };
+  onResize?: (size: { width: number; height: number }) => void;
   agentContext?: any;
 }
 
-export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext }) => {
+export const AIChat: React.FC<AIChatProps> = ({ 
+  isOpen, 
+  onClose, 
+  size = { width: 400, height: 600 },
+  onResize,
+  agentContext 
+}) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -80,14 +88,17 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [chatTheme, setChatTheme] = useState('dark');
+  const [isResizing, setIsResizing] = useState(false);
   const { currentTheme } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const chatRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   useEffect(() => {
@@ -224,6 +235,30 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
     playSound('notification');
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!onResize) return;
+    setIsResizing(true);
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startWidth = size.width;
+    const startHeight = size.height;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = Math.max(300, Math.min(800, startWidth + (startX - e.clientX)));
+      const newHeight = Math.max(400, Math.min(800, startHeight + (startY - e.clientY)));
+      onResize({ width: newWidth, height: newHeight });
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -243,16 +278,42 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
       />
       
       <div className={`fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm transition-all duration-300 ${isMaximized ? 'p-0' : ''}`}>
-        <div className={`w-full backdrop-blur-xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-500 ${
+        <div 
+          ref={chatRef}
+          className={`backdrop-blur-xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-500 relative ${
           isMaximized 
-            ? 'h-full rounded-none max-w-none' 
-            : 'max-w-6xl h-[90vh] sm:h-[85vh] rounded-xl sm:rounded-2xl hover:scale-[1.01]'
-        }`}
+            ? 'w-full h-full rounded-none' 
+            : 'rounded-xl sm:rounded-2xl hover:scale-[1.01]'
+        } ${isResizing ? 'select-none' : ''}`}
         style={{
+          width: isMaximized ? '100%' : `${size.width}px`,
+          height: isMaximized ? '100%' : `${size.height}px`,
+          minWidth: '300px',
+          minHeight: '400px',
+          maxWidth: isMaximized ? '100%' : '800px',
+          maxHeight: isMaximized ? '100%' : '800px'
+        }}
+        style={{
+          ...(!isMaximized && {
+            width: `${size.width}px`,
+            height: `${size.height}px`,
+          }),
           background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
           borderColor: currentTheme.colors.border,
           boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
         }}>
+          {/* Resize Handle */}
+          {!isMaximized && onResize && (
+            <div
+              className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize opacity-0 hover:opacity-100 transition-opacity"
+              onMouseDown={handleMouseDown}
+              style={{
+                background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                borderRadius: '0 0 4px 0'
+              }}
+            />
+          )}
+
           {/* Enhanced Header */}
           <div className="flex items-center justify-between p-3 sm:p-6 border-b backdrop-blur-md"
                style={{

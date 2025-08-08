@@ -4,6 +4,9 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAgent } from '../contexts/AgentContext';
 import { CEODashboard } from './dashboards/CEODashboard';
 import { CTODashboard } from './dashboards/CTODashboard';
+import { CFODashboard } from './dashboards/CFODashboard';
+import { CMODashboard } from './dashboards/CMODashboard';
+import { COODashboard } from './dashboards/COODashboard';
 import { AIChat } from './AIChat';
 import { useState } from 'react';
 
@@ -23,6 +26,12 @@ export const AgentDashboard: React.FC = () => {
         return <CEODashboard />;
       case 'cto':
         return <CTODashboard />;
+      case 'cfo':
+        return <CFODashboard />;
+      case 'cmo':
+        return <CMODashboard />;
+      case 'coo':
+        return <COODashboard />;
       default:
         return (
           <div 

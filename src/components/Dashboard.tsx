@@ -8,6 +8,7 @@ import { PerformanceChart } from './PerformanceChart';
 import { SystemStatus } from './SystemStatus';
 import { ProcessingPipeline } from './ProcessingPipeline';
 import { AIChat } from './AIChat';
+import { useState } from 'react';
 
 interface DashboardProps {
   onBackToWelcome?: () => void;
@@ -17,6 +18,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   const { currentTheme } = useTheme();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatSize, setChatSize] = useState({ width: 400, height: 600 });
   const [notifications, setNotifications] = useState(3);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [aiMetrics, setAiMetrics] = useState({
@@ -242,11 +244,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
               {/* AI Chat Button */}
               <button
                 onClick={() => setIsChatOpen(true)}
-                className="relative group bg-gradient-to-r from-blue-500/20 to-emerald-500/20 
-                         hover:from-blue-500/30 hover:to-emerald-500/30 border border-blue-500/30 
-                         hover:border-emerald-500/50 rounded-xl px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 
-                         hover:scale-110 active:scale-95 hover:shadow-xl hover:shadow-blue-500/30
-                         backdrop-blur-sm overflow-hidden"
+                className="relative group border rounded-xl px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 
+                         hover:scale-110 active:scale-95 hover:shadow-xl backdrop-blur-sm overflow-hidden"
                 style={{
                   background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
                   borderColor: currentTheme.colors.primary + '50',
@@ -401,7 +400,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
       </main>
       
       {/* AI Chat */}
-      <AIChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      <AIChat 
+        isOpen={isChatOpen} 
+        onClose={() => setIsChatOpen(false)}
+        size={chatSize}
+        onResize={setChatSize}
+      />
     </div>
   );
 };
