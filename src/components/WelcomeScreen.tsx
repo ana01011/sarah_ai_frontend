@@ -54,30 +54,29 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
       {/* Animated Background */}
       <div className="fixed inset-0">
         <div 
-          className="absolute top-0 left-0 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse opacity-20"
+          className="absolute top-0 left-0 w-[40rem] h-[40rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse opacity-15"
           style={{ backgroundColor: currentTheme.colors.primary }}
         ></div>
         <div 
-          className="absolute top-0 right-0 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000 opacity-20"
+          className="absolute top-0 right-0 w-[36rem] h-[36rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000 opacity-15"
           style={{ backgroundColor: currentTheme.colors.secondary }}
         ></div>
         <div 
-          className="absolute bottom-0 left-1/2 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-2000 opacity-20"
+          className="absolute bottom-0 left-1/2 w-[38rem] h-[38rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000 opacity-15"
           style={{ backgroundColor: currentTheme.colors.accent }}
         ></div>
         
         {/* Floating particles */}
-        {Array.from({ length: 20 }).map((_, i) => (
+        {Array.from({ length: 30 }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-2 h-2 rounded-full opacity-30 animate-ping"
-            style={{ backgroundColor: currentTheme.colors.primary }}
+            className="absolute w-1 h-1 rounded-full opacity-40 animate-ping"
             style={{
               backgroundColor: currentTheme.colors.primary,
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 2}s`
+              animationDuration: `${3 + Math.random() * 2}s`
             }}
           />
         ))}
@@ -89,7 +88,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
           <div className="mb-8 sm:mb-12">
             <div className="relative inline-block">
               <div 
-                className="absolute -inset-4 rounded-full blur-lg opacity-30 animate-pulse"
+                className="absolute -inset-6 rounded-full blur-2xl opacity-40 animate-pulse"
                 style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
               ></div>
               <Brain 
@@ -100,7 +99,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
             
             <h1 
               className="text-5xl sm:text-8xl font-bold bg-clip-text text-transparent mt-6 sm:mt-8 mb-3 sm:mb-4 animate-pulse"
-              style={{ 
+              style={{
                 backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary}, ${currentTheme.colors.accent})`
               }}
             >
@@ -123,7 +122,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
             <div className="space-y-6 sm:space-y-8">
               <div 
                 className="backdrop-blur-md border rounded-2xl p-6 sm:p-8 max-w-md mx-auto"
-                style={{ 
+                style={{
                   backgroundColor: currentTheme.colors.surface + '80',
                   borderColor: currentTheme.colors.border
                 }}
@@ -175,7 +174,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
             <div className="space-y-6 sm:space-y-8 animate-fade-in">
               <div 
                 className="backdrop-blur-md border rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto"
-                style={{ 
+                style={{
                   backgroundColor: currentTheme.colors.surface + '80',
                   borderColor: currentTheme.colors.border
                 }}
@@ -223,7 +222,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
                   <button
                     onClick={onEnter}
                     className="w-full font-semibold py-4 sm:py-5 px-6 sm:px-8 rounded-xl transition-all duration-300 
-                             hover:scale-110 active:scale-95 hover:shadow-2xl hover:shadow-blue-500/30 
+                             hover:scale-[1.05] active:scale-95 hover:shadow-2xl
                              flex items-center justify-center space-x-3 group relative overflow-hidden
                              backdrop-blur-sm border"
                     style={{

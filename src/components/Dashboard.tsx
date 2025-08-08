@@ -73,18 +73,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
       }}
     >
       {/* Animated Background */}
-      <div className="fixed inset-0 opacity-20">
+      <div className="fixed inset-0 opacity-10">
         <div 
-          className="absolute top-0 left-0 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse"
+          className="absolute top-0 left-0 w-[32rem] h-[32rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
           style={{ backgroundColor: currentTheme.colors.primary }}
         ></div>
         <div 
-          className="absolute top-0 right-0 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"
+          className="absolute top-0 right-0 w-[28rem] h-[28rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
           style={{ backgroundColor: currentTheme.colors.secondary }}
         ></div>
         <div 
-          className="absolute bottom-0 left-1/2 w-96 h-96 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-2000"
+          className="absolute bottom-0 left-1/2 w-[30rem] h-[30rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
           style={{ backgroundColor: currentTheme.colors.accent }}
+        ></div>
+        <div 
+          className="absolute top-1/2 left-1/4 w-[24rem] h-[24rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-3000"
+          style={{ backgroundColor: currentTheme.colors.primary + '40' }}
         ></div>
       </div>
 

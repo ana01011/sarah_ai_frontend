@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Palette, Check, Sun, Moon, Zap, Waves, Sunset } from 'lucide-react';
+import { Palette, Check, Sun, Moon, Zap, Waves, Sunset, Circle, Lightbulb } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const themeIcons = {
   dark: Moon,
   light: Sun,
+  'simple-dark': Circle,
+  'simple-light': Lightbulb,
   neon: Zap,
   ocean: Waves,
   sunset: Sunset,
