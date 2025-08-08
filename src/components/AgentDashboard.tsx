@@ -83,6 +83,7 @@ export const AgentDashboard: React.FC = () => {
             borderColor: currentTheme.colors.border,
             height: '400px'
           }}
+        )
         >
           <AIChat 
             isOpen={true} 
@@ -208,3 +209,6 @@ export const AgentDashboard: React.FC = () => {
     </div>
   );
 };
+    }
+  }
+}
