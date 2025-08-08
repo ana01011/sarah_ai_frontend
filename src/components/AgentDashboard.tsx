@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 export const AgentDashboard: React.FC = () => {
   const { currentTheme } = useTheme();
   const { selectedAgent, setCurrentView } = useAgent();
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   if (!selectedAgent) {
     setCurrentView('dashboard');
@@ -73,26 +74,15 @@ export const AgentDashboard: React.FC = () => {
             <div className="text-center">
               <p className="text-lg font-semibold mb-2" style={{ color: currentTheme.colors.text }}>
                 Specialized Dashboard Coming Soon
-      </div>
+              </p>
+            </div>
+          </div>
+        );
+    }
+  };
 
-        {/* Integrated Chat Section */}
-        <div 
-          className="mb-8 backdrop-blur-xl border rounded-2xl overflow-hidden"
-          style={{
-            background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
-            borderColor: currentTheme.colors.border,
-            height: '400px'
-          }}
-        )
-        >
-          <AIChat 
-            isOpen={true} 
-            onClose={() => {}} 
-            agentContext={selectedAgent}
-            isIntegrated={true}
-          />
-        </div>
-
+  return (
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -203,13 +193,26 @@ export const AgentDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Integrated Chat Section */}
+        <div 
+          className="mb-8 backdrop-blur-xl border rounded-2xl overflow-hidden"
+          style={{
+            background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
+            borderColor: currentTheme.colors.border,
+            height: '400px'
+          }}
+        >
+          <AIChat 
+            isOpen={true} 
+            onClose={() => {}} 
+            agentContext={selectedAgent}
+            isIntegrated={true}
+          />
+        </div>
+
         {/* Specialized Dashboard */}
         {renderSpecializedDashboard()}
-            </p>
       </div>
     </div>
   );
 };
-    }
-  }
-}
