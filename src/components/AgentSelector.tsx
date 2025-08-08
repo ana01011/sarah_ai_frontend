@@ -5,7 +5,7 @@ import { useAgent } from '../contexts/AgentContext';
 import { agentCategories, agents } from '../types/Agent';
 
 export const AgentSelector: React.FC = () => {
-  const { currentTheme, setTheme } = useTheme();
+  const { currentTheme } = useTheme();
   const { setSelectedAgent, setCurrentView } = useAgent();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -18,7 +18,6 @@ export const AgentSelector: React.FC = () => {
 
   const handleAgentSelect = (agent: any) => {
     setSelectedAgent(agent);
-    setTheme(agent.themeId);
     setCurrentView('agent-dashboard');
   };
 

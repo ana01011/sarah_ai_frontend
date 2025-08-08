@@ -18,7 +18,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   const { currentTheme } = useTheme();
   const { setCurrentView } = useAgent();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(true);
   const [chatSize, setChatSize] = useState({ width: 400, height: 600 });
   const [notifications, setNotifications] = useState(3);
   const [isSearchOpen, setIsSearchOpen] = useState(false);

@@ -8,12 +8,19 @@ import { CFODashboard } from './dashboards/CFODashboard';
 import { CMODashboard } from './dashboards/CMODashboard';
 import { COODashboard } from './dashboards/COODashboard';
 import { AIChat } from './AIChat';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export const AgentDashboard: React.FC = () => {
-  const { currentTheme } = useTheme();
+  const { currentTheme, setTheme } = useTheme();
   const { selectedAgent, setCurrentView } = useAgent();
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(true);
+
+  // Apply agent theme when component mounts or agent changes
+  useEffect(() => {
+    if (selectedAgent && selectedAgent.themeId) {
+      setTheme(selectedAgent.themeId);
+    }
+  }, [selectedAgent, setTheme]);
 
   if (!selectedAgent) {
     setCurrentView('dashboard');
