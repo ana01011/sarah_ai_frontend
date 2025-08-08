@@ -20,6 +20,13 @@ export const AgentDashboard: React.FC = () => {
     return null;
   }
 
+  // Apply the same background styling as main dashboard
+  const dashboardStyle = {
+    background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
+    color: currentTheme.colors.text,
+    minHeight: '100vh'
+  };
+
   const renderSpecializedDashboard = () => {
     switch (selectedAgent.id) {
       case 'ceo':
@@ -82,17 +89,47 @@ export const AgentDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
+    <div 
+      className="min-h-screen transition-all duration-500"
+      style={dashboardStyle}
+    >
+      {/* Animated Background - Same as Main Dashboard */}
+      <div className="fixed inset-0 opacity-10">
+        <div 
+          className="absolute top-0 left-0 w-[32rem] h-[32rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
+          style={{ backgroundColor: currentTheme.colors.primary }}
+        ></div>
+        <div 
+          className="absolute top-0 right-0 w-[28rem] h-[28rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
+          style={{ backgroundColor: currentTheme.colors.secondary }}
+        ></div>
+        <div 
+          className="absolute bottom-0 left-1/2 w-[30rem] h-[30rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
+          style={{ backgroundColor: currentTheme.colors.accent }}
+        ></div>
+        <div 
+          className="absolute -bottom-10 -right-10 w-[24rem] h-[24rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-3000"
+          style={{ backgroundColor: currentTheme.colors.primary + '40' }}
+        ></div>
+      </div>
+
+      <div className="relative z-10 p-4 sm:p-6 lg:p-8">
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div 
+          className="backdrop-blur-md border-b mb-8 p-4 sm:p-6 rounded-t-2xl"
+          style={{ 
+            backgroundColor: currentTheme.colors.surface + '80',
+            borderColor: currentTheme.colors.border
+          }}
+        >
+          <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setCurrentView('dashboard')}
-              className="p-3 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+              className="p-3 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-white/10"
               style={{ 
-                backgroundColor: currentTheme.colors.surface + '80',
-                borderColor: currentTheme.colors.border
+                backgroundColor: 'transparent'
               }}
             >
               <ArrowLeft className="w-5 h-5" style={{ color: currentTheme.colors.textSecondary }} />
@@ -147,6 +184,7 @@ export const AgentDashboard: React.FC = () => {
               </span>
             </div>
           </button>
+          </div>
         </div>
 
         {/* Agent Info Bar */}
@@ -212,6 +250,7 @@ export const AgentDashboard: React.FC = () => {
 
         {/* Specialized Dashboard */}
         {renderSpecializedDashboard()}
+        </div>
       </div>
     </div>
   );

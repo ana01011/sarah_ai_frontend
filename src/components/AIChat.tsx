@@ -92,13 +92,21 @@ export const AIChat: React.FC<AIChatProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    if (messagesEndRef.current) {
+      const container = messagesEndRef.current.closest('.overflow-y-auto');
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.sender === 'ai') {
+        scrollToBottom();
+      }
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -115,6 +123,9 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
+
+    // Prevent default form submission and page scroll
+    event?.preventDefault();
 
     playSound('send');
     
@@ -337,6 +348,12 @@ export const AIChat: React.FC<AIChatProps> = ({
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
               placeholder="Ask me anything..."
               className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
               style={{

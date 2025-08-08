@@ -30,19 +30,34 @@ export const CEODashboard: React.FC = () => {
 
   const MetricCard = ({ title, value, change, icon: Icon, suffix = '', prefix = '' }: any) => (
     <div 
-      className="backdrop-blur-xl border rounded-2xl p-6 transition-all duration-500 hover:scale-[1.05] cursor-pointer relative overflow-hidden"
+      className="backdrop-blur-xl border rounded-2xl p-6 transition-all duration-500 hover:scale-[1.08] active:scale-95 hover:shadow-2xl cursor-pointer relative overflow-hidden"
       style={{
-        background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
-        borderColor: currentTheme.colors.border,
-        boxShadow: `0 8px 32px -8px ${currentTheme.shadows.primary}`
+        background: `linear-gradient(135deg, ${currentTheme.colors.primary}15, ${currentTheme.colors.primary}08, transparent)`,
+        borderColor: currentTheme.colors.primary + '40',
+        boxShadow: `0 8px 32px -8px ${currentTheme.colors.primary}25, 0 0 0 1px ${currentTheme.colors.primary}10`
       }}
     >
+      {/* Animated background effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/8 to-transparent 
+                      transform -skew-x-12 -translate-x-full group-hover:translate-x-full 
+                      transition-transform duration-1000"></div>
+      
+      <div className="relative z-10">
       <div className="flex items-center justify-between mb-4">
-        <Icon className="w-8 h-8" style={{ color: currentTheme.colors.primary }} />
+        <div className="relative">
+          <div 
+            className="absolute -inset-2 rounded-xl blur-lg opacity-20 group-hover:opacity-40 transition-all duration-500"
+            style={{ backgroundColor: currentTheme.colors.primary + '60' }}
+          ></div>
+          <Icon 
+            className="w-8 h-8 opacity-90 relative z-10 group-hover:scale-125 transition-all duration-500" 
+            style={{ color: currentTheme.colors.primary }}
+          />
+        </div>
         <span 
-          className="text-sm px-3 py-1 rounded-full"
+          className="text-sm px-3 py-1.5 rounded-full font-medium transition-all duration-300 backdrop-blur-sm"
           style={{ 
-            backgroundColor: change > 0 ? currentTheme.colors.success + '20' : currentTheme.colors.error + '20',
+            backgroundColor: currentTheme.colors.surface + '60',
             color: change > 0 ? currentTheme.colors.success : currentTheme.colors.error
           }}
         >
@@ -52,9 +67,33 @@ export const CEODashboard: React.FC = () => {
       <h3 className="text-sm font-medium mb-2" style={{ color: currentTheme.colors.textSecondary }}>
         {title}
       </h3>
-      <p className="text-3xl font-bold" style={{ color: currentTheme.colors.text }}>
+      <p 
+        className="text-3xl font-bold font-mono group-hover:scale-110 transition-all duration-500"
+        style={{ color: currentTheme.colors.primary }}
+      >
         {prefix}{typeof value === 'number' ? value.toLocaleString() : value}{suffix}
       </p>
+      
+      {/* Progress indicator */}
+      <div 
+        className="mt-4 w-full rounded-full h-1 overflow-hidden"
+        style={{ backgroundColor: currentTheme.colors.surface + '60' }}
+      >
+        <div 
+          className="h-full transition-all duration-1000 group-hover:w-full"
+          style={{ 
+            background: `linear-gradient(90deg, ${currentTheme.colors.primary}, ${currentTheme.colors.primary}80)`,
+            width: `${Math.abs(change)}%`
+          }}
+        ></div>
+      </div>
+      </div>
+      
+      {/* Glow effect */}
+      <div 
+        className="absolute -inset-2 rounded-2xl opacity-0 group-hover:opacity-40 blur-xl transition-all duration-500 group-hover:scale-110"
+        style={{ backgroundColor: currentTheme.colors.primary + '50' }}
+      ></div>
     </div>
   );
 
