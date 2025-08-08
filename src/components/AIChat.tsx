@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 import { 
   MessageCircle, 
   Send, 
@@ -79,8 +80,8 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [selectedModel, setSelectedModel] = useState('GPT-4 Turbo');
   const [chatTheme, setChatTheme] = useState('dark');
+  const { currentTheme } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -242,32 +243,50 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
       />
       
       <div className={`fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm transition-all duration-300 ${isMaximized ? 'p-0' : ''}`}>
-        <div className={`w-full bg-gradient-to-br from-slate-900/98 to-slate-800/98 backdrop-blur-xl border border-white/20 shadow-2xl flex flex-col overflow-hidden transition-all duration-500 hover:shadow-blue-500/20 ${
+        <div className={`w-full backdrop-blur-xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-500 ${
           isMaximized 
             ? 'h-full rounded-none max-w-none' 
             : 'max-w-6xl h-[90vh] sm:h-[85vh] rounded-xl sm:rounded-2xl hover:scale-[1.01]'
-        }`}>
+        }`}
+        style={{
+          background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
+          borderColor: currentTheme.colors.border,
+          boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
+        }}>
           {/* Enhanced Header */}
-          <div className="flex items-center justify-between p-3 sm:p-6 border-b border-white/10 bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-md">
+          <div className="flex items-center justify-between p-3 sm:p-6 border-b backdrop-blur-md"
+               style={{
+                 background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
+                 borderColor: currentTheme.colors.border
+               }}>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="relative group">
-                <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-                <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400 animate-pulse relative z-10" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-emerald-400 rounded-full animate-ping"></div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-emerald-400 rounded-full"></div>
+                <div className="absolute -inset-2 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity"
+                     style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}></div>
+                <Brain className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse relative z-10" 
+                       style={{ color: currentTheme.colors.primary }} />
+                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-ping"
+                     style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+                     style={{ backgroundColor: currentTheme.colors.secondary }}></div>
               </div>
               <div>
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-bold bg-clip-text text-transparent"
+                    style={{ backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}>
                   {agentContext ? `${agentContext.name} - ${agentContext.role}` : 'Sarah AI Assistant'}
                 </h2>
                 <div className="flex items-center space-x-2 sm:space-x-3">
-                  <div className="flex items-center space-x-1 text-emerald-400">
-                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                    <span className="text-xs sm:text-sm font-medium">
-                      Online • {agentContext ? `${agentContext.department} Mode` : selectedModel}
+                  <div className="flex items-center space-x-1" style={{ color: currentTheme.colors.secondary }}>
+                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                    <span className="text-xs sm:text-sm font-medium" style={{ color: currentTheme.colors.secondary }}>
+                      Online • {agentContext ? `${agentContext.department} Mode` : 'Advanced Mode'}
                     </span>
                   </div>
-                  <div className="text-xs text-slate-400 bg-white/10 px-2 py-1 rounded-full hidden sm:block">
+                  <div className="text-xs px-2 py-1 rounded-full hidden sm:block"
+                       style={{ 
+                         color: currentTheme.colors.textSecondary,
+                         backgroundColor: currentTheme.colors.surface + '40'
+                       }}>
                     {agentContext ? `${agentContext.level} Level` : 'Advanced Mode'}
                   </div>
                 </div>
@@ -277,43 +296,64 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
             <div className="flex items-center space-x-1 sm:space-x-2">
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
-                className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                style={{ backgroundColor: 'transparent' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 {soundEnabled ? 
-                  <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 hover:text-white" /> : 
-                  <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 hover:text-white" />
+                  <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.textSecondary }} /> : 
+                  <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.textSecondary }} />
                 }
               </button>
               
               <button
                 onClick={exportChat}
-                className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                style={{ backgroundColor: 'transparent' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <Download className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 hover:text-white" />
+                <Download className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.textSecondary }} />
               </button>
               
               <button
                 onClick={shareChat}
-                className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                style={{ backgroundColor: 'transparent' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <Share className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 hover:text-white" />
+                <Share className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.textSecondary }} />
               </button>
               
               <button
                 onClick={() => setIsMaximized(!isMaximized)}
-                className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{ backgroundColor: 'transparent' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 {isMaximized ? 
-                  <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 hover:text-white" /> : 
-                  <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 hover:text-white" />
+                  <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.textSecondary }} /> : 
+                  <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.textSecondary }} />
                 }
               </button>
               
               <button
                 onClick={onClose}
-                className="p-1.5 sm:p-2 hover:bg-rose-500/20 hover:border-rose-500/30 border border-transparent rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                className="p-1.5 sm:p-2 border border-transparent rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{ backgroundColor: 'transparent' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
+                  e.currentTarget.style.borderColor = currentTheme.colors.error + '30';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }}
               >
-                <X className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 hover:text-rose-400" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.textSecondary }} />
               </button>
             </div>
           </div>
@@ -332,19 +372,19 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
                         {agentContext ? (
                           <span className="text-lg">{agentContext.avatar}</span>
                         ) : (
-                          <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+                          <Brain className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.primary }} />
                         )}
-                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full"></div>
+                        <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
                       </div>
-                      <span className="text-xs sm:text-sm text-slate-400 font-medium">
+                      <span className="text-xs sm:text-sm font-medium" style={{ color: currentTheme.colors.textSecondary }}>
                         {agentContext ? agentContext.name : 'Sarah AI'}
                       </span>
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs" style={{ color: currentTheme.colors.textSecondary + '80' }}>
                         {message.timestamp.toLocaleTimeString()}
                       </span>
                       <div className="flex items-center space-x-1 hidden sm:flex">
-                        <Star className="w-3 h-3 text-amber-400" />
-                        <span className="text-xs text-amber-400">Premium</span>
+                        <Star className="w-3 h-3" style={{ color: currentTheme.colors.accent }} />
+                        <span className="text-xs" style={{ color: currentTheme.colors.accent }}>Premium</span>
                       </div>
                     </div>
                   )}
@@ -353,44 +393,67 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
                     className={`
                       relative p-3 sm:p-5 rounded-xl sm:rounded-2xl backdrop-blur-md border transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group-hover:shadow-xl
                       ${message.sender === 'user'
-                        ? 'bg-gradient-to-r from-blue-500/20 to-emerald-500/20 border-blue-500/40 text-white ml-auto hover:from-blue-500/30 hover:to-emerald-500/30'
-                        : 'bg-white/5 border-white/20 text-white hover:bg-white/10'
+                        ? 'ml-auto'
+                        : ''
                       }
                     `}
+                    style={{
+                      background: message.sender === 'user' 
+                        ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
+                        : currentTheme.colors.surface + '40',
+                      borderColor: message.sender === 'user' 
+                        ? currentTheme.colors.primary + '40'
+                        : currentTheme.colors.border,
+                      color: currentTheme.colors.text
+                    }}
                   >
                     {/* Message glow effect */}
-                    <div className={`absolute -inset-0.5 bg-gradient-to-r ${
-                      message.sender === 'user' 
-                        ? 'from-blue-500/20 to-emerald-500/20' 
-                        : 'from-white/10 to-white/5'
-                    } rounded-2xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300`}></div>
+                    <div className="absolute -inset-0.5 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300"
+                         style={{
+                           background: message.sender === 'user' 
+                             ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
+                             : `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`
+                         }}></div>
                     
                     <div className="relative z-10">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: currentTheme.colors.text }}>{message.content}</p>
                       
                       {message.sender === 'ai' && (
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10 space-y-2 sm:space-y-0">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 sm:mt-4 pt-3 sm:pt-4 border-t space-y-2 sm:space-y-0"
+                             style={{ borderColor: currentTheme.colors.border }}>
                           <div className="flex items-center space-x-2 sm:space-x-3">
                             <button
                               onClick={() => copyMessage(message.content)}
-                              className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn"
+                              className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn"
+                              style={{ backgroundColor: 'transparent' }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
-                              <Copy className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 group-hover/btn:text-white" />
+                              <Copy className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.textSecondary }} />
                             </button>
                             <button
                               onClick={() => addReaction(message.id, '👍')}
-                              className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn"
+                              className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn"
+                              style={{ backgroundColor: 'transparent' }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
-                              <ThumbsUp className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 group-hover/btn:text-emerald-400" />
+                              <ThumbsUp className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.textSecondary }} />
                             </button>
                             <button
                               onClick={() => addReaction(message.id, '❤️')}
-                              className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn"
+                              className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn"
+                              style={{ backgroundColor: 'transparent' }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
-                              <ThumbsDown className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 group-hover/btn:text-rose-400" />
+                              <ThumbsDown className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.textSecondary }} />
                             </button>
-                            <button className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn">
-                              <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 group-hover/btn:text-blue-400" />
+                            <button className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn"
+                                    style={{ backgroundColor: 'transparent' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                              <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.textSecondary }} />
                             </button>
                           </div>
                           
@@ -401,11 +464,14 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
                                   <button
                                     key={idx}
                                     onClick={() => addReaction(message.id, reaction.type)}
-                                    className="flex items-center space-x-1 px-1.5 sm:px-2 py-1 bg-white/5 hover:bg-white/10 rounded-full transition-all duration-200 hover:scale-110"
+                                    className="flex items-center space-x-1 px-1.5 sm:px-2 py-1 rounded-full transition-all duration-200 hover:scale-110"
+                                    style={{ backgroundColor: currentTheme.colors.surface + '20' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '20'}
                                   >
                                     <span className="text-xs sm:text-sm">{reaction.type}</span>
                                     {reaction.count > 0 && (
-                                      <span className="text-xs text-slate-400">{reaction.count}</span>
+                                      <span className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>{reaction.count}</span>
                                     )}
                                   </button>
                                 ))}
@@ -413,8 +479,8 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
                             )}
                             
                             <div className="flex items-center space-x-1">
-                              <Sparkles className="w-3 h-3 text-amber-400 animate-pulse" />
-                              <span className="text-xs text-amber-400 font-medium">AI Generated</span>
+                              <Sparkles className="w-3 h-3 animate-pulse" style={{ color: currentTheme.colors.accent }} />
+                              <span className="text-xs font-medium" style={{ color: currentTheme.colors.accent }}>AI Generated</span>
                             </div>
                           </div>
                         </div>
@@ -428,10 +494,24 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
                         <button
                           key={index}
                           onClick={() => handleSuggestionClick(suggestion)}
-                          className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gradient-to-r from-white/5 to-white/10 hover:from-white/10 hover:to-white/15 
-                                   border border-white/20 hover:border-white/30 rounded-full text-slate-300 hover:text-white 
-                                   transition-all duration-200 hover:scale-105 active:scale-95 backdrop-blur-sm
-                                   hover:shadow-lg hover:shadow-blue-500/20"
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm border rounded-full 
+                                   transition-all duration-200 hover:scale-105 active:scale-95 backdrop-blur-sm"
+                          style={{
+                            background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
+                            borderColor: currentTheme.colors.border,
+                            color: currentTheme.colors.textSecondary,
+                            boxShadow: `0 4px 12px -4px ${currentTheme.shadows.primary}`
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.surface}60, ${currentTheme.colors.surface}40)`;
+                            e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';
+                            e.currentTarget.style.color = currentTheme.colors.text;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`;
+                            e.currentTarget.style.borderColor = currentTheme.colors.border;
+                            e.currentTarget.style.color = currentTheme.colors.textSecondary;
+                          }}
                         >
                           {suggestion}
                         </button>
@@ -444,15 +524,19 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
 
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-white/5 border border-white/20 rounded-xl sm:rounded-2xl p-3 sm:p-5 backdrop-blur-md hover:bg-white/10 transition-all duration-300">
+                <div className="border rounded-xl sm:rounded-2xl p-3 sm:p-5 backdrop-blur-md transition-all duration-300"
+                     style={{
+                       backgroundColor: currentTheme.colors.surface + '40',
+                       borderColor: currentTheme.colors.border
+                     }}>
                   <div className="flex items-center space-x-3">
-                    <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 animate-pulse" />
+                    <Brain className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" style={{ color: currentTheme.colors.primary }} />
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce delay-100"></div>
-                      <div className="w-2 h-2 bg-amber-400 rounded-full animate-bounce delay-200"></div>
+                      <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: currentTheme.colors.primary }}></div>
+                      <div className="w-2 h-2 rounded-full animate-bounce delay-100" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                      <div className="w-2 h-2 rounded-full animate-bounce delay-200" style={{ backgroundColor: currentTheme.colors.accent }}></div>
                     </div>
-                    <span className="text-xs sm:text-sm text-slate-400">Sarah is thinking...</span>
+                    <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>Sarah is thinking...</span>
                   </div>
                 </div>
               </div>
@@ -462,7 +546,11 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
           </div>
 
           {/* Enhanced Input */}
-          <div className="p-3 sm:p-6 border-t border-white/10 bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-md">
+          <div className="p-3 sm:p-6 border-t backdrop-blur-md"
+               style={{
+                 background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
+                 borderColor: currentTheme.colors.border
+               }}>
             <div className="flex items-center space-x-2 sm:space-x-4 mb-3 sm:mb-4">
               <div className="flex-1 relative group">
                 <input
@@ -472,34 +560,64 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder="Ask Sarah anything..."
-                  className="w-full bg-white/5 border border-white/20 rounded-xl px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-16 
-                           text-white placeholder-slate-400 focus:outline-none focus:border-blue-500/50 
-                           focus:bg-white/10 transition-all duration-200 hover:bg-white/10 hover:border-white/30
-                           focus:shadow-lg focus:shadow-blue-500/20"
+                  className="w-full border rounded-xl px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-16 
+                           focus:outline-none transition-all duration-200"
+                  style={{
+                    backgroundColor: currentTheme.colors.surface + '40',
+                    borderColor: currentTheme.colors.border,
+                    color: currentTheme.colors.text,
+                    boxShadow: `0 4px 12px -4px ${currentTheme.shadows.primary}`
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';
+                    e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '60';
+                    e.currentTarget.style.boxShadow = `0 8px 25px -8px ${currentTheme.shadows.primary}`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = currentTheme.colors.border;
+                    e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40';
+                    e.currentTarget.style.boxShadow = `0 4px 12px -4px ${currentTheme.shadows.primary}`;
+                  }}
                 />
                 <div className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-1 sm:space-x-2">
                   <button
                     onClick={handleFileUpload}
-                    className="p-1 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                    className="p-1 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                    style={{ backgroundColor: 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <Paperclip className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 hover:text-white" />
+                    <Paperclip className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.textSecondary }} />
                   </button>
                   <button
                     onClick={() => {}}
-                    className="p-1 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                    className="p-1 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                    style={{ backgroundColor: 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <Image className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 hover:text-white" />
+                    <Image className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.textSecondary }} />
                   </button>
                 </div>
               </div>
               
               <button
                 onClick={toggleVoice}
-                className={`p-3 sm:p-4 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 ${
-                  isListening 
-                    ? 'bg-rose-500/20 border-rose-500/40 text-rose-400 shadow-lg shadow-rose-500/20' 
-                    : 'bg-white/5 border-white/20 text-slate-400 hover:bg-white/10 hover:border-white/30'
-                } border backdrop-blur-sm`}
+                className="p-3 sm:p-4 rounded-xl border backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{
+                  backgroundColor: isListening 
+                    ? currentTheme.colors.error + '20'
+                    : currentTheme.colors.surface + '40',
+                  borderColor: isListening 
+                    ? currentTheme.colors.error + '40'
+                    : currentTheme.colors.border,
+                  color: isListening 
+                    ? currentTheme.colors.error
+                    : currentTheme.colors.textSecondary,
+                  boxShadow: isListening 
+                    ? `0 8px 25px -8px ${currentTheme.colors.error}40`
+                    : 'none'
+                }}
               >
                 {isListening ? <MicOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Mic className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
@@ -507,51 +625,59 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, agentContext })
               <button
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim()}
-                className="p-3 sm:p-4 bg-gradient-to-r from-blue-500 to-emerald-500 hover:from-blue-600 hover:to-emerald-600 
-                         disabled:from-slate-600 disabled:to-slate-600 disabled:cursor-not-allowed
-                         text-white rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 disabled:scale-100
-                         hover:shadow-lg hover:shadow-blue-500/30 disabled:shadow-none backdrop-blur-sm
-                         relative overflow-hidden group"
+                className="p-3 sm:p-4 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 disabled:scale-100
+                         disabled:cursor-not-allowed backdrop-blur-sm relative overflow-hidden group"
+                style={{
+                  background: !inputValue.trim() 
+                    ? `linear-gradient(135deg, ${currentTheme.colors.textSecondary}60, ${currentTheme.colors.textSecondary}60)`
+                    : `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                  color: currentTheme.colors.text,
+                  boxShadow: !inputValue.trim() 
+                    ? 'none'
+                    : `0 8px 25px -8px ${currentTheme.shadows.primary}`
+                }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                     style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' }}></div>
                 <Send className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
               </button>
             </div>
             
             {/* Quick Actions */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs space-y-2 sm:space-y-0">
-              <div className="flex items-center space-x-3 sm:space-x-6 text-slate-400">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs space-y-2 sm:space-y-0"
+                 style={{ color: currentTheme.colors.textSecondary }}>
+              <div className="flex items-center space-x-3 sm:space-x-6">
                 <div className="flex items-center space-x-2">
-                  <kbd className="px-2 py-1 bg-white/10 rounded text-xs">Enter</kbd>
+                  <kbd className="px-2 py-1 rounded text-xs" style={{ backgroundColor: currentTheme.colors.surface + '40' }}>Enter</kbd>
                   <span>to send</span>
                 </div>
                 <div className="flex items-center space-x-2 hidden sm:flex">
-                  <kbd className="px-2 py-1 bg-white/10 rounded text-xs">Shift</kbd>
+                  <kbd className="px-2 py-1 rounded text-xs" style={{ backgroundColor: currentTheme.colors.surface + '40' }}>Shift</kbd>
                   <span>+</span>
-                  <kbd className="px-2 py-1 bg-white/10 rounded text-xs">Enter</kbd>
+                  <kbd className="px-2 py-1 rounded text-xs" style={{ backgroundColor: currentTheme.colors.surface + '40' }}>Enter</kbd>
                   <span>for new line</span>
                 </div>
               </div>
               
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <div className="flex items-center space-x-2">
-                  <Code className="w-3 h-3 text-blue-400" />
-                  <span className="text-slate-400 hidden sm:inline">
+                  <Code className="w-3 h-3" style={{ color: currentTheme.colors.primary }} />
+                  <span className="hidden sm:inline" style={{ color: currentTheme.colors.textSecondary }}>
                     {agentContext ? `${agentContext.department} mode active` : 'Code generation ready'}
                   </span>
-                  <span className="text-slate-400 sm:hidden">
+                  <span className="sm:hidden" style={{ color: currentTheme.colors.textSecondary }}>
                     {agentContext ? agentContext.department : 'Code ready'}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2 hidden sm:flex">
-                  <BarChart3 className="w-3 h-3 text-emerald-400" />
-                  <span className="text-slate-400">
+                  <BarChart3 className="w-3 h-3" style={{ color: currentTheme.colors.secondary }} />
+                  <span style={{ color: currentTheme.colors.textSecondary }}>
                     {agentContext ? `${agentContext.level} level access` : 'Analytics enabled'}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Zap className="w-3 h-3 text-amber-400 animate-pulse" />
-                  <span className="text-amber-400 font-medium text-xs">
+                  <Zap className="w-3 h-3 animate-pulse" style={{ color: currentTheme.colors.accent }} />
+                  <span className="font-medium text-xs" style={{ color: currentTheme.colors.accent }}>
                     {agentContext ? `${agentContext.name} AI` : 'Sarah AI v3.7.2'}
                   </span>
                 </div>
