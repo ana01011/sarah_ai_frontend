@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Palette, Check, Sun, Moon, Zap, Waves, Sunset, Circle, Lightbulb } from 'lucide-react';
+import { Palette, Check, Sun, Moon, Zap, Waves, Sunset, Circle, Lightbulb, Crown, Code, DollarSign, Megaphone, Settings, Users, Briefcase, Brain, Smartphone, Database, BarChart3 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const themeIcons = {
@@ -10,6 +10,18 @@ const themeIcons = {
   neon: Zap,
   ocean: Waves,
   sunset: Sunset,
+  'executive-gold': Crown,
+  'tech-blue': Code,
+  'finance-green': DollarSign,
+  'marketing-purple': Megaphone,
+  'operations-orange': Settings,
+  'product-teal': Users,
+  'manager-brown': Briefcase,
+  'developer-dark': Code,
+  'ai-neural': Brain,
+  'frontend-pink': Smartphone,
+  'backend-slate': Database,
+  'data-cyan': BarChart3,
 };
 
 export const ThemeSelector: React.FC = () => {
