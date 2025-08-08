@@ -1,26 +1,35 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AgentProvider, useAgent } from './contexts/AgentContext';
 import { WelcomeScreen } from './components/WelcomeScreen';
-import { Dashboard } from './components/Dashboard';
+import { AgentSelector } from './components/AgentSelector';
+import { AgentDashboard } from './components/AgentDashboard';
+
+const AppContent: React.FC = () => {
+  const { currentView, setCurrentView } = useAgent();
+
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'welcome':
+        return <WelcomeScreen onEnter={() => setCurrentView('selector')} />;
+      case 'selector':
+        return <AgentSelector />;
+      case 'dashboard':
+        return <AgentDashboard />;
+      default:
+        return <WelcomeScreen onEnter={() => setCurrentView('selector')} />;
+    }
+  };
+
+  return renderCurrentView();
+};
 
 function App() {
-  const [showWelcome, setShowWelcome] = useState(true);
-
-  const handleEnterDashboard = () => {
-    setShowWelcome(false);
-  };
-
-  const handleBackToWelcome = () => {
-    setShowWelcome(true);
-  };
-
   return (
     <ThemeProvider>
-      {showWelcome ? (
-        <WelcomeScreen onEnter={handleEnterDashboard} />
-      ) : (
-        <Dashboard onBackToWelcome={handleBackToWelcome} />
-      )}
+      <AgentProvider>
+        <AppContent />
+      </AgentProvider>
     </ThemeProvider>
   );
 }
