@@ -18,8 +18,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   const { currentTheme } = useTheme();
   const { setCurrentView } = useAgent();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isChatOpen, setIsChatOpen] = useState(true);
-  const [chatSize, setChatSize] = useState({ width: 400, height: 600 });
   const [notifications, setNotifications] = useState(3);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [aiMetrics, setAiMetrics] = useState({
@@ -34,7 +32,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     
-    // Simulate real-time metrics updates
     const metricsTimer = setInterval(() => {
       setAiMetrics(prev => ({
         accuracy: prev.accuracy + (Math.random() - 0.5) * 0.2,
@@ -54,16 +51,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
 
   const handleNotificationClick = () => {
     setNotifications(0);
-    // Show notifications panel
   };
 
   const handleExportData = () => {
-    // Export dashboard data
     console.log('Exporting dashboard data...');
   };
 
   const handleShareDashboard = () => {
-    // Share dashboard
     console.log('Sharing dashboard...');
   };
 
@@ -143,10 +137,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
             </div>
             
             <div className="flex items-center space-x-2 sm:space-x-4">
-              {/* Theme Selector */}
               <ThemeSelector />
               
-              {/* Search */}
               <div className="relative hidden sm:block">
                 <button
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
@@ -179,7 +171,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 )}
               </div>
 
-              {/* Notifications */}
               <button
                 onClick={handleNotificationClick}
                 className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
@@ -198,7 +189,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 )}
               </button>
 
-              {/* Export */}
               <button
                 onClick={handleExportData}
                 className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
@@ -209,7 +199,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 />
               </button>
 
-              {/* Share */}
               <button
                 onClick={handleShareDashboard}
                 className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
@@ -220,7 +209,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 />
               </button>
 
-              {/* Agents Tab */}
               <button
                 onClick={() => setCurrentView('selector')}
                 className="relative group border rounded-xl px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 
@@ -250,7 +238,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 </div>
               </button>
 
-              {/* Settings */}
               <button className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block">
                 <Settings 
                   className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
@@ -271,46 +258,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 <CheckCircle className="w-4 h-4" style={{ color: currentTheme.colors.success }} />
                 <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.success }}>All Systems Operational</span>
               </div>
-              
-              {/* AI Chat Button */}
-              <button
-                onClick={() => setIsChatOpen(true)}
-                className="relative group border rounded-xl px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 
-                         hover:scale-110 active:scale-95 hover:shadow-xl backdrop-blur-sm overflow-hidden"
-                style={{
-                  background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
-                  borderColor: currentTheme.colors.primary + '50',
-                  boxShadow: `0 10px 25px -5px ${currentTheme.shadows.primary}`
-                }}
-              >
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)' }}
-                ></div>
-                <div className="flex items-center space-x-1 sm:space-x-2">
-                  <div className="relative">
-                    <MessageCircle 
-                      className="w-4 h-4 sm:w-5 sm:h-5 transition-colors" 
-                      style={{ color: currentTheme.colors.primary }}
-                    />
-                    <div 
-                      className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 rounded-full animate-ping"
-                      style={{ backgroundColor: currentTheme.colors.secondary }}
-                    ></div>
-                    <div 
-                      className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 rounded-full"
-                      style={{ backgroundColor: currentTheme.colors.secondary }}
-                    ></div>
-                  </div>
-                  <span 
-                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
-                    style={{ color: currentTheme.colors.text }}
-                  >
-                    <span className="hidden sm:inline">Ask Sarah</span>
-                    <span className="sm:hidden">Chat</span>
-                  </span>
-                </div>
-              </button>
             </div>
           </div>
         </div>
@@ -428,12 +375,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
 
         {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
-          {/* Neural Network Visualization */}
           <div className="lg:col-span-2 order-2 lg:order-1">
             <NeuralNetworkViz />
           </div>
-
-          {/* System Status */}
           <div className="order-1 lg:order-2">
             <SystemStatus />
           </div>

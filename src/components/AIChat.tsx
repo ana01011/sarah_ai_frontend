@@ -117,15 +117,16 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   const playSound = (type: 'send' | 'receive' | 'notification') => {
     if (!soundEnabled) return;
-    // Sound implementation would go here
     console.log(`Playing ${type} sound`);
   };
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (!inputValue.trim()) return;
-
-    // Prevent default form submission and page scroll
-    event?.preventDefault();
 
     playSound('send');
     
@@ -140,7 +141,6 @@ export const AIChat: React.FC<AIChatProps> = ({
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response with more variety
     setTimeout(() => {
       const aiResponses = [
         {
@@ -183,10 +183,17 @@ export const AIChat: React.FC<AIChatProps> = ({
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    // Remove emoji and set as input
     const cleanSuggestion = suggestion.replace(/^[^\w\s]+\s*/, '');
     setInputValue(cleanSuggestion);
     inputRef.current?.focus();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      e.stopPropagation();
+      handleSendMessage();
+    }
   };
 
   const toggleVoice = () => {
@@ -341,19 +348,13 @@ export const AIChat: React.FC<AIChatProps> = ({
 
         {/* Input */}
         <div className="p-4 sm:p-6 border-t" style={{ borderColor: currentTheme.colors.border }}>
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-3">
             <input
               ref={inputRef}
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage();
-                }
-              }}
+              onKeyDown={handleKeyDown}
               placeholder="Ask me anything..."
               className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
               style={{
@@ -363,7 +364,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               }}
             />
             <button
-              onClick={handleSendMessage}
+              type="submit"
               disabled={!inputValue.trim()}
               className="p-2 sm:p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
               style={{
@@ -375,7 +376,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             >
               <Send className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
-          </div>
+          </form>
         </div>
       </div>
     );
@@ -392,7 +393,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         onChange={(e) => {
           if (e.target.files) {
             playSound('notification');
-            // Handle file upload
           }
         }}
       />
@@ -569,7 +569,6 @@ export const AIChat: React.FC<AIChatProps> = ({
                       color: currentTheme.colors.text
                     }}
                   >
-                    {/* Message glow effect */}
                     <div className="absolute -inset-0.5 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-opacity duration-300"
                          style={{
                            background: message.sender === 'user' 
@@ -713,14 +712,14 @@ export const AIChat: React.FC<AIChatProps> = ({
                  background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
                  borderColor: currentTheme.colors.border
                }}>
-            <div className="flex items-center space-x-2 sm:space-x-4 mb-3 sm:mb-4">
+            <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-4 mb-3 sm:mb-4">
               <div className="flex-1 relative group">
                 <input
                   ref={inputRef}
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  onKeyDown={handleKeyDown}
                   placeholder="Ask Sarah anything..."
                   className="w-full border rounded-xl px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-16 
                            focus:outline-none transition-all duration-200"
@@ -743,6 +742,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 />
                 <div className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 flex items-center space-x-1 sm:space-x-2">
                   <button
+                    type="button"
                     onClick={handleFileUpload}
                     className="p-1 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
                     style={{ backgroundColor: 'transparent' }}
@@ -752,6 +752,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                     <Paperclip className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.textSecondary }} />
                   </button>
                   <button
+                    type="button"
                     onClick={() => {}}
                     className="p-1 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
                     style={{ backgroundColor: 'transparent' }}
@@ -764,6 +765,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               </div>
               
               <button
+                type="button"
                 onClick={toggleVoice}
                 className="p-3 sm:p-4 rounded-xl border backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95"
                 style={{
@@ -785,7 +787,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               </button>
               
               <button
-                onClick={handleSendMessage}
+                type="submit"
                 disabled={!inputValue.trim()}
                 className="p-3 sm:p-4 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 disabled:scale-100
                          disabled:cursor-not-allowed backdrop-blur-sm relative overflow-hidden group"
@@ -803,7 +805,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                      style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' }}></div>
                 <Send className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
               </button>
-            </div>
+            </form>
             
             {/* Quick Actions */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs space-y-2 sm:space-y-0"
