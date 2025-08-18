@@ -1,16 +1,47 @@
 import React from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { ProtectedRoute } from './components/Auth/ProtectedRoute';
-import { ChatPage } from './pages/Chat';
+import { AuthProvider } from './contexts/AuthContext';
+import { AgentProvider } from './contexts/AgentContext';
+import { useAgent } from './contexts/AgentContext';
+import { useAuth } from './contexts/AuthContext';
+import { WelcomeScreen } from './components/WelcomeScreen';
+import { Dashboard } from './components/Dashboard';
+import { AgentSelector } from './components/AgentSelector';
+import { AgentDashboard } from './components/AgentDashboard';
+import { AuthWrapper } from './components/auth/AuthWrapper';
+
+const AppContent: React.FC = () => {
+  const { currentView } = useAgent();
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <AuthWrapper />;
+  }
+
+  switch (currentView) {
+    case 'welcome':
+      return <WelcomeScreen />;
+    case 'dashboard':
+      return <Dashboard />;
+    case 'selector':
+      return <AgentSelector />;
+    case 'agent':
+      return <AgentDashboard />;
+    default:
+      return <WelcomeScreen />;
+  }
+};
 
 function App() {
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
-        <ProtectedRoute>
-          <ChatPage />
-        </ProtectedRoute>
-      </div>
+      <AuthProvider>
+        <AgentProvider>
+          <div className="min-h-screen transition-colors">
+            <AppContent />
+          </div>
+        </AgentProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

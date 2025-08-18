@@ -71,12 +71,7 @@ export const AIChat: React.FC<AIChatProps> = ({
           `🎯 ${agentContext.role} recommendations`,
           `📈 Department performance`
         ] : [
-          "🚀 Show me system performance",
-          "📊 Analyze model accuracy trends", 
-          "⚡ Check GPU utilization",
-          "🔧 Optimize training pipeline",
-          "💡 Generate code snippets",
-          "📈 Create performance reports"
+          // No default suggestions
         ])
       ]
     }
