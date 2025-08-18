@@ -148,9 +148,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, isFirstTi
                         className="h-full transition-all duration-300 ease-out"
                         style={{ 
                           background: `linear-gradient(90deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                      <span className="text-base sm:text-lg">
-                        {isFirstTime ? 'Get Started' : 'Enter Dashboard'}
-                      </span>
+                          width: `${progress}%`
                         }}
                       />
                     </div>
@@ -219,10 +217,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, isFirstTi
                         <span style={{ color: currentTheme.colors.textSecondary }}>API Gateway</span>
                         <span style={{ color: currentTheme.colors.secondary }}>✓ Online</span>
                       </div>
-                    {isFirstTime 
-                      ? "Welcome to your AI Operations Platform • Let's get started"
-                      : "Advanced AI Operations • Real-time Analytics • Neural Network Management"
-                    }
+                    </div>
                   </div>
                   
                   <button
@@ -242,14 +237,19 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, isFirstTi
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' }}
                     ></div>
-                    <span className="text-base sm:text-lg">Enter Dashboard</span>
+                    <span className="text-base sm:text-lg">
+                      {isFirstTime ? 'Get Started' : 'Enter Dashboard'}
+                    </span>
                     <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-2 transition-transform relative z-10" />
                   </button>
                 </div>
               </div>
               
               <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
-                Advanced AI Operations • Real-time Analytics • Neural Network Management
+                {isFirstTime 
+                  ? "Welcome to your AI Operations Platform • Let's get started"
+                  : "Advanced AI Operations • Real-time Analytics • Neural Network Management"
+                }
               </p>
             </div>
           )}
