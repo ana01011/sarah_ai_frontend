@@ -3,6 +3,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { AgentProvider } from './contexts/AgentContext';
 import { AuthWrapper } from './components/auth/AuthWrapper';
+import { WelcomeScreen } from './components/WelcomeScreen';
 import { Dashboard } from './components/Dashboard';
 import { AgentSelector } from './components/AgentSelector';
 import { AgentDashboard } from './components/AgentDashboard';
@@ -18,6 +19,8 @@ const AppContent: React.FC = () => {
   }
 
   switch (currentView) {
+    case 'welcome':
+      return <WelcomeScreen />;
     case 'selector':
       return <AgentSelector />;
     case 'agent':
