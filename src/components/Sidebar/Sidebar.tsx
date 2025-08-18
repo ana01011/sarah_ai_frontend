@@ -214,10 +214,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                   </span>
                 </div>
               </button>
+                    className="text-xs lg:text-sm font-semibold transition-colors relative z-10"
+                    style={{ color: currentTheme.colors.text }}
+                  >
+                    <span className="hidden lg:inline">Full Chat</span>
+                    <span className="lg:hidden">Chat</span>
+                  </span>
+                </div>
+              </button>
+
+              <button className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block">
+                <Settings 
+                  className="w-4 h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
 
               <button
                 onClick={logout}
                 className="p-1.5 sm:p-2 lg:p-3 hover:bg-red-500/20 rounded-lg lg:rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{ color: currentTheme.colors.textSecondary }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
                   e.currentTarget.style.color = currentTheme.colors.error;
@@ -227,10 +243,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                   e.currentTarget.style.color = currentTheme.colors.textSecondary;
                 }}
               >
-                <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               </button>
 
-              <div className="text-right hidden lg:block">
+              <div className="text-right hidden xl:block">
                 <div className="flex items-center space-x-1 lg:space-x-2">
                   <p className="text-xs lg:text-sm font-semibold" style={{ color: currentTheme.colors.text }}>
                     {currentTime.toLocaleTimeString()}
@@ -247,7 +263,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
               </div>
               
               <div className="flex items-center space-x-1 sm:space-x-2 hidden xl:flex">
-                <CheckCircle className="w-4 h-4" style={{ color: currentTheme.colors.success }} />
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.success }} />
                 <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.success }}>All Systems Operational</span>
               </div>
             </div>
