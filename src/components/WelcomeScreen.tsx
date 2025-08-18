@@ -146,10 +146,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, isFirstTi
                     >
                       <div
                         className="h-full transition-all duration-300 ease-out"
-                        style={{ 
-                          background: `linear-gradient(90deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                          width: `${progress}%`
-                        }}
                       />
                     </div>
                   </div>
