@@ -1,7 +1,8 @@
 import React from 'react';
-import { ArrowLeft, MessageCircle } from 'lucide-react';
+import { ArrowLeft, MessageCircle, LogOut } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAgent } from '../contexts/AgentContext';
+import { useAuth } from '../contexts/AuthContext';
 import { CEODashboard } from './dashboards/CEODashboard';
 import { CTODashboard } from './dashboards/CTODashboard';
 import { CFODashboard } from './dashboards/CFODashboard';
@@ -13,6 +14,7 @@ import { useState, useEffect } from 'react';
 export const AgentDashboard: React.FC = () => {
   const { currentTheme } = useTheme();
   const { selectedAgent, setCurrentView } = useAgent();
+  const { logout } = useAuth();
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   if (!selectedAgent) {
@@ -153,37 +155,59 @@ export const AgentDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Chat Button */}
-          <button
-            onClick={() => setIsChatOpen(true)}
-            className="relative group bg-gradient-to-r from-blue-500/20 to-emerald-500/20 
-                     hover:from-blue-500/30 hover:to-emerald-500/30 border border-blue-500/30 
-                     hover:border-emerald-500/50 rounded-xl px-4 sm:px-6 py-2 sm:py-3 transition-all duration-300 
-                     hover:scale-110 active:scale-95 hover:shadow-xl hover:shadow-blue-500/30
-                     backdrop-blur-sm overflow-hidden"
-            style={{
-              background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
-              borderColor: currentTheme.colors.primary + '50',
-              boxShadow: `0 10px 25px -5px ${currentTheme.shadows.primary}`
-            }}
-          >
-            <div 
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)' }}
-            />
-            <div className="flex items-center space-x-2">
-              <MessageCircle 
-                className="w-4 h-4 sm:w-5 sm:h-5 transition-colors" 
-                style={{ color: currentTheme.colors.primary }}
+          <div className="flex items-center space-x-3">
+            {/* Chat Button */}
+            <button
+              onClick={() => setIsChatOpen(true)}
+              className="relative group bg-gradient-to-r from-blue-500/20 to-emerald-500/20 
+                       hover:from-blue-500/30 hover:to-emerald-500/30 border border-blue-500/30 
+                       hover:border-emerald-500/50 rounded-xl px-4 sm:px-6 py-2 sm:py-3 transition-all duration-300 
+                       hover:scale-110 active:scale-95 hover:shadow-xl hover:shadow-blue-500/30
+                       backdrop-blur-sm overflow-hidden"
+              style={{
+                background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
+                borderColor: currentTheme.colors.primary + '50',
+                boxShadow: `0 10px 25px -5px ${currentTheme.shadows.primary}`
+              }}
+            >
+              <div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)' }}
               />
-              <span 
-                className="text-sm sm:text-base font-semibold transition-colors relative z-10"
-                style={{ color: currentTheme.colors.text }}
-              >
-                Chat with {selectedAgent.name.split(' ')[0]}
-              </span>
-            </div>
-          </button>
+              <div className="flex items-center space-x-2">
+                <MessageCircle 
+                  className="w-4 h-4 sm:w-5 sm:h-5 transition-colors" 
+                  style={{ color: currentTheme.colors.primary }}
+                />
+                <span 
+                  className="text-sm sm:text-base font-semibold transition-colors relative z-10"
+                  style={{ color: currentTheme.colors.text }}
+                >
+                  Chat with {selectedAgent.name.split(' ')[0]}
+                </span>
+              </div>
+            </button>
+
+            {/* Logout Button */}
+            <button
+              onClick={logout}
+              className="p-3 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-red-500/20"
+              style={{ 
+                backgroundColor: 'transparent',
+                color: currentTheme.colors.textSecondary
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
+                e.currentTarget.style.color = currentTheme.colors.error;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = currentTheme.colors.textSecondary;
+              }}
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
           </div>
         </div>
 

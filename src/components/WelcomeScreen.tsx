@@ -4,9 +4,10 @@ import { useTheme } from '../contexts/ThemeContext';
 
 interface WelcomeScreenProps {
   onEnter: () => void;
+  isFirstTime?: boolean;
 }
 
-export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
+export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, isFirstTime = false }) => {
   const { currentTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -147,7 +148,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
                         className="h-full transition-all duration-300 ease-out"
                         style={{ 
                           background: `linear-gradient(90deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                          width: `${progress}%`
+                      <span className="text-base sm:text-lg">
+                        {isFirstTime ? 'Get Started' : 'Enter Dashboard'}
+                      </span>
                         }}
                       />
                     </div>
@@ -216,7 +219,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter }) => {
                         <span style={{ color: currentTheme.colors.textSecondary }}>API Gateway</span>
                         <span style={{ color: currentTheme.colors.secondary }}>✓ Online</span>
                       </div>
-                    </div>
+                    {isFirstTime 
+                      ? "Welcome to your AI Operations Platform • Let's get started"
+                      : "Advanced AI Operations • Real-time Analytics • Neural Network Management"
+                    }
                   </div>
                   
                   <button

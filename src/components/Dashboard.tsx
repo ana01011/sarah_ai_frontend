@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Brain, Cpu, Database, Zap, TrendingUp, AlertTriangle, CheckCircle, MessageCircle, Settings, Bell, Search, Filter, Download, Share, Maximize, BarChart3, Users, Globe } from 'lucide-react';
+import { Activity, Brain, Cpu, Database, Zap, TrendingUp, AlertTriangle, CheckCircle, MessageCircle, Settings, Bell, Search, Filter, Download, Share, Maximize, BarChart3, Users, Globe, LogOut } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import { ThemeSelector } from './ThemeSelector';
 import { MetricsCard } from './MetricsCard';
 import { NeuralNetworkViz } from './NeuralNetworkViz';
@@ -17,6 +18,7 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   const { currentTheme } = useTheme();
   const { setCurrentView } = useAgent();
+  const { logout, user } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [notifications, setNotifications] = useState(3);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -245,6 +247,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 />
               </button>
 
+              <button
+                onClick={logout}
+                className="p-2 sm:p-3 hover:bg-red-500/20 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{ color: currentTheme.colors.textSecondary }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
+                  e.currentTarget.style.color = currentTheme.colors.error;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = currentTheme.colors.textSecondary;
+                }}
+              >
+                <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+
               <div className="text-right hidden lg:block">
                 <p className="text-sm font-mono" style={{ color: currentTheme.colors.secondary }}>
                   {currentTime.toLocaleTimeString()}
@@ -252,6 +270,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
                   {currentTime.toLocaleDateString()}
                 </p>
+                {user && (
+                  <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
+                    {user.name}
+                  </p>
+                )}
               </div>
               
               <div className="flex items-center space-x-2 hidden md:flex">

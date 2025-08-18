@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Agent, agents } from '../types/Agent';
-import { useTheme } from './ThemeContext';
 
 interface AgentContextType {
   selectedAgent: Agent | null;
@@ -18,7 +17,32 @@ export const AgentProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const handleSetSelectedAgent = (agent: Agent | null) => {
     setSelectedAgent(agent);
+    // Add browser back button handling
+    if (agent && typeof window !== 'undefined') {
+      window.history.pushState({ agentId: agent.id }, '', `#agent-${agent.id}`);
+    }
   };
+
+  // Handle browser back button
+  React.useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state?.agentId) {
+        // User navigated back to an agent
+        const agent = agents.find(a => a.id === event.state.agentId);
+        if (agent) {
+          setSelectedAgent(agent);
+          setCurrentView('agent-dashboard');
+        }
+      } else {
+        // User navigated back to main dashboard
+        setSelectedAgent(null);
+        setCurrentView('dashboard');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   return (
     <AgentContext.Provider value={{
