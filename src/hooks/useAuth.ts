@@ -19,26 +19,53 @@ export const useAuth = () => {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          token: credentialResponse.credential 
-        })
-      });
+      // Dummy implementation - simulate Google auth with test credentials
+      const dummyUser: User = {
+        id: '1',
+        email: 'ahmed250323@gmail.com',
+        name: 'Ahmed Test User',
+        picture: 'https://via.placeholder.com/100/4F46E5/FFFFFF?text=AT',
+        given_name: 'Ahmed',
+        family_name: 'User'
+      };
       
-      const data = await response.json();
+      const dummyToken = 'dummy-jwt-token-' + Date.now();
       
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setToken(data.token);
-        setUser(data.user);
+      localStorage.setItem('token', dummyToken);
+      localStorage.setItem('user', JSON.stringify(dummyUser));
+      setToken(dummyToken);
+      setUser(dummyUser);
+      return true;
+    } catch (error) {
+      console.error('Google auth error:', error);
+      return false;
+    }
+  };
+
+  const handleDummyLogin = async (username: string, password: string) => {
+    try {
+      // Check dummy credentials
+      if (username === 'ahmed250323' && password === 'password250323') {
+        const dummyUser: User = {
+          id: '1',
+          email: 'ahmed250323@gmail.com',
+          name: 'Ahmed Test User',
+          picture: 'https://via.placeholder.com/100/4F46E5/FFFFFF?text=AT',
+          given_name: 'Ahmed',
+          family_name: 'User'
+        };
+        
+        const dummyToken = 'dummy-jwt-token-' + Date.now();
+        
+        localStorage.setItem('token', dummyToken);
+        localStorage.setItem('user', JSON.stringify(dummyUser));
+        setToken(dummyToken);
+        setUser(dummyUser);
         return true;
       }
       return false;
     } catch (error) {
-      console.error('Google auth error:', error);
+      console.error('Login error:', error);
       return false;
     }
   };
@@ -71,6 +98,7 @@ export const useAuth = () => {
     isLoading,
     isAuthenticated: !!user && !!token,
     handleGoogleSuccess,
+    handleDummyLogin,
     signOut,
     verifyToken
   };
