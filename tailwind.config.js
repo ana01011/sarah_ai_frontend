@@ -215,3 +215,5 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                   e.currentTarget.style.color = currentTheme.colors.textSecondary;
                 }}
               >
+  )
+}
