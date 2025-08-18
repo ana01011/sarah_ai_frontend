@@ -186,13 +186,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 />
               </button>
 
-              <button className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95">
-                <div className="flex items-center space-x-1 sm:space-x-2">
-                  <Users 
-                    className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
-                    style={{ color: currentTheme.colors.textSecondary }}
-                  />
-                  <span
                     className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
                     style={{ color: currentTheme.colors.text }}
                   >
@@ -222,12 +215,3 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                   e.currentTarget.style.color = currentTheme.colors.textSecondary;
                 }}
               >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-    </div>
-  );
-};
