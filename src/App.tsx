@@ -1,9 +1,8 @@
 import React from 'react';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { AgentProvider } from './contexts/AgentContext';
-import { ProtectedRoute } from './components/Auth/ProtectedRoute';
+import { AuthWrapper } from './components/auth/AuthWrapper';
 import { useAgent } from './contexts/AgentContext';
 import { useAuth } from './contexts/AuthContext';
 import { WelcomeScreen } from './components/WelcomeScreen';
@@ -31,19 +30,17 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <ThemeProvider>
-        <AuthProvider>
-          <AgentProvider>
-            <div className="min-h-screen transition-colors">
-              <ProtectedRoute>
-                <AppContent />
-              </ProtectedRoute>
-            </div>
-          </AgentProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </GoogleOAuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AgentProvider>
+          <div className="min-h-screen transition-colors">
+            <AuthWrapper>
+              <AppContent />
+            </AuthWrapper>
+          </div>
+        </AgentProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
