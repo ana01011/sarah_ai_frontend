@@ -215,7 +215,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
               </button>
 
               <button
-                </div>
+                onClick={logout}
+                className="p-1.5 sm:p-2 lg:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              >
+                <LogOut 
+                  className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+              <div className="text-right hidden lg:block">
+                <p className="text-xs sm:text-sm font-semibold" style={{ color: currentTheme.colors.text }}>
+                  {currentTime.toLocaleTimeString()}
+                </p>
                 <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
                   {currentTime.toLocaleDateString()}
                 </p>
