@@ -16,15 +16,20 @@ export class StreamingService {
     onError: (error: string) => void
   ): Promise<void> {
     this.controller = new AbortController();
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://147.93.102.165:8000';
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/stream`, {
+      const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ message, stream: true }),
+        body: JSON.stringify({ 
+          message, 
+          stream: true,
+          max_tokens: 500 
+        }),
         signal: this.controller.signal
       });
 

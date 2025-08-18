@@ -4,17 +4,16 @@ interface User {
   id: string;
   email: string;
   name: string;
-  avatar?: string;
-  isFirstTime: boolean;
+  picture: string;
+  given_name: string;
+  family_name: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   logout: () => void;
   error: string | null;
   clearError: () => void;
@@ -22,7 +21,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL = 'http://147.93.102.165:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://147.93.102.165:8000';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -36,11 +35,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const checkAuthStatus = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
+      const savedUser = localStorage.getItem('user');
+      
+      if (!token || !savedUser) {
         setIsLoading(false);
         return;
       }
 
+      // Verify token with backend
       const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -49,96 +51,44 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData);
+        setUser(userData.user || JSON.parse(savedUser));
       } else {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
     } catch (error) {
       console.error('Auth check failed:', error);
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const loginWithGoogle = async (credential: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ token: credential })
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || 'Google login failed');
       }
 
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       setUser(data.user);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Login failed');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const register = async (name: string, email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name, email, password })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
-
-      localStorage.setItem('token', data.token);
-      setUser({ ...data.user, isFirstTime: true });
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Registration failed');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loginWithGoogle = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // For now, we'll simulate Google login
-      // In a real implementation, you'd use Google OAuth
-      const mockGoogleUser = {
-        id: 'google_' + Date.now(),
-        email: 'user@gmail.com',
-        name: 'Google User',
-        avatar: 'https://via.placeholder.com/40',
-        isFirstTime: !localStorage.getItem('returning_user')
-      };
-
-      localStorage.setItem('token', 'google_token_' + Date.now());
-      localStorage.setItem('returning_user', 'true');
-      setUser(mockGoogleUser);
-    } catch (error) {
-      setError('Google login failed');
+      setError(error instanceof Error ? error.message : 'Google login failed');
       throw error;
     } finally {
       setIsLoading(false);
@@ -147,6 +97,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
   };
 
@@ -159,8 +110,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       user,
       isAuthenticated: !!user,
       isLoading,
-      login,
-      register,
       loginWithGoogle,
       logout,
       error,

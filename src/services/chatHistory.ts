@@ -2,6 +2,7 @@ import { ChatHistory, Message } from '../types/Chat';
 
 export class ChatHistoryService {
   private static instance: ChatHistoryService;
+  private API_BASE_URL = import.meta.env.VITE_API_URL || 'http://147.93.102.165:8000';
 
   static getInstance(): ChatHistoryService {
     if (!ChatHistoryService.instance) {
@@ -10,18 +11,19 @@ export class ChatHistoryService {
     return ChatHistoryService.instance;
   }
 
-  async saveToHistory(messages: Message[], title?: string): Promise<string> {
+  async saveToHistory(messages: Message[], title?: string, chatId?: string): Promise<string> {
     try {
       const chatTitle = title || messages[0]?.content.slice(0, 50) + '...' || 'New Chat';
       const preview = messages[messages.length - 1]?.content.slice(0, 100) + '...' || '';
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/history/save`, {
+      const response = await fetch(`${this.API_BASE_URL}/api/history/save`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
+          id: chatId || Date.now().toString(),
           title: chatTitle,
           messages: messages.map(msg => ({
             ...msg,
@@ -46,7 +48,7 @@ export class ChatHistoryService {
 
   async loadHistory(): Promise<ChatHistory[]> {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/history`, {
+      const response = await fetch(`${this.API_BASE_URL}/api/history`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -73,7 +75,7 @@ export class ChatHistoryService {
 
   async deleteChat(chatId: string): Promise<void> {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/history/${chatId}`, {
+      const response = await fetch(`${this.API_BASE_URL}/api/history/${chatId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -91,7 +93,7 @@ export class ChatHistoryService {
 
   async renameChat(chatId: string, newTitle: string): Promise<void> {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/history/${chatId}`, {
+      const response = await fetch(`${this.API_BASE_URL}/api/history/${chatId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -125,7 +127,7 @@ export class ChatHistoryService {
     markdown += `*Exported on ${new Date().toLocaleDateString()}*\n\n`;
 
     chat.messages.forEach(message => {
-      const sender = message.sender === 'user' ? 'You' : 'AI';
+      const sender = message.sender === 'user' ? 'You' : 'Sarah AI';
       const timestamp = message.timestamp.toLocaleString();
       markdown += `## ${sender} - ${timestamp}\n\n`;
       markdown += `${message.content}\n\n---\n\n`;

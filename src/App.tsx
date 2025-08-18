@@ -1,18 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { AgentProvider, useAgent } from './contexts/AgentContext';
-import { WelcomeScreen } from './components/WelcomeScreen';
-import { Dashboard } from './components/Dashboard';
-import { AgentSelector } from './components/AgentSelector';
-import { AgentDashboard } from './components/AgentDashboard';
-import { AuthWrapper } from './components/auth/AuthWrapper';
+import { LoginPage } from './components/Auth/LoginPage';
 import { ChatPage } from './pages/ChatPage';
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your-google-client-id.apps.googleusercontent.com';
+
 const AppContent: React.FC = () => {
-  const { isAuthenticated, isLoading, user } = useAuth();
-  const { currentView, setCurrentView } = useAgent();
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -22,42 +19,24 @@ const AppContent: React.FC = () => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <AuthWrapper />;
-  }
-
   return (
     <Router>
       <Routes>
         <Route 
-          path="/" 
-          element={
-            currentView === 'welcome' ? (
-              <WelcomeScreen onEnter={() => setCurrentView('dashboard')} isFirstTime={user?.isFirstTime} />
-            ) : (
-              <Navigate to="/dashboard" replace />
-            )
-          } 
-        />
-        <Route 
-          path="/dashboard" 
-          element={<Dashboard />} 
+          path="/login" 
+          element={!isAuthenticated ? <LoginPage /> : <Navigate to="/chat" replace />} 
         />
         <Route 
           path="/chat" 
-          element={<ChatPage />} 
+          element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" replace />} 
         />
         <Route 
-          path="/agents" 
-          element={<AgentSelector />} 
-        />
-        <Route 
-          path="/agent-dashboard" 
-          element={<AgentDashboard />} 
+          path="/" 
+          element={<Navigate to={isAuthenticated ? "/chat" : "/login"} replace />} 
         />
         <Route 
           path="*" 
-          element={<Navigate to="/dashboard" replace />} 
+          element={<Navigate to={isAuthenticated ? "/chat" : "/login"} replace />} 
         />
       </Routes>
     </Router>
@@ -66,13 +45,13 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AgentProvider>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <ThemeProvider>
+        <AuthProvider>
           <AppContent />
-        </AgentProvider>
-      </AuthProvider>
-    </ThemeProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </GoogleOAuthProvider>
   );
 }
 

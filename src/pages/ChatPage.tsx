@@ -23,8 +23,9 @@ export const ChatPage: React.FC = () => {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth < 768) {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
         setSidebarCollapsed(true);
       }
     };
@@ -47,15 +48,7 @@ export const ChatPage: React.FC = () => {
             e.preventDefault();
             setSidebarCollapsed(!sidebarCollapsed);
             break;
-          case ',':
-            e.preventDefault();
-            // Open settings
-            break;
         }
-      }
-      
-      if (e.key === 'Escape') {
-        // Stop generation if streaming
       }
     };
 
