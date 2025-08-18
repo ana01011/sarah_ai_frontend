@@ -10,7 +10,6 @@ import { WelcomeScreen } from './components/WelcomeScreen';
 import { Dashboard } from './components/Dashboard';
 import { AgentSelector } from './components/AgentSelector';
 import { AgentDashboard } from './components/AgentDashboard';
-import { ChatPage } from './pages/Chat';
 
 const AppContent: React.FC = () => {
   const { currentView } = useAgent();
@@ -20,7 +19,7 @@ const AppContent: React.FC = () => {
     case 'welcome':
       return <WelcomeScreen />;
     case 'dashboard':
-      return <ChatPage />;
+      return <Dashboard />;
     case 'selector':
       return <AgentSelector />;
     case 'agent':
