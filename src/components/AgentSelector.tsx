@@ -49,60 +49,67 @@ export const AgentSelector: React.FC = () => {
           borderColor: currentTheme.colors.border
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={handleBack}
-                className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-white/10"
+                className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 style={{ color: currentTheme.colors.textSecondary }}
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: currentTheme.colors.text }}>
+                <h1 className="text-lg sm:text-2xl font-bold" style={{ color: currentTheme.colors.text }}>
                   AI Agents
                 </h1>
-                <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+                <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
                   Choose an AI agent to chat with
                 </p>
               </div>
             </div>
             
             <div className="flex items-center space-x-2">
-              <Users className="w-5 h-5" style={{ color: currentTheme.colors.primary }} />
-              <span className="text-sm font-medium">{agents.length} Agents</span>
+              <Users className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.primary }} />
+              <span className="text-xs sm:text-sm font-medium">{agents.length} Agents</span>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-8">
         {/* Search and Filters */}
-        <div className="mb-8 space-y-4">
+        <div className="mb-6 sm:mb-8 space-y-3 sm:space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" 
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5" 
                    style={{ color: currentTheme.colors.textSecondary }} />
             <input
               type="text"
               placeholder="Search agents by name, role, or department..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-xl border transition-colors focus:outline-none"
+              className="w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 rounded-xl border transition-colors focus:outline-none text-sm sm:text-base"
               style={{
                 backgroundColor: currentTheme.colors.surface + '60',
                 borderColor: currentTheme.colors.border,
-                color: currentTheme.colors.text
+                color: currentTheme.colors.text,
+                fontSize: '16px'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = currentTheme.colors.border;
               }}
             />
           </div>
 
           {/* Categories */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-xs sm:text-sm min-h-[44px] flex items-center ${
                 !selectedCategory ? 'scale-105' : 'hover:scale-105'
               }`}
               style={{
@@ -124,7 +131,7 @@ export const AgentSelector: React.FC = () => {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-200 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm min-h-[44px] ${
                   selectedCategory === category.id ? 'scale-105' : 'hover:scale-105'
                 }`}
                 style={{
@@ -140,7 +147,8 @@ export const AgentSelector: React.FC = () => {
                 }}
               >
                 <span>{category.icon}</span>
-                <span>{category.name}</span>
+                <span className="hidden sm:inline">{category.name}</span>
+                <span className="sm:hidden">{category.name.split(' ')[0]}</span>
                 <span className="text-xs">({category.count})</span>
               </button>
             ))}
@@ -148,20 +156,20 @@ export const AgentSelector: React.FC = () => {
         </div>
 
         {/* Agents Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredAgents.map((agent) => (
             <div
               key={agent.id}
               onClick={() => handleAgentSelect(agent)}
-              className="group cursor-pointer backdrop-blur-xl border rounded-2xl p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+              className="group cursor-pointer backdrop-blur-xl border rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl min-h-[200px] sm:min-h-[250px]"
               style={{
                 background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
                 borderColor: currentTheme.colors.border,
                 boxShadow: `0 8px 32px -8px ${currentTheme.shadows.primary}`
               }}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="text-3xl">{agent.avatar}</div>
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <div className="text-2xl sm:text-3xl">{agent.avatar}</div>
                 <div 
                   className="px-2 py-1 rounded-full text-xs font-medium"
                   style={{ 
@@ -173,11 +181,11 @@ export const AgentSelector: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mb-4">
-                <h3 className="text-lg font-bold mb-1" style={{ color: currentTheme.colors.text }}>
+              <div className="mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-bold mb-1" style={{ color: currentTheme.colors.text }}>
                   {agent.name}
                 </h3>
-                <p className="text-sm font-medium mb-2" style={{ color: currentTheme.colors.primary }}>
+                <p className="text-xs sm:text-sm font-medium mb-2" style={{ color: currentTheme.colors.primary }}>
                   {agent.role}
                 </p>
                 <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
@@ -185,12 +193,12 @@ export const AgentSelector: React.FC = () => {
                 </p>
               </div>
 
-              <p className="text-sm mb-4 line-clamp-2" style={{ color: currentTheme.colors.textSecondary }}>
+              <p className="text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2" style={{ color: currentTheme.colors.textSecondary }}>
                 {agent.description}
               </p>
 
               {/* Specialties */}
-              <div className="mb-4">
+              <div className="mb-3 sm:mb-4">
                 <div className="flex flex-wrap gap-1">
                   {agent.specialties.slice(0, 2).map((specialty, idx) => (
                     <span
@@ -219,7 +227,7 @@ export const AgentSelector: React.FC = () => {
               </div>
 
               {/* Metrics */}
-              <div className="grid grid-cols-2 gap-4 text-xs">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs">
                 <div className="text-center">
                   <div className="flex items-center justify-center space-x-1 mb-1">
                     <Star className="w-3 h-3" style={{ color: currentTheme.colors.warning }} />
@@ -240,9 +248,9 @@ export const AgentSelector: React.FC = () => {
         </div>
 
         {filteredAgents.length === 0 && (
-          <div className="text-center py-12">
-            <Users className="w-16 h-16 mx-auto mb-4 opacity-50" style={{ color: currentTheme.colors.textSecondary }} />
-            <h3 className="text-lg font-semibold mb-2" style={{ color: currentTheme.colors.text }}>
+          <div className="text-center py-8 sm:py-12">
+            <Users className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 opacity-50" style={{ color: currentTheme.colors.textSecondary }} />
+            <h3 className="text-base sm:text-lg font-semibold mb-2" style={{ color: currentTheme.colors.text }}>
               No agents found
             </h3>
             <p style={{ color: currentTheme.colors.textSecondary }}>

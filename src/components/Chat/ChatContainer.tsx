@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Brain, Send, Mic, MicOff, Paperclip, X, Maximize2, Minimize2 } from 'lucide-react';
+import { Brain, Send, Mic, MicOff, ArrowLeft } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -15,12 +15,14 @@ interface ChatContainerProps {
   isIntegrated?: boolean;
   agentContext?: any;
   onClose?: () => void;
+  onBack?: () => void;
 }
 
 export const ChatContainer: React.FC<ChatContainerProps> = ({ 
   isIntegrated = false, 
   agentContext,
-  onClose 
+  onClose,
+  onBack
 }) => {
   const { currentTheme } = useTheme();
   const { user } = useAuth();
@@ -37,7 +39,6 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -64,6 +65,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsTyping(true);
 
@@ -74,7 +76,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: inputValue,
+          message: currentInput,
           role: agentContext?.role || 'general'
         })
       });
@@ -121,15 +123,24 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
       {/* Header */}
       {!isIntegrated && (
         <div 
-          className="flex items-center justify-between p-4 border-b"
+          className="flex items-center justify-between p-3 sm:p-4 border-b"
           style={{ 
             backgroundColor: currentTheme.colors.surface + '80',
             borderColor: currentTheme.colors.border 
           }}
         >
           <div className="flex items-center space-x-3">
-            <Brain className="w-6 h-6" style={{ color: currentTheme.colors.primary }} />
-            <h2 className="text-lg font-semibold" style={{ color: currentTheme.colors.text }}>
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hover:bg-white/10 sm:hidden"
+                style={{ color: currentTheme.colors.textSecondary }}
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+            )}
+            <Brain className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: currentTheme.colors.primary }} />
+            <h2 className="text-base sm:text-lg font-semibold" style={{ color: currentTheme.colors.text }}>
               {agentContext ? `${agentContext.name}` : 'Sarah AI'}
             </h2>
           </div>
@@ -137,22 +148,23 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
             <button
               onClick={onClose}
               className="p-2 rounded-lg transition-colors hover:bg-white/10"
+              style={{ color: currentTheme.colors.textSecondary }}
             >
-              <X className="w-5 h-5" style={{ color: currentTheme.colors.textSecondary }} />
+              ×
             </button>
           )}
         </div>
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 custom-scrollbar">
         {messages.map((message) => (
           <div
             key={message.id}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] p-3 rounded-lg ${
+              className={`max-w-[85%] sm:max-w-[80%] p-3 sm:p-4 rounded-xl transition-all duration-300 ${
                 message.sender === 'user' 
                   ? 'ml-auto' 
                   : 'mr-auto'
@@ -164,9 +176,9 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
                 color: currentTheme.colors.text
               }}
             >
-              <p className="text-sm leading-relaxed">{message.content}</p>
+              <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
               <span 
-                className="text-xs mt-1 block opacity-70"
+                className="text-xs mt-1 sm:mt-2 block opacity-70"
                 style={{ color: currentTheme.colors.textSecondary }}
               >
                 {message.timestamp.toLocaleTimeString()}
@@ -178,10 +190,10 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         {isTyping && (
           <div className="flex justify-start">
             <div 
-              className="p-3 rounded-lg"
+              className="p-3 sm:p-4 rounded-xl"
               style={{ backgroundColor: currentTheme.colors.surface + '40' }}
             >
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <Brain className="w-4 h-4 animate-pulse" style={{ color: currentTheme.colors.primary }} />
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: currentTheme.colors.primary }}></div>
@@ -198,10 +210,10 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
 
       {/* Input */}
       <div 
-        className="p-4 border-t"
+        className="p-3 sm:p-4 border-t"
         style={{ borderColor: currentTheme.colors.border }}
       >
-        <form onSubmit={handleSendMessage} className="flex items-end space-x-3">
+        <form onSubmit={handleSendMessage} className="flex items-end space-x-2 sm:space-x-3">
           <div className="flex-1 relative">
             <textarea
               ref={inputRef}
@@ -210,11 +222,18 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
               onKeyDown={handleKeyDown}
               placeholder="Type your message..."
               rows={1}
-              className="w-full resize-none border rounded-lg px-4 py-3 focus:outline-none transition-colors"
+              className="w-full resize-none border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-colors text-sm sm:text-base"
               style={{
                 backgroundColor: currentTheme.colors.surface + '60',
                 borderColor: currentTheme.colors.border,
-                color: currentTheme.colors.text
+                color: currentTheme.colors.text,
+                fontSize: '16px' // Prevent iOS zoom
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = currentTheme.colors.border;
               }}
             />
           </div>
@@ -222,20 +241,20 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
           <button
             type="button"
             onClick={() => setIsListening(!isListening)}
-            className="p-3 rounded-lg border transition-colors"
+            className="p-2 sm:p-3 rounded-lg border transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             style={{
               backgroundColor: isListening ? currentTheme.colors.error + '20' : currentTheme.colors.surface + '40',
               borderColor: currentTheme.colors.border,
               color: isListening ? currentTheme.colors.error : currentTheme.colors.textSecondary
             }}
           >
-            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            {isListening ? <MicOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Mic className="w-4 h-4 sm:w-5 sm:h-5" />}
           </button>
           
           <button
             type="submit"
             disabled={!inputValue.trim()}
-            className="p-3 rounded-lg transition-colors disabled:opacity-50"
+            className="p-2 sm:p-3 rounded-lg transition-colors disabled:opacity-50 min-w-[44px] min-h-[44px] flex items-center justify-center"
             style={{
               backgroundColor: !inputValue.trim() 
                 ? currentTheme.colors.textSecondary + '60'
@@ -243,11 +262,11 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
               color: currentTheme.colors.text
             }}
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </form>
         
-        <div className="mt-2 text-xs" style={{ color: currentTheme.colors.textSecondary }}>
+        <div className="mt-2 text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
           Press Shift+Enter for new line
         </div>
       </div>
