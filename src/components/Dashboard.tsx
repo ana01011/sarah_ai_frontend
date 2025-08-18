@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, Globe, LogOut } from 'lucide-react';
+import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ThemeSelector } from './ThemeSelector';
@@ -215,27 +215,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 </div>
               </button>
 
-              <button
-                onClick={() => window.location.href = '/chat'}
-                className="relative group border rounded-xl px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 
-                         hover:scale-110 active:scale-95 hover:shadow-xl backdrop-blur-sm overflow-hidden"
-                style={{
-                  background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
-                  borderColor: currentTheme.colors.primary + '50',
-                  boxShadow: `0 10px 25px -5px ${currentTheme.shadows.primary}`
-                }}
-              >
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)' }}
-                ></div>
-                <div className="flex items-center space-x-1 sm:space-x-2">
-                  <MessageCircle 
-                    className="w-4 h-4 sm:w-5 sm:h-5 transition-colors" 
-                    style={{ color: currentTheme.colors.primary }}
-                  />
-                  <span 
-                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
+                className="p-1.5 sm:p-2 lg:p-3 hover:bg-white/10 rounded-lg lg:rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden lg:block"
                     style={{ color: currentTheme.colors.text }}
                   >
                     <span className="hidden sm:inline">Full Chat</span>
@@ -246,14 +226,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
 
               <button className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block">
                 <Settings 
-                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  className="w-4 h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
                   style={{ color: currentTheme.colors.textSecondary }}
                 />
               </button>
 
               <button
                 onClick={logout}
-                className="p-2 sm:p-3 hover:bg-red-500/20 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                className="relative group border rounded-lg lg:rounded-xl px-2 sm:px-3 lg:px-6 py-1.5 sm:py-2 lg:py-3 transition-all duration-300 
                 style={{ color: currentTheme.colors.textSecondary }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
@@ -268,7 +248,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
               </button>
 
               <div className="text-right hidden lg:block">
-                <p className="text-sm font-mono" style={{ color: currentTheme.colors.secondary }}>
+                <div className="flex items-center space-x-1 lg:space-x-2">
                   {currentTime.toLocaleTimeString()}
                 </p>
                 <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
@@ -277,23 +257,54 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 {user && (
                   <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
                     {user.name}
-                  </p>
+                    className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 transition-colors" 
                 )}
               </div>
               
-              <div className="flex items-center space-x-2 hidden md:flex">
+                    className="text-xs lg:text-sm font-semibold transition-colors relative z-10"
                 <CheckCircle className="w-4 h-4" style={{ color: currentTheme.colors.success }} />
                 <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.success }}>All Systems Operational</span>
-              </div>
-            </div>
+                    <span className="hidden lg:inline">AI Agents</span>
+                    <span className="lg:hidden">Agents</span>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+              {!showFullChat && (
+                <button
+                className="p-1.5 sm:p-2 lg:p-3 hover:bg-red-500/20 rounded-lg lg:rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                  className="relative group border rounded-lg lg:rounded-xl px-2 sm:px-3 lg:px-6 py-1.5 sm:py-2 lg:py-3 transition-all duration-300 
+                           hover:scale-110 active:scale-95 hover:shadow-xl backdrop-blur-sm overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
+                    borderColor: currentTheme.colors.primary + '50',
+                    boxShadow: `0 10px 25px -5px ${currentTheme.shadows.primary}`
+                  }}
+                >
+                  <div 
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+                  ></div>
+                  <div className="flex items-center space-x-1 lg:space-x-2">
+              <div className="text-right hidden xl:block">
+                      className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 transition-colors" 
+                      style={{ color: currentTheme.colors.primary }}
+                    />
+                    <span 
+                      className="text-xs lg:text-sm font-semibold transition-colors relative z-10"
+                      style={{ color: currentTheme.colors.text }}
+                    >
+                      <span className="hidden lg:inline">Full Chat</span>
+                      <span className="lg:hidden">Chat</span>
+                    </span>
+                  </div>
+                </button>
+              )}
+              <div className="flex items-center space-x-1 sm:space-x-2 hidden xl:flex">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.success }} />
+      <div className="relative z-10 h-[calc(100vh-60px)] sm:h-[calc(100vh-70px)] lg:h-[calc(100vh-80px)]">
         {/* Full Chat Interface */}
-        <div className="h-[calc(100vh-120px)]">
+        <div className="h-full">
           <ChatContainer />
         </div>
       </div>
