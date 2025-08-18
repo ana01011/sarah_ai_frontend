@@ -1,253 +1,120 @@
-import React, { useState, useEffect } from 'react';
-import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { useAuth } from '../contexts/AuthContext';
-import { ThemeSelector } from './ThemeSelector';
-import { ChatContainer } from './Chat/ChatContainer';
-import { useAgent } from '../contexts/AgentContext';
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Square, Paperclip } from 'lucide-react';
 
-interface DashboardProps {
-  onBackToWelcome?: () => void;
+interface MessageInputProps {
+  onSendMessage: (message: string, agentRole?: string) => void;
+  onStopStreaming: () => void;
+  isStreaming: boolean;
+  disabled: boolean;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
-  const { currentTheme } = useTheme();
-  const { setCurrentView } = useAgent();
-  const { logout, user } = useAuth();
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [notifications, setNotifications] = useState(3);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+export const MessageInput: React.FC<MessageInputProps> = ({
+  onSendMessage,
+  onStopStreaming,
+  isStreaming,
+  disabled
+}) => {
+  const [message, setMessage] = useState('');
+  const [selectedAgent, setSelectedAgent] = useState<string>('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const agents = [
+    { id: '', name: 'General AI' },
+    { id: 'ceo', name: 'CEO Assistant' },
+    { id: 'cto', name: 'CTO Assistant' },
+    { id: 'cfo', name: 'CFO Assistant' },
+    { id: 'cmo', name: 'CMO Assistant' },
+    { id: 'coo', name: 'COO Assistant' }
+  ];
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [message]);
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
-
-  const handleNotificationClick = () => {
-    setNotifications(0);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!message.trim() || disabled) return;
+    
+    onSendMessage(message.trim(), selectedAgent || undefined);
+    setMessage('');
   };
 
-  const handleExportData = () => {
-    console.log('Exporting dashboard data...');
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
   };
 
-  const handleShareDashboard = () => {
-    console.log('Sharing dashboard...');
+  const handleStop = () => {
+    onStopStreaming();
   };
 
   return (
-    <div 
-      className="min-h-screen overflow-hidden transition-all duration-500"
-      style={{ 
-        background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
-        color: currentTheme.colors.text
-      }}
-    >
-      {/* Animated Background */}
-      <div className="fixed inset-0 opacity-10">
-        <div 
-          className="absolute top-0 left-0 w-[32rem] h-[32rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
-          style={{ backgroundColor: currentTheme.colors.primary }}
-        ></div>
-        <div 
-          className="absolute top-0 right-0 w-[28rem] h-[28rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
-          style={{ backgroundColor: currentTheme.colors.secondary }}
-        ></div>
-        <div 
-          className="absolute bottom-0 left-1/2 w-[30rem] h-[30rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
-          style={{ backgroundColor: currentTheme.colors.accent }}
-        ></div>
-        <div 
-          className="absolute -bottom-10 -right-10 w-[24rem] h-[24rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-3000"
-          style={{ backgroundColor: currentTheme.colors.primary + '40' }}
-        ></div>
+    <div className="border-t border-gray-200 bg-white p-4">
+      {/* Agent Selector */}
+      <div className="mb-3">
+        <select
+          value={selectedAgent}
+          onChange={(e) => setSelectedAgent(e.target.value)}
+          className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          {agents.map((agent) => (
+            <option key={agent.id} value={agent.id}>
+              {agent.name}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Header */}
-      <header 
-        className="relative z-40 backdrop-blur-md border-b"
-        style={{ 
-          backgroundColor: currentTheme.colors.surface + '80',
-          borderColor: currentTheme.colors.border
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="relative">
-                <div 
-                  className="absolute -inset-2 rounded-full blur opacity-30 animate-pulse"
-                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
-                ></div>
-                <Brain 
-                  className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse relative z-10" 
-                  style={{ color: currentTheme.colors.primary }}
-                />
-                <div 
-                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-ping"
-                  style={{ backgroundColor: currentTheme.colors.secondary }}
-                ></div>
-                <div 
-                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full"
-                  style={{ backgroundColor: currentTheme.colors.secondary }}
-                ></div>
-              </div>
-              <div>
-                <h1 
-                  className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent"
-                  style={{ 
-                    backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
-                  }}
-                >
-                  SARAH
-                </h1>
-                <p className="text-xs sm:text-sm flex items-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.textSecondary }}>
-                  <span className="hidden sm:inline">AI Operations Dashboard</span>
-                  <span className="sm:hidden">AI Dashboard</span>
-                  <span>•</span>
-                  <span style={{ color: currentTheme.colors.secondary }}>v3.7.2</span>
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <ThemeSelector />
-              
-              <div className="relative hidden sm:block">
-                <button
-                  onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-                >
-                  <Search 
-                    className="w-5 h-5 hover:text-white transition-colors" 
-                    style={{ color: currentTheme.colors.textSecondary }}
-                  />
-                </button>
-                {isSearchOpen && (
-                  <div 
-                    className="absolute top-full right-0 mt-2 w-80 backdrop-blur-md border rounded-xl p-4 shadow-2xl"
-                    style={{ 
-                      backgroundColor: currentTheme.colors.surface + 'f0',
-                      borderColor: currentTheme.colors.border
-                    }}
-                  >
-                    <input
-                      type="text"
-                      placeholder="Search metrics, models, or data..."
-                      className="w-full border rounded-lg px-4 py-2 focus:outline-none transition-colors"
-                      style={{ 
-                        backgroundColor: currentTheme.colors.background + '80',
-                        borderColor: currentTheme.colors.border,
-                        color: currentTheme.colors.text
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={handleNotificationClick}
-                className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-              >
-                <Bell 
-                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
-                  style={{ color: currentTheme.colors.textSecondary }}
-                />
-                {notifications > 0 && (
-                  <div 
-                    className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 text-white text-xs rounded-full flex items-center justify-center animate-pulse"
-                    style={{ backgroundColor: currentTheme.colors.error }}
-                  >
-                    {notifications}
-                  </div>
-                )}
-              </button>
-
-              <button
-                onClick={handleExportData}
-                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
-              >
-                <Download 
-                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
-                  style={{ color: currentTheme.colors.textSecondary }}
-                />
-              </button>
-
-              <button
-                onClick={handleShareDashboard}
-                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
-              >
-                <Share 
-                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
-                  style={{ color: currentTheme.colors.textSecondary }}
-                />
-              </button>
-
-                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
-                    style={{ color: currentTheme.colors.text }}
-                  >
-                    <span className="hidden sm:inline">AI Agents</span>
-                    <span className="sm:hidden">Agents</span>
-                  </span>
-                </div>
-              </button>
-
-              <button className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block">
-                <Settings 
-                  className="w-4 h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
-                  style={{ color: currentTheme.colors.textSecondary }}
-                />
-              </button>
-
-              <button
-                onClick={logout}
-                className="p-1.5 sm:p-2 lg:p-3 hover:bg-red-500/20 rounded-lg lg:rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-                style={{ color: currentTheme.colors.textSecondary }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
-                  e.currentTarget.style.color = currentTheme.colors.error;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = currentTheme.colors.textSecondary;
-                }}
-              >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-              </button>
-
-              <div className="text-right hidden xl:block">
-                <div className="flex items-center space-x-1 lg:space-x-2">
-                  <p className="text-xs lg:text-sm font-semibold" style={{ color: currentTheme.colors.text }}>
-                    {currentTime.toLocaleTimeString()}
-                  </p>
-                </div>
-                <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
-                  {currentTime.toLocaleDateString()}
-                </p>
-                {user && (
-                  <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
-                    {user.name}
-                  </p>
-                )}
-              </div>
-              
-              <div className="flex items-center space-x-1 sm:space-x-2 hidden xl:flex">
-                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.success }} />
-                <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.success }}>All Systems Operational</span>
-              </div>
-            </div>
-          </div>
+      <form onSubmit={handleSubmit} className="flex items-end space-x-3">
+        <div className="flex-1 relative">
+          <textarea
+            ref={textareaRef}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type your message... (Shift+Enter for new line)"
+            disabled={disabled}
+            className="w-full resize-none border border-gray-300 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ minHeight: '52px', maxHeight: '200px' }}
+          />
+          
+          <button
+            type="button"
+            className="absolute right-3 top-3 p-1.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
+            title="Attach file"
+          >
+            <Paperclip className="w-4 h-4" />
+          </button>
         </div>
-      </header>
 
-      <div className="relative z-10 h-[calc(100vh-60px)] sm:h-[calc(100vh-70px)] lg:h-[calc(100vh-80px)]">
-        {/* Full Chat Interface */}
-        <div className="h-full">
-          <ChatContainer />
-        </div>
+        {isStreaming ? (
+          <button
+            type="button"
+            onClick={handleStop}
+            className="p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
+            title="Stop generation"
+          >
+            <Square className="w-5 h-5" />
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={!message.trim() || disabled}
+            className="p-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 disabled:scale-100"
+            title="Send message"
+          >
+            <Send className="w-5 h-5" />
+          </button>
+        )}
+      </form>
+
+      <div className="mt-2 text-xs text-gray-500 text-center">
+        Press <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">Shift + Enter</kbd> for new line
       </div>
     </div>
   );

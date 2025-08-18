@@ -1,254 +1,306 @@
-import React, { useState, useEffect } from 'react';
-import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
-import { useAuth } from '../contexts/AuthContext';
-import { ThemeSelector } from './ThemeSelector';
-import { ChatContainer } from './Chat/ChatContainer';
-import { useAgent } from '../contexts/AgentContext';
+import { useState, useCallback } from 'react';
+import { Message, ChatHistory } from '../types/Chat';
 
-interface DashboardProps {
-  onBackToWelcome?: () => void;
-}
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://147.93.102.165:8000';
 
-export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
-  const { currentTheme } = useTheme();
-  const { setCurrentView } = useAgent();
-  const { logout, user } = useAuth();
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [notifications, setNotifications] = useState(3);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+export const useChat = () => {
+  const [currentChat, setCurrentChat] = useState<Message[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-
-    return () => {
-      clearInterval(timer);
+  const streamMessage = async (message: string, agentRole?: string) => {
+    setIsStreaming(true);
+    setError(null);
+    let fullResponse = '';
+    
+    // Add user message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: message,
+      role: 'user',
+      timestamp: new Date()
     };
+    
+    setCurrentChat(prev => [...prev, userMessage]);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('sarah-token')}`
+        },
+        body: JSON.stringify({ 
+          message,
+          role: agentRole,
+          stream: true,
+          max_tokens: 500 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Add AI message placeholder
+      const aiMessage: Message = { 
+        id: (Date.now() + 1).toString(), 
+        role: 'assistant', 
+        content: '', 
+        timestamp: new Date(),
+        isStreaming: true,
+        agentRole
+      };
+      
+      setCurrentChat(prev => [...prev, aiMessage]);
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.token) {
+                  fullResponse += data.token;
+                  // Update last message with streaming content
+                  setCurrentChat(prev => {
+                    const updated = [...prev];
+                    const lastMessage = updated[updated.length - 1];
+                    if (lastMessage.role === 'assistant') {
+                      updated[updated.length - 1] = {
+                        ...lastMessage,
+                        content: fullResponse,
+                        isStreaming: true
+                      };
+                    }
+                    return updated;
+                  });
+                }
+              } catch (e) {
+                console.error('Parse error:', e);
+              }
+            }
+          }
+        }
+      } else {
+        // Fallback for non-streaming response
+        const data = await response.json();
+        fullResponse = data.response || data.content || 'No response received';
+        
+        setCurrentChat(prev => {
+          const updated = [...prev];
+          const lastMessage = updated[updated.length - 1];
+          if (lastMessage.role === 'assistant') {
+            updated[updated.length - 1] = {
+              ...lastMessage,
+              content: fullResponse,
+              isStreaming: false
+            };
+          }
+          return updated;
+        });
+      }
+
+      // Mark streaming as complete
+      setCurrentChat(prev => {
+        const updated = [...prev];
+        const lastMessage = updated[updated.length - 1];
+        if (lastMessage.role === 'assistant') {
+          updated[updated.length - 1] = {
+            ...lastMessage,
+            isStreaming: false
+          };
+        }
+        return updated;
+      });
+
+    } catch (error) {
+      console.error('Failed to get response:', error);
+      setError(error instanceof Error ? error.message : 'Failed to get response');
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        content: 'Sorry, I encountered an error. Please try again.',
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      
+      setCurrentChat(prev => [...prev, errorMessage]);
+    } finally {
+      setIsStreaming(false);
+      await saveToHistory();
+    }
+  };
+
+  const saveToHistory = async () => {
+    if (currentChat.length === 0) return;
+    
+    try {
+      const title = currentChat[0]?.content.slice(0, 30) + '...' || 'New Chat';
+      const preview = currentChat[0]?.content.slice(0, 100) || '';
+      
+      const chatData: ChatHistory = {
+        id: currentChatId || Date.now().toString(),
+        title,
+        messages: currentChat,
+        timestamp: new Date(),
+        preview
+      };
+
+      await fetch(`${API_BASE_URL}/api/history/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('sarah-token')}`
+        },
+        body: JSON.stringify(chatData)
+      });
+
+      // Update local history
+      setChatHistory(prev => {
+        const existing = prev.find(chat => chat.id === chatData.id);
+        if (existing) {
+          return prev.map(chat => chat.id === chatData.id ? chatData : chat);
+        }
+        return [chatData, ...prev];
+      });
+
+    } catch (error) {
+      console.error('Failed to save chat history:', error);
+      // Save locally as fallback
+      const localHistory = JSON.parse(localStorage.getItem('sarah-chat-history') || '[]');
+      const chatData = {
+        id: currentChatId || Date.now().toString(),
+        title: currentChat[0]?.content.slice(0, 30) + '...' || 'New Chat',
+        messages: currentChat,
+        timestamp: new Date(),
+        preview: currentChat[0]?.content.slice(0, 100) || ''
+      };
+      
+      const updatedHistory = [chatData, ...localHistory.filter((chat: any) => chat.id !== chatData.id)];
+      localStorage.setItem('sarah-chat-history', JSON.stringify(updatedHistory));
+      setChatHistory(updatedHistory);
+    }
+  };
+
+  const loadHistory = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/history`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('sarah-token')}`
+        }
+      });
+      
+      if (response.ok) {
+        const history = await response.json();
+        setChatHistory(history);
+      } else {
+        throw new Error('Failed to load from server');
+      }
+    } catch (error) {
+      console.error('Failed to load chat history from server:', error);
+      // Load from localStorage as fallback
+      const localHistory = JSON.parse(localStorage.getItem('sarah-chat-history') || '[]');
+      setChatHistory(localHistory);
+    }
   }, []);
 
-  const handleNotificationClick = () => {
-    setNotifications(0);
+  const newChat = () => {
+    setCurrentChat([]);
+    setCurrentChatId(null);
+    setError(null);
   };
 
-  const handleExportData = () => {
-    console.log('Exporting dashboard data...');
+  const loadChat = (chat: ChatHistory) => {
+    setCurrentChat(chat.messages);
+    setCurrentChatId(chat.id);
+    setError(null);
   };
 
-  const handleShareDashboard = () => {
-    console.log('Sharing dashboard...');
+  const deleteChat = async (chatId: string) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/history/${chatId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('sarah-token')}`
+        }
+      });
+    } catch (error) {
+      console.error('Failed to delete from server:', error);
+    }
+    
+    // Remove from local state and storage
+    setChatHistory(prev => prev.filter(chat => chat.id !== chatId));
+    const localHistory = JSON.parse(localStorage.getItem('sarah-chat-history') || '[]');
+    const updatedHistory = localHistory.filter((chat: any) => chat.id !== chatId);
+    localStorage.setItem('sarah-chat-history', JSON.stringify(updatedHistory));
+    
+    if (currentChatId === chatId) {
+      newChat();
+    }
   };
 
-  return (
-    <div 
-      className="min-h-screen overflow-hidden transition-all duration-500"
-      style={{ 
-        background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
-        color: currentTheme.colors.text
-      }}
-    >
-      {/* Animated Background */}
-      <div className="fixed inset-0 opacity-10">
-        <div 
-          className="absolute top-0 left-0 w-[32rem] h-[32rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
-          style={{ backgroundColor: currentTheme.colors.primary }}
-        ></div>
-        <div 
-          className="absolute top-0 right-0 w-[28rem] h-[28rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
-          style={{ backgroundColor: currentTheme.colors.secondary }}
-        ></div>
-        <div 
-          className="absolute bottom-0 left-1/2 w-[30rem] h-[30rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
-          style={{ backgroundColor: currentTheme.colors.accent }}
-        ></div>
-        <div 
-          className="absolute -bottom-10 -right-10 w-[24rem] h-[24rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-3000"
-          style={{ backgroundColor: currentTheme.colors.primary + '40' }}
-        ></div>
-      </div>
+  const renameChat = async (chatId: string, newTitle: string) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/history/${chatId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('sarah-token')}`
+        },
+        body: JSON.stringify({ title: newTitle })
+      });
+    } catch (error) {
+      console.error('Failed to rename on server:', error);
+    }
+    
+    // Update local state and storage
+    setChatHistory(prev => prev.map(chat => 
+      chat.id === chatId ? { ...chat, title: newTitle } : chat
+    ));
+    
+    const localHistory = JSON.parse(localStorage.getItem('sarah-chat-history') || '[]');
+    const updatedHistory = localHistory.map((chat: any) => 
+      chat.id === chatId ? { ...chat, title: newTitle } : chat
+    );
+    localStorage.setItem('sarah-chat-history', JSON.stringify(updatedHistory));
+  };
 
-      {/* Header */}
-      <header 
-        className="relative z-40 backdrop-blur-md border-b"
-        style={{ 
-          backgroundColor: currentTheme.colors.surface + '80',
-          borderColor: currentTheme.colors.border
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="relative">
-                <div 
-                  className="absolute -inset-2 rounded-full blur opacity-30 animate-pulse"
-                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
-                ></div>
-                <Brain 
-                  className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse relative z-10" 
-                  style={{ color: currentTheme.colors.primary }}
-                />
-                <div 
-                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-ping"
-                  style={{ backgroundColor: currentTheme.colors.secondary }}
-                ></div>
-                <div 
-                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full"
-                  style={{ backgroundColor: currentTheme.colors.secondary }}
-                ></div>
-              </div>
-              <div>
-                <h1 
-                  className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent"
-                  style={{ 
-                    backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
-                  }}
-                >
-                  SARAH
-                </h1>
-                <p className="text-xs sm:text-sm flex items-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.textSecondary }}>
-                  <span className="hidden sm:inline">AI Operations Dashboard</span>
-                  <span className="sm:hidden">AI Dashboard</span>
-                  <span>•</span>
-                  <span style={{ color: currentTheme.colors.secondary }}>v3.7.2</span>
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <ThemeSelector />
-              
-              <div className="relative hidden sm:block">
-                <button
-                  onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className="p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-                >
-                  <Search 
-                    className="w-5 h-5 hover:text-white transition-colors" 
-                    style={{ color: currentTheme.colors.textSecondary }}
-                  />
-                </button>
-                {isSearchOpen && (
-                  <div 
-                    className="absolute top-full right-0 mt-2 w-80 backdrop-blur-md border rounded-xl p-4 shadow-2xl"
-                    style={{ 
-                      backgroundColor: currentTheme.colors.surface + 'f0',
-                      borderColor: currentTheme.colors.border
-                    }}
-                  >
-                    <input
-                      type="text"
-                      placeholder="Search metrics, models, or data..."
-                      className="w-full border rounded-lg px-4 py-2 focus:outline-none transition-colors"
-                      style={{ 
-                        backgroundColor: currentTheme.colors.background + '80',
-                        borderColor: currentTheme.colors.border,
-                        color: currentTheme.colors.text
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
+  const stopStreaming = () => {
+    setIsStreaming(false);
+  };
 
-              <button
-                onClick={handleNotificationClick}
-                className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-              >
-                <Bell 
-                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
-                  style={{ color: currentTheme.colors.textSecondary }}
-                />
-                {notifications > 0 && (
-                  <div 
-                    className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 text-white text-xs rounded-full flex items-center justify-center animate-pulse"
-                    style={{ backgroundColor: currentTheme.colors.error }}
-                  >
-                    {notifications}
-                  </div>
-                )}
-              </button>
+  const clearError = () => {
+    setError(null);
+  };
 
-              <button
-                onClick={handleExportData}
-                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
-              >
-                <Download 
-                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
-                  style={{ color: currentTheme.colors.textSecondary }}
-                />
-              </button>
-
-              <button
-                onClick={handleShareDashboard}
-                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
-              >
-                <Share 
-                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
-                  style={{ color: currentTheme.colors.textSecondary }}
-                />
-              </button>
-
-                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
-                    style={{ color: currentTheme.colors.text }}
-                  >
-                    <span className="hidden sm:inline">AI Agents</span>
-                    <span className="sm:hidden">Agents</span>
-                  </span>
-                </div>
-              </button>
-
-              <button className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block">
-                <Settings 
-                  className="w-4 h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
-                  style={{ color: currentTheme.colors.textSecondary }}
-                />
-              </button>
-
-              <button
-                onClick={logout}
-                className="p-1.5 sm:p-2 lg:p-3 hover:bg-red-500/20 rounded-lg lg:rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-                style={{ color: currentTheme.colors.textSecondary }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
-                  e.currentTarget.style.color = currentTheme.colors.error;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = currentTheme.colors.textSecondary;
-                }}
-              >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-              </button>
-
-              <div className="text-right hidden xl:block">
-                <div className="flex items-center space-x-1 lg:space-x-2">
-                  <p className="text-xs lg:text-sm font-semibold" style={{ color: currentTheme.colors.text }}>
-                    {currentTime.toLocaleTimeString()}
-                  </p>
-                </div>
-                <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
-                  {currentTime.toLocaleDateString()}
-                </p>
-                {user && (
-                  <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
-                    {user.name}
-                  </p>
-                )}
-              </div>
-              
-              <div className="flex items-center space-x-1 sm:space-x-2 hidden xl:flex">
-                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.success }} />
-                <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.success }}>All Systems Operational</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="relative z-10 h-[calc(100vh-60px)] sm:h-[calc(100vh-70px)] lg:h-[calc(100vh-80px)]">
-        {/* Full Chat Interface */}
-        <div className="h-full">
-          <ChatContainer />
-        </div>
-      </div>
-    </div>
-  );
+  return {
+    currentChat,
+    chatHistory,
+    isStreaming,
+    isLoading,
+    error,
+    currentChatId,
+    sendMessage: streamMessage,
+    newChat,
+    loadChat,
+    loadHistory,
+    deleteChat,
+    renameChat,
+    stopStreaming,
+    clearError
+  };
 };

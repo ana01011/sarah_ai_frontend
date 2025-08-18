@@ -1,10 +1,10 @@
 export interface Message {
   id: string;
   content: string;
-  sender: 'user' | 'ai';
+  role: 'user' | 'assistant';
   timestamp: Date;
   isStreaming?: boolean;
-  error?: string;
+  agentRole?: string;
 }
 
 export interface ChatHistory {
@@ -15,24 +15,17 @@ export interface ChatHistory {
   preview: string;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  picture: string;
+  given_name: string;
+  family_name: string;
+}
+
 export interface StreamingResponse {
   token: string;
   done: boolean;
   error?: string;
-}
-
-export interface ChatState {
-  currentChat: Message[];
-  chatHistory: ChatHistory[];
-  isStreaming: boolean;
-  isLoading: boolean;
-  error: string | null;
-  currentChatId: string | null;
-}
-
-export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
 }
