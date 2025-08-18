@@ -215,19 +215,3 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 style={{ color: currentTheme.colors.textSecondary }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
-                  e.currentTarget.style.color = currentTheme.colors.error;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = currentTheme.colors.textSecondary;
-                }}
-              >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-    </div>
-  );
-};
