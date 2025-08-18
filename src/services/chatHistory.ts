@@ -1,144 +1,254 @@
-import { ChatHistory, Message } from '../types/Chat';
+import React, { useState, useEffect } from 'react';
+import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { ThemeSelector } from './ThemeSelector';
+import { ChatContainer } from './Chat/ChatContainer';
+import { useAgent } from '../contexts/AgentContext';
 
-export class ChatHistoryService {
-  private static instance: ChatHistoryService;
-  private API_BASE_URL = import.meta.env.VITE_API_URL || 'http://147.93.102.165:8000';
-
-  static getInstance(): ChatHistoryService {
-    if (!ChatHistoryService.instance) {
-      ChatHistoryService.instance = new ChatHistoryService();
-    }
-    return ChatHistoryService.instance;
-  }
-
-  async saveToHistory(messages: Message[], title?: string, chatId?: string): Promise<string> {
-    try {
-      const chatTitle = title || messages[0]?.content.slice(0, 50) + '...' || 'New Chat';
-      const preview = messages[messages.length - 1]?.content.slice(0, 100) + '...' || '';
-
-      const response = await fetch(`${this.API_BASE_URL}/api/history/save`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          id: chatId || Date.now().toString(),
-          title: chatTitle,
-          messages: messages.map(msg => ({
-            ...msg,
-            timestamp: msg.timestamp.toISOString()
-          })),
-          preview,
-          timestamp: new Date().toISOString()
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to save chat: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.id;
-    } catch (error) {
-      console.error('Error saving chat:', error);
-      throw error;
-    }
-  }
-
-  async loadHistory(): Promise<ChatHistory[]> {
-    try {
-      const response = await fetch(`${this.API_BASE_URL}/api/history`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to load history: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.map((chat: any) => ({
-        ...chat,
-        timestamp: new Date(chat.timestamp),
-        messages: chat.messages.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }))
-      }));
-    } catch (error) {
-      console.error('Error loading chat history:', error);
-      return [];
-    }
-  }
-
-  async deleteChat(chatId: string): Promise<void> {
-    try {
-      const response = await fetch(`${this.API_BASE_URL}/api/history/${chatId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete chat: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Error deleting chat:', error);
-      throw error;
-    }
-  }
-
-  async renameChat(chatId: string, newTitle: string): Promise<void> {
-    try {
-      const response = await fetch(`${this.API_BASE_URL}/api/history/${chatId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ title: newTitle })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to rename chat: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Error renaming chat:', error);
-      throw error;
-    }
-  }
-
-  exportAsJSON(chat: ChatHistory): void {
-    const dataStr = JSON.stringify(chat, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${chat.title.replace(/[^a-z0-9]/gi, '_')}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
-  exportAsMarkdown(chat: ChatHistory): void {
-    let markdown = `# ${chat.title}\n\n`;
-    markdown += `*Exported on ${new Date().toLocaleDateString()}*\n\n`;
-
-    chat.messages.forEach(message => {
-      const sender = message.sender === 'user' ? 'You' : 'Sarah AI';
-      const timestamp = message.timestamp.toLocaleString();
-      markdown += `## ${sender} - ${timestamp}\n\n`;
-      markdown += `${message.content}\n\n---\n\n`;
-    });
-
-    const dataBlob = new Blob([markdown], { type: 'text/markdown' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${chat.title.replace(/[^a-z0-9]/gi, '_')}.md`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
+interface DashboardProps {
+  onBackToWelcome?: () => void;
 }
+
+export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
+  const { currentTheme } = useTheme();
+  const { setCurrentView } = useAgent();
+  const { logout, user } = useAuth();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [notifications, setNotifications] = useState(3);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  const handleNotificationClick = () => {
+    setNotifications(0);
+  };
+
+  const handleExportData = () => {
+    console.log('Exporting dashboard data...');
+  };
+
+  const handleShareDashboard = () => {
+    console.log('Sharing dashboard...');
+  };
+
+  return (
+    <div 
+      className="min-h-screen overflow-hidden transition-all duration-500"
+      style={{ 
+        background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
+        color: currentTheme.colors.text
+      }}
+    >
+      {/* Animated Background */}
+      <div className="fixed inset-0 opacity-10">
+        <div 
+          className="absolute top-0 left-0 w-[32rem] h-[32rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
+          style={{ backgroundColor: currentTheme.colors.primary }}
+        ></div>
+        <div 
+          className="absolute top-0 right-0 w-[28rem] h-[28rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
+          style={{ backgroundColor: currentTheme.colors.secondary }}
+        ></div>
+        <div 
+          className="absolute bottom-0 left-1/2 w-[30rem] h-[30rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
+          style={{ backgroundColor: currentTheme.colors.accent }}
+        ></div>
+        <div 
+          className="absolute -bottom-10 -right-10 w-[24rem] h-[24rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-3000"
+          style={{ backgroundColor: currentTheme.colors.primary + '40' }}
+        ></div>
+      </div>
+
+      {/* Header */}
+      <header 
+        className="relative z-40 backdrop-blur-md border-b"
+        style={{ 
+          backgroundColor: currentTheme.colors.surface + '80',
+          borderColor: currentTheme.colors.border
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="relative">
+                <div 
+                  className="absolute -inset-2 rounded-full blur opacity-30 animate-pulse"
+                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
+                ></div>
+                <Brain 
+                  className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse relative z-10" 
+                  style={{ color: currentTheme.colors.primary }}
+                />
+                <div 
+                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-ping"
+                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                ></div>
+                <div 
+                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                ></div>
+              </div>
+              <div>
+                <h1 
+                  className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent"
+                  style={{ 
+                    backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
+                  }}
+                >
+                  SARAH
+                </h1>
+                <p className="text-xs sm:text-sm flex items-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.textSecondary }}>
+                  <span className="hidden sm:inline">AI Operations Dashboard</span>
+                  <span className="sm:hidden">AI Dashboard</span>
+                  <span>•</span>
+                  <span style={{ color: currentTheme.colors.secondary }}>v3.7.2</span>
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <ThemeSelector />
+              
+              <div className="relative hidden sm:block">
+                <button
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className="p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                >
+                  <Search 
+                    className="w-5 h-5 hover:text-white transition-colors" 
+                    style={{ color: currentTheme.colors.textSecondary }}
+                  />
+                </button>
+                {isSearchOpen && (
+                  <div 
+                    className="absolute top-full right-0 mt-2 w-80 backdrop-blur-md border rounded-xl p-4 shadow-2xl"
+                    style={{ 
+                      backgroundColor: currentTheme.colors.surface + 'f0',
+                      borderColor: currentTheme.colors.border
+                    }}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Search metrics, models, or data..."
+                      className="w-full border rounded-lg px-4 py-2 focus:outline-none transition-colors"
+                      style={{ 
+                        backgroundColor: currentTheme.colors.background + '80',
+                        borderColor: currentTheme.colors.border,
+                        color: currentTheme.colors.text
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleNotificationClick}
+                className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+              >
+                <Bell 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+                {notifications > 0 && (
+                  <div 
+                    className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 text-white text-xs rounded-full flex items-center justify-center animate-pulse"
+                    style={{ backgroundColor: currentTheme.colors.error }}
+                  >
+                    {notifications}
+                  </div>
+                )}
+              </button>
+
+              <button
+                onClick={handleExportData}
+                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+              >
+                <Download 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+              <button
+                onClick={handleShareDashboard}
+                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+              >
+                <Share 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
+                    style={{ color: currentTheme.colors.text }}
+                  >
+                    <span className="hidden sm:inline">AI Agents</span>
+                    <span className="sm:hidden">Agents</span>
+                  </span>
+                </div>
+              </button>
+
+              <button className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block">
+                <Settings 
+                  className="w-4 h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+              <button
+                onClick={logout}
+                className="p-1.5 sm:p-2 lg:p-3 hover:bg-red-500/20 rounded-lg lg:rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{ color: currentTheme.colors.textSecondary }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
+                  e.currentTarget.style.color = currentTheme.colors.error;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = currentTheme.colors.textSecondary;
+                }}
+              >
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+              </button>
+
+              <div className="text-right hidden xl:block">
+                <div className="flex items-center space-x-1 lg:space-x-2">
+                  <p className="text-xs lg:text-sm font-semibold" style={{ color: currentTheme.colors.text }}>
+                    {currentTime.toLocaleTimeString()}
+                  </p>
+                </div>
+                <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
+                  {currentTime.toLocaleDateString()}
+                </p>
+                {user && (
+                  <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
+                    {user.name}
+                  </p>
+                )}
+              </div>
+              
+              <div className="flex items-center space-x-1 sm:space-x-2 hidden xl:flex">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.success }} />
+                <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.success }}>All Systems Operational</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="relative z-10 h-[calc(100vh-60px)] sm:h-[calc(100vh-70px)] lg:h-[calc(100vh-80px)]">
+        {/* Full Chat Interface */}
+        <div className="h-full">
+          <ChatContainer />
+        </div>
+      </div>
+    </div>
+  );
+};

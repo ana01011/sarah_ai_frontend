@@ -1,75 +1,217 @@
-import React, { useEffect, useRef } from 'react';
-import { Message } from './Message';
-import { Message as MessageType } from '../../types/Chat';
-import { useTheme } from '../../contexts/ThemeContext';
+import React, { useState, useEffect } from 'react';
+import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { ThemeSelector } from './ThemeSelector';
+import { ChatContainer } from './Chat/ChatContainer';
+import { useAgent } from '../contexts/AgentContext';
 
-interface MessageListProps {
-  messages: MessageType[];
-  isLoading?: boolean;
+interface DashboardProps {
+  onBackToWelcome?: () => void;
 }
 
-export const MessageList: React.FC<MessageListProps> = ({ messages, isLoading = false }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   const { currentTheme } = useTheme();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { setCurrentView } = useAgent();
+  const { logout, user } = useAuth();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [notifications, setNotifications] = useState(3);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
-  if (messages.length === 0 && !isLoading) {
-    return (
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center max-w-md">
-          <div 
-            className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
-            style={{ backgroundColor: currentTheme.colors.primary + '20' }}
-          >
-            <span className="text-2xl">💬</span>
-          </div>
-          <h3 className="text-lg font-semibold mb-2" style={{ color: currentTheme.colors.text }}>
-            Start a conversation
-          </h3>
-          <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
-            Ask me anything! I'm here to help with your questions and tasks.
-          </p>
-        </div>
-      </div>
-    );
-  }
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  const handleNotificationClick = () => {
+    setNotifications(0);
+  };
+
+  const handleExportData = () => {
+    console.log('Exporting dashboard data...');
+  };
+
+  const handleShareDashboard = () => {
+    console.log('Sharing dashboard...');
+  };
 
   return (
     <div 
-      ref={containerRef}
-      className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar"
-      style={{ backgroundColor: 'transparent' }}
+      className="min-h-screen overflow-hidden transition-all duration-500"
+      style={{ 
+        background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
+        color: currentTheme.colors.text
+      }}
     >
-      {messages.map((message) => (
-        <Message key={message.id} message={message} />
-      ))}
-      
-      {isLoading && (
-        <div className="flex justify-center py-4">
-          <div className="flex items-center space-x-2">
-            <div 
-              className="w-2 h-2 rounded-full animate-bounce"
-              style={{ backgroundColor: currentTheme.colors.primary }}
-            ></div>
-            <div 
-              className="w-2 h-2 rounded-full animate-bounce delay-100"
-              style={{ backgroundColor: currentTheme.colors.secondary }}
-            ></div>
-            <div 
-              className="w-2 h-2 rounded-full animate-bounce delay-200"
-              style={{ backgroundColor: currentTheme.colors.accent }}
-            ></div>
-          </div>
-        </div>
-      )}
-      
-      <div ref={messagesEndRef} />
-    </div>
-  );
-};
+      {/* Animated Background */}
+      <div className="fixed inset-0 opacity-10">
+        <div 
+          className="absolute top-0 left-0 w-[32rem] h-[32rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
+          style={{ backgroundColor: currentTheme.colors.primary }}
+        ></div>
+        <div 
+          className="absolute top-0 right-0 w-[28rem] h-[28rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
+          style={{ backgroundColor: currentTheme.colors.secondary }}
+        ></div>
+        <div 
+          className="absolute bottom-0 left-1/2 w-[30rem] h-[30rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
+          style={{ backgroundColor: currentTheme.colors.accent }}
+        ></div>
+        <div 
+          className="absolute -bottom-10 -right-10 w-[24rem] h-[24rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-3000"
+          style={{ backgroundColor: currentTheme.colors.primary + '40' }}
+        ></div>
+      </div>
+
+      {/* Header */}
+      <header 
+        className="relative z-40 backdrop-blur-md border-b"
+        style={{ 
+          backgroundColor: currentTheme.colors.surface + '80',
+          borderColor: currentTheme.colors.border
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="relative">
+                <div 
+                  className="absolute -inset-2 rounded-full blur opacity-30 animate-pulse"
+                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
+                ></div>
+                <Brain 
+                  className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse relative z-10" 
+                  style={{ color: currentTheme.colors.primary }}
+                />
+                <div 
+                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-ping"
+                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                ></div>
+                <div 
+                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                ></div>
+              </div>
+              <div>
+                <h1 
+                  className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent"
+                  style={{ 
+                    backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
+                  }}
+                >
+                  SARAH
+                </h1>
+                <p className="text-xs sm:text-sm flex items-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.textSecondary }}>
+                  <span className="hidden sm:inline">AI Operations Dashboard</span>
+                  <span className="sm:hidden">AI Dashboard</span>
+                  <span>•</span>
+                  <span style={{ color: currentTheme.colors.secondary }}>v3.7.2</span>
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <ThemeSelector />
+              
+              <div className="relative hidden sm:block">
+                <button
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className="p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                >
+                  <Search 
+                    className="w-5 h-5 hover:text-white transition-colors" 
+                    style={{ color: currentTheme.colors.textSecondary }}
+                  />
+                </button>
+                {isSearchOpen && (
+                  <div 
+                    className="absolute top-full right-0 mt-2 w-80 backdrop-blur-md border rounded-xl p-4 shadow-2xl"
+                    style={{ 
+                      backgroundColor: currentTheme.colors.surface + 'f0',
+                      borderColor: currentTheme.colors.border
+                    }}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Search metrics, models, or data..."
+                      className="w-full border rounded-lg px-4 py-2 focus:outline-none transition-colors"
+                      style={{ 
+                        backgroundColor: currentTheme.colors.background + '80',
+                        borderColor: currentTheme.colors.border,
+                        color: currentTheme.colors.text
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleNotificationClick}
+                className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+              >
+                <Bell 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+                {notifications > 0 && (
+                  <div 
+                    className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 text-white text-xs rounded-full flex items-center justify-center animate-pulse"
+                    style={{ backgroundColor: currentTheme.colors.error }}
+                  >
+                    {notifications}
+                  </div>
+                )}
+              </button>
+
+              <button
+                onClick={handleExportData}
+                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+              >
+                <Download 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+              <button
+                onClick={handleShareDashboard}
+                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+              >
+                <Share 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
+                    style={{ color: currentTheme.colors.text }}
+                  >
+                    <span className="hidden sm:inline">AI Agents</span>
+                    <span className="sm:hidden">Agents</span>
+                  </span>
+                </div>
+              </button>
+
+              <button className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block">
+                <Settings 
+                  className="w-4 h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+              <button
+                onClick={logout}
+                className="p-1.5 sm:p-2 lg:p-3 hover:bg-red-500/20 rounded-lg lg:rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{ color: currentTheme.colors.textSecondary }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
+                  e.currentTarget.style.color = currentTheme.colors.error;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = currentTheme.colors.textSecondary;
+                }}
+              >

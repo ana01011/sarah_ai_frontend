@@ -186,26 +186,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 />
               </button>
 
-              <button
-                onClick={() => setCurrentView('selector')}
-                className="relative group border rounded-xl px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 
-                         hover:scale-110 active:scale-95 hover:shadow-xl backdrop-blur-sm overflow-hidden"
-                style={{
-                  background: `linear-gradient(135deg, ${currentTheme.colors.secondary}20, ${currentTheme.colors.accent}20)`,
-                  borderColor: currentTheme.colors.secondary + '50',
-                  boxShadow: `0 10px 25px -5px ${currentTheme.shadows.secondary}`
-                }}
-              >
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)' }}
-                ></div>
-                <div className="flex items-center space-x-1 sm:space-x-2">
-                  <Users 
-                    className="w-4 h-4 sm:w-5 sm:h-5 transition-colors" 
-                    style={{ color: currentTheme.colors.secondary }}
-                  />
-                  <span 
                     className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
                     style={{ color: currentTheme.colors.text }}
                   >
@@ -235,26 +215,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                   e.currentTarget.style.color = currentTheme.colors.textSecondary;
                 }}
               >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-              </button>
-
-              <div className="text-right hidden xl:block">
-                <div className="flex items-center space-x-1 lg:space-x-2">
-                  <p className="text-xs lg:text-sm font-semibold" style={{ color: currentTheme.colors.text }}>
-                    {currentTime.toLocaleTimeString()}
-                  </p>
-                </div>
-                <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
-                  {currentTime.toLocaleDateString()}
-                </p>
-                {user && (
-                  <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
-                    {user.name}
-                  </p>
-                )}
-              </div>
-              
-              <div className="flex items-center space-x-1 sm:space-x-2 hidden xl:flex">
                 <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.success }} />
                 <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.success }}>All Systems Operational</span>
               </div>

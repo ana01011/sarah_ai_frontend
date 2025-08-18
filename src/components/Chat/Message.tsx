@@ -1,175 +1,217 @@
-import React, { useState } from 'react';
-import { Copy, User, Bot, Check } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { Message as MessageType } from '../../types/Chat';
-import { formatDistanceToNow } from 'date-fns';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import React, { useState, useEffect } from 'react';
+import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { ThemeSelector } from './ThemeSelector';
+import { ChatContainer } from './Chat/ChatContainer';
+import { useAgent } from '../contexts/AgentContext';
 
-interface MessageProps {
-  message: MessageType;
+interface DashboardProps {
+  onBackToWelcome?: () => void;
 }
 
-export const Message: React.FC<MessageProps> = ({ message }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   const { currentTheme } = useTheme();
-  const [showTimestamp, setShowTimestamp] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const { setCurrentView } = useAgent();
+  const { logout, user } = useAuth();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [notifications, setNotifications] = useState(3);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(message.content);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy message:', err);
-    }
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  const handleNotificationClick = () => {
+    setNotifications(0);
   };
 
-  const isUser = message.sender === 'user';
+  const handleExportData = () => {
+    console.log('Exporting dashboard data...');
+  };
+
+  const handleShareDashboard = () => {
+    console.log('Sharing dashboard...');
+  };
 
   return (
     <div 
-      className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 group`}
-      onMouseEnter={() => setShowTimestamp(true)}
-      onMouseLeave={() => setShowTimestamp(false)}
+      className="min-h-screen overflow-hidden transition-all duration-500"
+      style={{ 
+        background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
+        color: currentTheme.colors.text
+      }}
     >
-      <div className={`flex items-start space-x-3 max-w-[85%] ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
-        {/* Avatar */}
+      {/* Animated Background */}
+      <div className="fixed inset-0 opacity-10">
         <div 
-          className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
-          style={{
-            backgroundColor: isUser 
-              ? currentTheme.colors.primary + '20'
-              : currentTheme.colors.secondary + '20'
-          }}
-        >
-          {isUser ? (
-            <User className="w-4 h-4" style={{ color: currentTheme.colors.primary }} />
-          ) : (
-            <Bot className="w-4 h-4" style={{ color: currentTheme.colors.secondary }} />
-          )}
-        </div>
+          className="absolute top-0 left-0 w-[32rem] h-[32rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
+          style={{ backgroundColor: currentTheme.colors.primary }}
+        ></div>
+        <div 
+          className="absolute top-0 right-0 w-[28rem] h-[28rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
+          style={{ backgroundColor: currentTheme.colors.secondary }}
+        ></div>
+        <div 
+          className="absolute bottom-0 left-1/2 w-[30rem] h-[30rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
+          style={{ backgroundColor: currentTheme.colors.accent }}
+        ></div>
+        <div 
+          className="absolute -bottom-10 -right-10 w-[24rem] h-[24rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-3000"
+          style={{ backgroundColor: currentTheme.colors.primary + '40' }}
+        ></div>
+      </div>
 
-        {/* Message Content */}
-        <div className="flex-1 min-w-0">
-          <div
-            className={`relative rounded-2xl px-4 py-3 transition-all duration-200 ${
-              message.isStreaming ? 'animate-pulse' : ''
-            }`}
-            style={{
-              backgroundColor: isUser 
-                ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.primary}10)`
-                : currentTheme.colors.surface + '60',
-              borderColor: isUser 
-                ? currentTheme.colors.primary + '30'
-                : currentTheme.colors.border,
-              border: '1px solid'
-            }}
-          >
-            {/* Message Text */}
-            <div className="prose prose-sm max-w-none" style={{ color: currentTheme.colors.text }}>
-              {isUser ? (
-                <p className="mb-0 whitespace-pre-wrap">{message.content}</p>
-              ) : (
-                <ReactMarkdown
-                  components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const match = /language-(\w+)/.exec(className || '');
-                      return !inline && match ? (
-                        <SyntaxHighlighter
-                          style={oneDark}
-                          language={match[1]}
-                          PreTag="div"
-                          className="rounded-lg !mt-2 !mb-2"
-                          {...props}
-                        >
-                          {String(children).replace(/\n$/, '')}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <code 
-                          className="px-1 py-0.5 rounded text-sm"
-                          style={{ backgroundColor: currentTheme.colors.surface + '40' }}
-                          {...props}
-                        >
-                          {children}
-                        </code>
-                      );
-                    }
+      {/* Header */}
+      <header 
+        className="relative z-40 backdrop-blur-md border-b"
+        style={{ 
+          backgroundColor: currentTheme.colors.surface + '80',
+          borderColor: currentTheme.colors.border
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="relative">
+                <div 
+                  className="absolute -inset-2 rounded-full blur opacity-30 animate-pulse"
+                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
+                ></div>
+                <Brain 
+                  className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse relative z-10" 
+                  style={{ color: currentTheme.colors.primary }}
+                />
+                <div 
+                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-ping"
+                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                ></div>
+                <div 
+                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                ></div>
+              </div>
+              <div>
+                <h1 
+                  className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent"
+                  style={{ 
+                    backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
                   }}
                 >
-                  {message.content || (message.isStreaming ? '●' : '')}
-                </ReactMarkdown>
-              )}
-            </div>
-
-            {/* Streaming Indicator */}
-            {message.isStreaming && (
-              <div className="flex items-center space-x-1 mt-2">
-                <div className="flex space-x-1">
-                  <div 
-                    className="w-2 h-2 rounded-full animate-bounce"
-                    style={{ backgroundColor: currentTheme.colors.secondary }}
-                  ></div>
-                  <div 
-                    className="w-2 h-2 rounded-full animate-bounce delay-100"
-                    style={{ backgroundColor: currentTheme.colors.secondary }}
-                  ></div>
-                  <div 
-                    className="w-2 h-2 rounded-full animate-bounce delay-200"
-                    style={{ backgroundColor: currentTheme.colors.secondary }}
-                  ></div>
-                </div>
-                <span className="text-xs ml-2" style={{ color: currentTheme.colors.textSecondary }}>
-                  AI is typing...
-                </span>
+                  SARAH
+                </h1>
+                <p className="text-xs sm:text-sm flex items-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.textSecondary }}>
+                  <span className="hidden sm:inline">AI Operations Dashboard</span>
+                  <span className="sm:hidden">AI Dashboard</span>
+                  <span>•</span>
+                  <span style={{ color: currentTheme.colors.secondary }}>v3.7.2</span>
+                </p>
               </div>
-            )}
+            </div>
+            
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <ThemeSelector />
+              
+              <div className="relative hidden sm:block">
+                <button
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className="p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                >
+                  <Search 
+                    className="w-5 h-5 hover:text-white transition-colors" 
+                    style={{ color: currentTheme.colors.textSecondary }}
+                  />
+                </button>
+                {isSearchOpen && (
+                  <div 
+                    className="absolute top-full right-0 mt-2 w-80 backdrop-blur-md border rounded-xl p-4 shadow-2xl"
+                    style={{ 
+                      backgroundColor: currentTheme.colors.surface + 'f0',
+                      borderColor: currentTheme.colors.border
+                    }}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Search metrics, models, or data..."
+                      className="w-full border rounded-lg px-4 py-2 focus:outline-none transition-colors"
+                      style={{ 
+                        backgroundColor: currentTheme.colors.background + '80',
+                        borderColor: currentTheme.colors.border,
+                        color: currentTheme.colors.text
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
 
-            {/* Error Display */}
-            {message.error && (
-              <div 
-                className="mt-2 p-2 rounded-lg text-sm"
-                style={{
-                  backgroundColor: currentTheme.colors.error + '20',
-                  color: currentTheme.colors.error
+              <button
+                onClick={handleNotificationClick}
+                className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+              >
+                <Bell 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+                {notifications > 0 && (
+                  <div 
+                    className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 text-white text-xs rounded-full flex items-center justify-center animate-pulse"
+                    style={{ backgroundColor: currentTheme.colors.error }}
+                  >
+                    {notifications}
+                  </div>
+                )}
+              </button>
+
+              <button
+                onClick={handleExportData}
+                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+              >
+                <Download 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+              <button
+                onClick={handleShareDashboard}
+                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+              >
+                <Share 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
+                    style={{ color: currentTheme.colors.text }}
+                  >
+                    <span className="hidden sm:inline">AI Agents</span>
+                    <span className="sm:hidden">Agents</span>
+                  </span>
+                </div>
+              </button>
+
+              <button className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block">
+                <Settings 
+                  className="w-4 h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+              <button
+                onClick={logout}
+                className="p-1.5 sm:p-2 lg:p-3 hover:bg-red-500/20 rounded-lg lg:rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{ color: currentTheme.colors.textSecondary }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
+                  e.currentTarget.style.color = currentTheme.colors.error;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = currentTheme.colors.textSecondary;
                 }}
               >
-                Error: {message.error}
-              </div>
-            )}
-
-            {/* Copy Button */}
-            <button
-              onClick={handleCopy}
-              className={`absolute top-2 right-2 p-1.5 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 ${
-                showTimestamp ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{
-                backgroundColor: currentTheme.colors.surface + '80',
-                color: currentTheme.colors.textSecondary
-              }}
-              title="Copy message"
-            >
-              {copied ? (
-                <Check className="w-3 h-3" style={{ color: currentTheme.colors.success }} />
-              ) : (
-                <Copy className="w-3 h-3" />
-              )}
-            </button>
-          </div>
-
-          {/* Timestamp */}
-          {showTimestamp && (
-            <div 
-              className={`text-xs mt-1 transition-opacity duration-200 ${isUser ? 'text-right' : 'text-left'}`}
-              style={{ color: currentTheme.colors.textSecondary }}
-            >
-              {formatDistanceToNow(message.timestamp, { addSuffix: true })}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
