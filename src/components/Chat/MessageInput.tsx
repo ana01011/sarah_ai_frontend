@@ -4,14 +4,14 @@ import { useTheme } from '../../contexts/ThemeContext';
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
-  onStopGeneration: () => void;
+  onStopStreaming: () => void;
   isStreaming: boolean;
   disabled?: boolean;
 }
 
 export const MessageInput: React.FC<MessageInputProps> = ({
   onSendMessage,
-  onStopGeneration,
+  onStopStreaming,
   isStreaming,
   disabled = false
 }) => {
@@ -105,7 +105,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               {isStreaming ? (
                 <button
                   type="button"
-                  onClick={onStopGeneration}
+                  onClick={onStopStreaming}
                   className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                   style={{ 
                     backgroundColor: currentTheme.colors.error,
