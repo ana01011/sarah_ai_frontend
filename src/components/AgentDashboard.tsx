@@ -215,6 +215,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
               </button>
 
               <button
+                onClick={logout}
+                className="p-1.5 sm:p-2 lg:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              >
+                <LogOut 
+                  className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
       <div className="relative z-10 h-[calc(100vh-60px)] sm:h-[calc(100vh-70px)] lg:h-[calc(100vh-80px)]">
         {/* Full Chat Interface */}
         <div className="h-full">
