@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Brain, Cpu, Database, Zap, TrendingUp, AlertTriangle, CheckCircle, MessageCircle, Settings, Bell, Search, Filter, Download, Share, Maximize, BarChart3, Users, Globe, LogOut } from 'lucide-react';
+import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, Globe, LogOut } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ThemeSelector } from './ThemeSelector';
-import { MetricsCard } from './MetricsCard';
-import { NeuralNetworkViz } from './NeuralNetworkViz';
-import { PerformanceChart } from './PerformanceChart';
-import { SystemStatus } from './SystemStatus';
-import { ProcessingPipeline } from './ProcessingPipeline';
-import { AIChat } from './AIChat';
+import { ChatContainer } from './Chat/ChatContainer';
 import { useAgent } from '../contexts/AgentContext';
 
 interface DashboardProps {
@@ -22,32 +17,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [notifications, setNotifications] = useState(3);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [aiMetrics, setAiMetrics] = useState({
-    accuracy: 94.7,
-    throughput: 2847,
-    latency: 12.3,
-    gpuUtilization: 78,
-    memoryUsage: 65,
-    activeModels: 12
-  });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    
-    const metricsTimer = setInterval(() => {
-      setAiMetrics(prev => ({
-        accuracy: prev.accuracy + (Math.random() - 0.5) * 0.2,
-        throughput: prev.throughput + Math.floor((Math.random() - 0.5) * 100),
-        latency: Math.max(8, prev.latency + (Math.random() - 0.5) * 2),
-        gpuUtilization: Math.max(0, Math.min(100, prev.gpuUtilization + (Math.random() - 0.5) * 5)),
-        memoryUsage: Math.max(0, Math.min(100, prev.memoryUsage + (Math.random() - 0.5) * 3)),
-        activeModels: prev.activeModels + Math.floor((Math.random() - 0.5) * 2)
-      }));
-    }, 2000);
 
     return () => {
       clearInterval(timer);
-      clearInterval(metricsTimer);
     };
   }, []);
 
@@ -317,128 +292,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
 
       {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
-        {/* Integrated Chat Section */}
-        <div 
-          className="mb-4 sm:mb-8 backdrop-blur-xl border rounded-2xl overflow-hidden"
-          style={{
-            background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
-            borderColor: currentTheme.colors.border,
-            height: '400px'
-          }}
-        >
-          <AIChat 
-            isOpen={true} 
-            onClose={() => {}} 
-            isIntegrated={true}
-          />
-        </div>
-
-        {/* Quick Stats Bar */}
-        <div 
-          className="mb-4 sm:mb-8 backdrop-blur-md border rounded-2xl p-4 sm:p-6"
-          style={{ 
-            background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
-            borderColor: currentTheme.colors.border
-          }}
-        >
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            <div className="text-center group cursor-pointer hover:scale-105 transition-transform duration-200">
-              <div className="flex items-center justify-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.primary }} />
-                <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>Active Users</span>
-              </div>
-              <p className="text-lg sm:text-2xl font-bold font-mono" style={{ color: currentTheme.colors.text }}>1,247</p>
-              <p className="text-xs" style={{ color: currentTheme.colors.success }}>+12% today</p>
-            </div>
-            <div className="text-center group cursor-pointer hover:scale-105 transition-transform duration-200">
-              <div className="flex items-center justify-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
-                <Globe className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.secondary }} />
-                <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>Global Reach</span>
-              </div>
-              <p className="text-lg sm:text-2xl font-bold font-mono" style={{ color: currentTheme.colors.text }}>47</p>
-              <p className="text-xs" style={{ color: currentTheme.colors.success }}>countries</p>
-            </div>
-            <div className="text-center group cursor-pointer hover:scale-105 transition-transform duration-200">
-              <div className="flex items-center justify-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
-                <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.accent }} />
-                <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>Data Processed</span>
-              </div>
-              <p className="text-lg sm:text-2xl font-bold font-mono" style={{ color: currentTheme.colors.text }}>2.4TB</p>
-              <p className="text-xs" style={{ color: currentTheme.colors.success }}>today</p>
-            </div>
-            <div className="text-center group cursor-pointer hover:scale-105 transition-transform duration-200">
-              <div className="flex items-center justify-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
-                <Zap className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.info }} />
-                <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>Uptime</span>
-              </div>
-              <p className="text-lg sm:text-2xl font-bold font-mono" style={{ color: currentTheme.colors.text }}>99.98%</p>
-              <p className="text-xs" style={{ color: currentTheme.colors.success }}>30 days</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Key Metrics Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-6 mb-4 sm:mb-8">
-          <MetricsCard
-            title="Model Accuracy"
-            value={`${aiMetrics.accuracy.toFixed(1)}%`}
-            change="+2.3%"
-            icon={TrendingUp}
-            color="success"
-          />
-          <MetricsCard
-            title="Throughput"
-            value={`${aiMetrics.throughput.toLocaleString()}`}
-            change="+15.2%"
-            icon={Zap}
-            color="primary"
-            suffix=" req/s"
-          />
-          <MetricsCard
-            title="Avg Latency"
-            value={`${aiMetrics.latency.toFixed(1)}`}
-            change="-8.7%"
-            icon={Activity}
-            color="warning"
-            suffix="ms"
-          />
-          <MetricsCard
-            title="GPU Usage"
-            value={`${aiMetrics.gpuUtilization.toFixed(0)}%`}
-            change="+5.1%"
-            icon={Cpu}
-            color="info"
-          />
-          <MetricsCard
-            title="Memory"
-            value={`${aiMetrics.memoryUsage.toFixed(0)}%`}
-            change="-2.4%"
-            icon={Database}
-            color="error"
-          />
-          <MetricsCard
-            title="Active Models"
-            value={aiMetrics.activeModels.toString()}
-            change="+3"
-            icon={Brain}
-            color="secondary"
-          />
-        </div>
-
-        {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 mb-4 sm:mb-8">
-          <div className="lg:col-span-2 order-2 lg:order-1">
-            <NeuralNetworkViz />
-          </div>
-          <div className="order-1 lg:order-2">
-            <SystemStatus />
-          </div>
-        </div>
-
-        {/* Performance Charts and Pipeline */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
-          <PerformanceChart metrics={aiMetrics} />
-          <ProcessingPipeline />
+        {/* Full Chat Interface */}
+        <div className="h-[calc(100vh-120px)]">
+          <ChatContainer />
         </div>
       </div>
     </div>
