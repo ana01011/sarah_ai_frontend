@@ -229,19 +229,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
                   e.currentTarget.style.color = currentTheme.colors.error;
-    <div className="w-full">
-      <GoogleLogin
-        onSuccess={handleGoogleSuccess}
-        onError={() => {
-          console.log('Login Failed');
-          onError?.();
-        }}
-        theme="filled_blue"
-        size="large"
-        text="signin_with"
-        shape="rectangular"
-        width="100%"
-      />
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '';
+                  e.currentTarget.style.color = currentTheme.colors.textSecondary;
+                }}
+              >
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <ChatContainer />
     </div>
   );
 };
