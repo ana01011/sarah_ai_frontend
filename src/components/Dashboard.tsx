@@ -215,20 +215,3 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                   e.currentTarget.style.color = currentTheme.colors.textSecondary;
                 }}
               >
-                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.success }} />
-                <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.success }}>All Systems Operational</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="relative z-10 h-[calc(100vh-60px)] sm:h-[calc(100vh-70px)] lg:h-[calc(100vh-80px)]">
-        {/* Full Chat Interface */}
-        <div className="h-full">
-          <ChatContainer />
-        </div>
-      </div>
-    </div>
-  );
-};
