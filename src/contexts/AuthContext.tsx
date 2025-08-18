@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setError(null);
     
     try {
-      // Dummy authentication - check for test credentials
+      // Check for correct test credentials
       if (email === 'test@250323' && password === 'Ahmed@250323') {
         const dummyUser: User = {
           id: '1',
@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem('token', dummyToken);
         setUser(dummyUser);
       } else {
-        throw new Error('Invalid credentials');
+        throw new Error('Invalid email or password. Please check your credentials.');
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Login failed');
