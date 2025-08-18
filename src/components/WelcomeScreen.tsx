@@ -1,256 +1,217 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, ArrowRight, Sparkles, Zap, Shield, Cpu } from 'lucide-react';
+import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { ThemeSelector } from './ThemeSelector';
+import { ChatContainer } from './Chat/ChatContainer';
+import { useAgent } from '../contexts/AgentContext';
 
-interface WelcomeScreenProps {
-  onEnter: () => void;
-  isFirstTime?: boolean;
+interface DashboardProps {
+  onBackToWelcome?: () => void;
 }
 
-export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onEnter, isFirstTime = false }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
   const { currentTheme } = useTheme();
-  const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [currentSystem, setCurrentSystem] = useState(0);
-
-  const systems = [
-    'Neural Networks',
-    'Data Pipeline',
-    'GPU Clusters',
-    'Model Registry',
-    'Security Layer',
-    'API Gateway'
-  ];
+  const { setCurrentView } = useAgent();
+  const { logout, user } = useAuth();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [notifications, setNotifications] = useState(3);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
-    const loadingTimer = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          setIsLoading(false);
-          clearInterval(loadingTimer);
-          return 100;
-        }
-        return prev + 2;
-      });
-    }, 50);
-
-    const systemTimer = setInterval(() => {
-      setCurrentSystem(prev => (prev + 1) % systems.length);
-    }, 800);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
     return () => {
-      clearInterval(loadingTimer);
-      clearInterval(systemTimer);
+      clearInterval(timer);
     };
   }, []);
 
+  const handleNotificationClick = () => {
+    setNotifications(0);
+  };
+
+  const handleExportData = () => {
+    console.log('Exporting dashboard data...');
+  };
+
+  const handleShareDashboard = () => {
+    console.log('Sharing dashboard...');
+  };
+
   return (
     <div 
-      className="min-h-screen overflow-hidden relative transition-all duration-500"
+      className="min-h-screen overflow-hidden transition-all duration-500"
       style={{ 
         background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
         color: currentTheme.colors.text
       }}
     >
       {/* Animated Background */}
-      <div className="fixed inset-0">
+      <div className="fixed inset-0 opacity-10">
         <div 
-          className="absolute top-0 left-0 w-[40rem] h-[40rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse opacity-15"
+          className="absolute top-0 left-0 w-[32rem] h-[32rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
           style={{ backgroundColor: currentTheme.colors.primary }}
         ></div>
         <div 
-          className="absolute top-0 right-0 w-[36rem] h-[36rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000 opacity-15"
+          className="absolute top-0 right-0 w-[28rem] h-[28rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
           style={{ backgroundColor: currentTheme.colors.secondary }}
         ></div>
         <div 
-          className="absolute bottom-0 left-1/2 w-[38rem] h-[38rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000 opacity-15"
+          className="absolute bottom-0 left-1/2 w-[30rem] h-[30rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
           style={{ backgroundColor: currentTheme.colors.accent }}
         ></div>
-        
-        {/* Floating particles */}
-        {Array.from({ length: 30 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 rounded-full opacity-40 animate-ping"
-            style={{
-              backgroundColor: currentTheme.colors.primary,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${3 + Math.random() * 2}s`
-            }}
-          />
-        ))}
+        <div 
+          className="absolute -bottom-10 -right-10 w-[24rem] h-[24rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-3000"
+          style={{ backgroundColor: currentTheme.colors.primary + '40' }}
+        ></div>
       </div>
 
-      <div className="relative z-10 flex items-center justify-center min-h-screen">
-        <div className="text-center max-w-4xl mx-auto px-4 sm:px-6">
-          {/* Logo and Branding */}
-          <div className="mb-8 sm:mb-12">
-            <div className="relative inline-block">
-              <div 
-                className="absolute -inset-6 rounded-full blur-2xl opacity-40 animate-pulse"
-                style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
-              ></div>
-              <Brain 
-                className="w-16 h-16 sm:w-24 sm:h-24 mx-auto relative animate-pulse" 
-                style={{ color: currentTheme.colors.primary }}
-              />
-            </div>
-            
-            <h1 
-              className="text-5xl sm:text-8xl font-bold bg-clip-text text-transparent mt-6 sm:mt-8 mb-3 sm:mb-4 animate-pulse"
-              style={{
-                backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary}, ${currentTheme.colors.accent})`
-              }}
-            >
-              SARAH
-            </h1>
-            
-            <p className="text-lg sm:text-2xl mb-2 font-light" style={{ color: currentTheme.colors.textSecondary }}>
-              Synthetic Autonomous Reasoning & Analysis Hub
-            </p>
-            
-            <div className="flex items-center justify-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.secondary }}>
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" style={{ color: currentTheme.colors.secondary }} />
-              <span className="text-sm sm:text-lg font-mono">AI Operations Platform v3.7.2</span>
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" style={{ color: currentTheme.colors.secondary }} />
-            </div>
-          </div>
-
-          {/* Loading Section */}
-          {isLoading ? (
-            <div className="space-y-6 sm:space-y-8">
-              <div 
-                className="backdrop-blur-md border rounded-2xl p-6 sm:p-8 max-w-md mx-auto"
-                style={{
-                  backgroundColor: currentTheme.colors.surface + '80',
-                  borderColor: currentTheme.colors.border
-                }}
-              >
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="flex items-center justify-center space-x-3">
-                    <Cpu className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" style={{ color: currentTheme.colors.primary }} />
-                    <span className="text-base sm:text-lg font-medium">Initializing Systems</span>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
-                      <span>Loading {systems[currentSystem]}...</span>
-                      <span className="font-mono" style={{ color: currentTheme.colors.secondary }}>{progress}%</span>
-                    </div>
-                    
-                    <div 
-                      className="w-full rounded-full h-2 sm:h-3 overflow-hidden"
-                      style={{ backgroundColor: currentTheme.colors.background }}
-                    >
-                      <div
-                        className="h-full transition-all duration-300 ease-out"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-3 gap-4 text-xs">
-                    <div className="text-center">
-                      <Shield className="w-3 h-3 sm:w-4 sm:h-4 mx-auto mb-1" style={{ color: currentTheme.colors.secondary }} />
-                      <span style={{ color: currentTheme.colors.textSecondary }}>Secure</span>
-                    </div>
-                    <div className="text-center">
-                      <Zap className="w-3 h-3 sm:w-4 sm:h-4 mx-auto mb-1" style={{ color: currentTheme.colors.accent }} />
-                      <span style={{ color: currentTheme.colors.textSecondary }}>Fast</span>
-                    </div>
-                    <div className="text-center">
-                      <Brain className="w-3 h-3 sm:w-4 sm:h-4 mx-auto mb-1" style={{ color: currentTheme.colors.primary }} />
-                      <span style={{ color: currentTheme.colors.textSecondary }}>Smart</span>
-                    </div>
-                  </div>
-                </div>
+      {/* Header */}
+      <header 
+        className="relative z-40 backdrop-blur-md border-b"
+        style={{ 
+          backgroundColor: currentTheme.colors.surface + '80',
+          borderColor: currentTheme.colors.border
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="relative">
+                <div 
+                  className="absolute -inset-2 rounded-full blur opacity-30 animate-pulse"
+                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
+                ></div>
+                <Brain 
+                  className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse relative z-10" 
+                  style={{ color: currentTheme.colors.primary }}
+                />
+                <div 
+                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-ping"
+                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                ></div>
+                <div 
+                  className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+                  style={{ backgroundColor: currentTheme.colors.secondary }}
+                ></div>
+              </div>
+              <div>
+                <h1 
+                  className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent"
+                  style={{ 
+                    backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
+                  }}
+                >
+                  SARAH
+                </h1>
+                <p className="text-xs sm:text-sm flex items-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.textSecondary }}>
+                  <span className="hidden sm:inline">AI Operations Dashboard</span>
+                  <span className="sm:hidden">AI Dashboard</span>
+                  <span>•</span>
+                  <span style={{ color: currentTheme.colors.secondary }}>v3.7.2</span>
+                </p>
               </div>
             </div>
-          ) : (
-            <div className="space-y-6 sm:space-y-8 animate-fade-in">
-              <div 
-                className="backdrop-blur-md border rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto"
-                style={{
-                  backgroundColor: currentTheme.colors.surface + '80',
-                  borderColor: currentTheme.colors.border
-                }}
-              >
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="flex items-center justify-center space-x-2" style={{ color: currentTheme.colors.secondary }}>
-                    <div 
-                      className="w-3 h-3 rounded-full animate-pulse"
-                      style={{ backgroundColor: currentTheme.colors.secondary }}
-                    ></div>
-                    <span className="text-base sm:text-lg font-medium">All Systems Online</span>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-xs sm:text-sm">
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span style={{ color: currentTheme.colors.textSecondary }}>GPU Clusters</span>
-                        <span style={{ color: currentTheme.colors.secondary }}>✓ Active</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: currentTheme.colors.textSecondary }}>Neural Networks</span>
-                        <span style={{ color: currentTheme.colors.secondary }}>✓ Ready</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: currentTheme.colors.textSecondary }}>Data Pipeline</span>
-                        <span style={{ color: currentTheme.colors.secondary }}>✓ Streaming</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span style={{ color: currentTheme.colors.textSecondary }}>Model Registry</span>
-                        <span style={{ color: currentTheme.colors.secondary }}>✓ Synced</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: currentTheme.colors.textSecondary }}>Security Layer</span>
-                        <span style={{ color: currentTheme.colors.secondary }}>✓ Protected</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: currentTheme.colors.textSecondary }}>API Gateway</span>
-                        <span style={{ color: currentTheme.colors.secondary }}>✓ Online</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={onEnter}
-                    className="w-full font-semibold py-4 sm:py-5 px-6 sm:px-8 rounded-xl transition-all duration-300 
-                             hover:scale-[1.05] active:scale-95 hover:shadow-2xl
-                             flex items-center justify-center space-x-3 group relative overflow-hidden
-                             backdrop-blur-sm border"
-                    style={{
-                      background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                      color: currentTheme.id === 'light' ? '#ffffff' : currentTheme.colors.text,
-                      borderColor: currentTheme.colors.border,
-                      boxShadow: `0 10px 25px -5px ${currentTheme.shadows.primary}`
+            
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <ThemeSelector />
+              
+              <div className="relative hidden sm:block">
+                <button
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                  className="p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                >
+                  <Search 
+                    className="w-5 h-5 hover:text-white transition-colors" 
+                    style={{ color: currentTheme.colors.textSecondary }}
+                  />
+                </button>
+                {isSearchOpen && (
+                  <div 
+                    className="absolute top-full right-0 mt-2 w-80 backdrop-blur-md border rounded-xl p-4 shadow-2xl"
+                    style={{ 
+                      backgroundColor: currentTheme.colors.surface + 'f0',
+                      borderColor: currentTheme.colors.border
                     }}
                   >
-                    <div 
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' }}
-                    ></div>
-                    <span className="text-base sm:text-lg">
-                      {isFirstTime ? 'Get Started' : 'Enter Dashboard'}
-                    </span>
-                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-2 transition-transform relative z-10" />
-                  </button>
-                </div>
+                    <input
+                      type="text"
+                      placeholder="Search metrics, models, or data..."
+                      className="w-full border rounded-lg px-4 py-2 focus:outline-none transition-colors"
+                      style={{ 
+                        backgroundColor: currentTheme.colors.background + '80',
+                        borderColor: currentTheme.colors.border,
+                        color: currentTheme.colors.text
+                      }}
+                    />
+                  </div>
+                )}
               </div>
-              
-              <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
-                {isFirstTime 
-                  ? "Welcome to your AI Operations Platform • Let's get started"
-                  : "Advanced AI Operations • Real-time Analytics • Neural Network Management"
-                }
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+
+              <button
+                onClick={handleNotificationClick}
+                className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+              >
+                <Bell 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+                {notifications > 0 && (
+                  <div 
+                    className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 text-white text-xs rounded-full flex items-center justify-center animate-pulse"
+                    style={{ backgroundColor: currentTheme.colors.error }}
+                  >
+                    {notifications}
+                  </div>
+                )}
+              </button>
+
+              <button
+                onClick={handleExportData}
+                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+              >
+                <Download 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+              <button
+                onClick={handleShareDashboard}
+                className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+              >
+                <Share 
+                  className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+              <button className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95">
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <Users 
+                    className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
+                    style={{ color: currentTheme.colors.textSecondary }}
+                  />
+                  <span
+                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
+                    style={{ color: currentTheme.colors.text }}
+                  >
+                    <span className="hidden sm:inline">AI Agents</span>
+                    <span className="sm:hidden">Agents</span>
+                  </span>
+                </div>
+              </button>
+
+              <button className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block">
+                <Settings 
+                  className="w-4 h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
+                  style={{ color: currentTheme.colors.textSecondary }}
+                />
+              </button>
+
+              <button
+                onClick={logout}
+                className="p-1.5 sm:p-2 lg:p-3 hover:bg-red-500/20 rounded-lg lg:rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{ color: currentTheme.colors.textSecondary }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';

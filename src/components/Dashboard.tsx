@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, CheckCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
+import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ThemeSelector } from './ThemeSelector';
@@ -215,26 +215,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
               </button>
 
               <button
-                onClick={logout}
-                className="p-1.5 sm:p-2 lg:p-3 hover:bg-red-500/20 rounded-lg lg:rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                style={{ color: currentTheme.colors.textSecondary }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = currentTheme.colors.error + '20';
-                  e.currentTarget.style.color = currentTheme.colors.error;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = currentTheme.colors.textSecondary;
-                }}
-              >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-              </button>
-
-              <div className="text-right hidden xl:block">
-                <div className="flex items-center space-x-1 lg:space-x-2">
-                  <p className="text-xs lg:text-sm font-semibold" style={{ color: currentTheme.colors.text }}>
-                    {currentTime.toLocaleTimeString()}
-                  </p>
                 </div>
                 <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
                   {currentTime.toLocaleDateString()}
