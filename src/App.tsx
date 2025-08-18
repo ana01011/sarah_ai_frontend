@@ -1,63 +1,75 @@
-import React, { createContext, useContext } from 'react';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ProtectedRoute } from './components/Auth/ProtectedRoute';
-import { ChatPage } from './pages/Chat';
-import { useAuth } from './hooks/useAuth';
-import { User } from './types/Chat';
+import React, { useState, useEffect } from 'react';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { AgentProvider } from './contexts/AgentContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { WelcomeScreen } from './components/WelcomeScreen';
+import { Dashboard } from './components/Dashboard';
+import { AgentSelector } from './components/AgentSelector';
+import { AgentDashboard } from './components/AgentDashboard';
+import { AuthWrapper } from './components/auth/AuthWrapper';
+import { useAuth } from './contexts/AuthContext';
+import { useAgent } from './contexts/AgentContext';
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '83902002509-b3phug3coahs2gocijeifkrbpdmh5et7.apps.googleusercontent.com';
+const AppContent: React.FC = () => {
+  const { user, isLoading } = useAuth();
+  const { currentView } = useAgent();
+  const [showWelcome, setShowWelcome] = useState(false);
 
-// Auth Context
-interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  error: string | null;
-  loginWithGoogle: (credentialResponse: any) => Promise<void>;
-  loginWithTestCredentials: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  clearError: () => void;
-}
+  useEffect(() => {
+    if (user) {
+      const hasVisited = localStorage.getItem('sarah-has-visited');
+      if (!hasVisited) {
+        setShowWelcome(true);
+        localStorage.setItem('sarah-has-visited', 'true');
+      }
+    }
+  }, [user]);
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const authValue = useAuth();
-  return (
-    <AuthContext.Provider value={authValue}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuthContext = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white">Loading Sarah AI...</p>
+        </div>
+      </div>
+    );
   }
-  return context;
+
+  if (!user) {
+    return <AuthWrapper />;
+  }
+
+  if (showWelcome) {
+    return (
+      <WelcomeScreen 
+        onEnter={() => setShowWelcome(false)} 
+        isFirstTime={true}
+      />
+    );
+  }
+
+  switch (currentView) {
+    case 'welcome':
+      return <WelcomeScreen onEnter={() => setShowWelcome(false)} />;
+    case 'selector':
+      return <AgentSelector />;
+    case 'agent-dashboard':
+      return <AgentDashboard />;
+    default:
+      return <Dashboard />;
+  }
 };
 
 const App: React.FC = () => {
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <div className="App">
-            <Routes>
-              <Route 
-                path="/" 
-                element={
-                  <ProtectedRoute>
-                    <ChatPage />
-                  </ProtectedRoute>
-                } 
-              />
-            </Routes>
-          </div>
-        </Router>
+        <AgentProvider>
+          <AppContent />
+        </AgentProvider>
       </AuthProvider>
-    </GoogleOAuthProvider>
+    </ThemeProvider>
   );
 };
 
