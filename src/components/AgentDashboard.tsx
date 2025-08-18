@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowLeft, Star, Shield, Zap, Users, MessageCircle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAgent } from '../contexts/AgentContext';
-import { ChatContainer } from './Chat/ChatContainer';
+import { AIChat } from './AIChat';
 
 export const AgentDashboard: React.FC = () => {
   const { currentTheme } = useTheme();
@@ -133,7 +133,12 @@ export const AgentDashboard: React.FC = () => {
 
         {/* Chat Container */}
         <div className="flex-1 overflow-hidden">
-          <ChatContainer />
+          <AIChat 
+            isOpen={true}
+            onClose={() => {}}
+            agentContext={selectedAgent}
+            isIntegrated={true}
+          />
         </div>
       </div>
     </div>
