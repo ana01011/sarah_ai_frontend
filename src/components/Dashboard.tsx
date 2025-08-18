@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, CheckCircle, MessageCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
+import { Brain, CheckCircle, Settings, Bell, Search, Download, Share, Users, LogOut } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useAgent } from '../contexts/AgentContext';
 import { ThemeSelector } from './ThemeSelector';
 import { ChatContainer } from './Chat/ChatContainer';
-import { useAgent } from '../contexts/AgentContext';
 
-interface DashboardProps {
-  onBackToWelcome?: () => void;
-}
-
-export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
+export const Dashboard: React.FC = () => {
   const { currentTheme } = useTheme();
   const { setCurrentView } = useAgent();
   const { logout, user } = useAuth();
@@ -248,7 +244,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
       </header>
 
       <div className="relative z-10 h-[calc(100vh-60px)] sm:h-[calc(100vh-70px)] lg:h-[calc(100vh-80px)]">
-        {/* Full Chat Interface */}
         <div className="h-full">
           <ChatContainer />
         </div>
