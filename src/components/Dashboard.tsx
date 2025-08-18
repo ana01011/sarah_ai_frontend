@@ -4,7 +4,12 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useAgent } from '../contexts/AgentContext';
 import { ThemeSelector } from './ThemeSelector';
-import { ChatContainer } from './Chat/ChatContainer';
+import { MetricsCard } from './MetricsCard';
+import { SystemStatus } from './SystemStatus';
+import { PerformanceChart } from './PerformanceChart';
+import { NeuralNetworkViz } from './NeuralNetworkViz';
+import { ProcessingPipeline } from './ProcessingPipeline';
+import { AIChat } from './AIChat';
 
 export const Dashboard: React.FC = () => {
   const { currentTheme } = useTheme();
@@ -13,10 +18,45 @@ export const Dashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [notifications, setNotifications] = useState(3);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [metrics, setMetrics] = useState({
+    accuracy: 94.7,
+    throughput: 12847,
+    latency: 23.4,
+    gpuUtilization: 78.2,
+    memoryUsage: 67.8,
+    activeModels: 12,
+    uptime: 99.97,
+    cpuUsage: 45.3,
+    diskUsage: 34.2,
+    networkTraffic: 2.4,
+    activeUsers: 1247,
+    globalReach: 89,
+    dataProcessed: 847.2,
+    totalProcessed: 2.4,
+    successRate: 99.7
+  });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMetrics(prev => ({
+        ...prev,
+        accuracy: Math.max(90, Math.min(100, prev.accuracy + (Math.random() - 0.5) * 0.5)),
+        throughput: prev.throughput + Math.floor((Math.random() - 0.5) * 200),
+        latency: Math.max(15, Math.min(50, prev.latency + (Math.random() - 0.5) * 2)),
+        gpuUtilization: Math.max(60, Math.min(95, prev.gpuUtilization + (Math.random() - 0.5) * 3)),
+        memoryUsage: Math.max(50, Math.min(90, prev.memoryUsage + (Math.random() - 0.5) * 2)),
+        activeUsers: prev.activeUsers + Math.floor((Math.random() - 0.5) * 50),
+        dataProcessed: prev.dataProcessed + (Math.random() * 10)
+      }));
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleNotificationClick = () => {
@@ -243,11 +283,84 @@ export const Dashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="relative z-10 h-[calc(100vh-60px)] sm:h-[calc(100vh-70px)] lg:h-[calc(100vh-80px)]">
-        <div className="h-full">
-          <ChatContainer />
+      {/* Main Dashboard Content */}
+      <div className="relative z-10 p-4 sm:p-6 lg:p-8 overflow-y-auto h-[calc(100vh-80px)]">
+        <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8">
+          {/* Key Metrics Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
+            <MetricsCard
+              title="Model Accuracy"
+              value={metrics.accuracy.toFixed(1)}
+              change="+2.3"
+              icon={Brain}
+              color="primary"
+              suffix="%"
+            />
+            <MetricsCard
+              title="Throughput"
+              value={metrics.throughput.toLocaleString()}
+              change="+12.7"
+              icon={CheckCircle}
+              color="success"
+              suffix="/hr"
+            />
+            <MetricsCard
+              title="Latency"
+              value={metrics.latency.toFixed(1)}
+              change="-8.4"
+              icon={Settings}
+              color="warning"
+              suffix="ms"
+            />
+            <MetricsCard
+              title="GPU Usage"
+              value={metrics.gpuUtilization.toFixed(0)}
+              change="+5.2"
+              icon={Bell}
+              color="info"
+              suffix="%"
+            />
+            <MetricsCard
+              title="Active Users"
+              value={metrics.activeUsers.toLocaleString()}
+              change="+18.9"
+              icon={Users}
+              color="secondary"
+            />
+          </div>
+
+          {/* Charts and Visualizations */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+            <div className="xl:col-span-2">
+              <PerformanceChart metrics={metrics} />
+            </div>
+            <SystemStatus />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            <NeuralNetworkViz />
+            <ProcessingPipeline />
+          </div>
         </div>
       </div>
+
+      {/* Floating Chat Button */}
+      <button
+        onClick={() => setIsChatOpen(true)}
+        className="fixed bottom-6 right-6 p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 z-50"
+        style={{
+          background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+          boxShadow: `0 8px 32px -8px ${currentTheme.shadows.primary}`
+        }}
+      >
+        <Brain className="w-6 h-6 text-white" />
+      </button>
+
+      {/* AI Chat Modal */}
+      <AIChat 
+        isOpen={isChatOpen} 
+        onClose={() => setIsChatOpen(false)}
+      />
     </div>
   );
 };
