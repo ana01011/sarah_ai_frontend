@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AgentProvider, useAgent } from './contexts/AgentContext';
@@ -7,6 +8,7 @@ import { Dashboard } from './components/Dashboard';
 import { AgentSelector } from './components/AgentSelector';
 import { AgentDashboard } from './components/AgentDashboard';
 import { AuthWrapper } from './components/auth/AuthWrapper';
+import { ChatPage } from './pages/ChatPage';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -24,25 +26,42 @@ const AppContent: React.FC = () => {
     return <AuthWrapper />;
   }
 
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case 'welcome':
-        return <WelcomeScreen onEnter={() => setCurrentView('dashboard')} isFirstTime={user?.isFirstTime} />;
-      case 'dashboard':
-        return <Dashboard />;
-      case 'selector':
-        return <AgentSelector />;
-      case 'agent-dashboard':
-        return <AgentDashboard />;
-      default:
-        return <WelcomeScreen 
-          onEnter={() => setCurrentView('dashboard')} 
-          isFirstTime={user?.isFirstTime} 
-        />;
-    }
-  };
-
-  return renderCurrentView();
+  return (
+    <Router>
+      <Routes>
+        <Route 
+          path="/" 
+          element={
+            currentView === 'welcome' ? (
+              <WelcomeScreen onEnter={() => setCurrentView('dashboard')} isFirstTime={user?.isFirstTime} />
+            ) : (
+              <Navigate to="/dashboard" replace />
+            )
+          } 
+        />
+        <Route 
+          path="/dashboard" 
+          element={<Dashboard />} 
+        />
+        <Route 
+          path="/chat" 
+          element={<ChatPage />} 
+        />
+        <Route 
+          path="/agents" 
+          element={<AgentSelector />} 
+        />
+        <Route 
+          path="/agent-dashboard" 
+          element={<AgentDashboard />} 
+        />
+        <Route 
+          path="*" 
+          element={<Navigate to="/dashboard" replace />} 
+        />
+      </Routes>
+    </Router>
+  );
 };
 
 function App() {

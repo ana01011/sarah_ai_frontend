@@ -240,6 +240,35 @@ export const Dashboard: React.FC<DashboardProps> = ({ onBackToWelcome }) => {
                 </div>
               </button>
 
+              <button
+                onClick={() => window.location.href = '/chat'}
+                className="relative group border rounded-xl px-3 sm:px-6 py-2 sm:py-3 transition-all duration-300 
+                         hover:scale-110 active:scale-95 hover:shadow-xl backdrop-blur-sm overflow-hidden"
+                style={{
+                  background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
+                  borderColor: currentTheme.colors.primary + '50',
+                  boxShadow: `0 10px 25px -5px ${currentTheme.shadows.primary}`
+                }}
+              >
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)' }}
+                ></div>
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <MessageCircle 
+                    className="w-4 h-4 sm:w-5 sm:h-5 transition-colors" 
+                    style={{ color: currentTheme.colors.primary }}
+                  />
+                  <span 
+                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10"
+                    style={{ color: currentTheme.colors.text }}
+                  >
+                    <span className="hidden sm:inline">Full Chat</span>
+                    <span className="sm:hidden">Chat</span>
+                  </span>
+                </div>
+              </button>
+
               <button className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block">
                 <Settings 
                   className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white transition-colors" 
