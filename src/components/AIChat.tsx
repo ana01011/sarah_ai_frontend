@@ -788,8 +788,33 @@ export const AIChat: React.FC<AIChatProps> = ({
             boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
           }}
         >
+          {/* Beautiful Animated Background */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div 
+              className="absolute -top-10 -left-10 w-32 h-32 rounded-full mix-blend-multiply filter blur-2xl animate-pulse opacity-30"
+              style={{ backgroundColor: currentTheme.colors.primary }}
+            />
+            <div 
+              className="absolute top-20 -right-10 w-28 h-28 rounded-full mix-blend-multiply filter blur-2xl animate-pulse delay-1000 opacity-25"
+              style={{ backgroundColor: currentTheme.colors.secondary }}
+            />
+            <div 
+              className="absolute bottom-10 left-10 w-24 h-24 rounded-full mix-blend-multiply filter blur-2xl animate-pulse delay-2000 opacity-20"
+              style={{ backgroundColor: currentTheme.colors.accent }}
+            />
+            
+            {/* Geometric Pattern Overlay */}
+            <div 
+              className="absolute inset-0 opacity-5"
+              style={{
+                backgroundImage: `radial-gradient(circle at 1px 1px, ${currentTheme.colors.primary} 1px, transparent 0)`,
+                backgroundSize: '20px 20px'
+              }}
+            />
+          </div>
+
           {/* Enhanced Header */}
-          <div className="flex items-center justify-between p-3 sm:p-6 border-b backdrop-blur-md"
+          <div className="flex items-center justify-between p-3 sm:p-6 border-b backdrop-blur-md relative z-10"
                style={{
                  background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
                  borderColor: currentTheme.colors.border
@@ -894,7 +919,7 @@ export const AIChat: React.FC<AIChatProps> = ({
           </div>
 
           {/* Enhanced Messages */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6 custom-scrollbar relative z-10">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -915,6 +940,8 @@ export const AIChat: React.FC<AIChatProps> = ({
                         ) : (
                           <Brain className="w-6 h-6" style={{ color: currentTheme.colors.primary }} />
                         )}
+                        <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse"
+                             style={{ backgroundColor: currentTheme.colors.secondary }}></div>
                       </div>
                       <span className="text-sm font-medium" style={{ color: currentTheme.colors.text }}>
                         {agentContext ? agentContext.name : 'Sarah'}
@@ -1078,7 +1105,7 @@ export const AIChat: React.FC<AIChatProps> = ({
           </div>
 
           {/* Enhanced Input */}
-          <div className="p-3 sm:p-6 border-t backdrop-blur-md"
+          <div className="p-3 sm:p-6 border-t backdrop-blur-md relative z-10"
                style={{
                  background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
                  borderColor: currentTheme.colors.border
@@ -1215,83 +1242,80 @@ export const AIChat: React.FC<AIChatProps> = ({
             </div>
           </div>
 
-          {/* Beautiful Animated Background */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {/* Flowing Wave Pattern */}
-            <div className="absolute inset-0">
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
-                <defs>
-                  <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: currentTheme.colors.primary, stopOpacity: 0.1 }} />
-                    <stop offset="50%" style={{ stopColor: currentTheme.colors.secondary, stopOpacity: 0.05 }} />
-                    <stop offset="100%" style={{ stopColor: currentTheme.colors.accent, stopOpacity: 0.1 }} />
-                  </linearGradient>
-                  <linearGradient id="wave2" x1="100%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: currentTheme.colors.secondary, stopOpacity: 0.08 }} />
-                    <stop offset="100%" style={{ stopColor: currentTheme.colors.primary, stopOpacity: 0.12 }} />
-                  </linearGradient>
-                </defs>
-                
-                {/* Animated Wave Paths */}
-                <path d="M0,100 Q100,50 200,100 T400,100 L400,0 L0,0 Z" fill="url(#wave1)">
-                  <animateTransform
-                    attributeName="transform"
-                    type="translate"
-                    values="0,0;50,0;0,0"
-                    dur="20s"
-                    repeatCount="indefinite"
-                  />
-                </path>
-                
-                <path d="M0,200 Q150,150 300,200 T600,200 L600,0 L0,0 Z" fill="url(#wave2)">
-                  <animateTransform
-                    attributeName="transform"
-                    type="translate"
-                    values="0,0;-30,0;0,0"
-                    dur="15s"
-                    repeatCount="indefinite"
-                  />
-                </path>
-                
-                {/* Floating Particles */}
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <circle
-                    key={i}
-                    cx={50 + (i * 30) % 350}
-                    cy={100 + (i * 60) % 600}
-                    r={2 + (i % 3)}
-                    fill={currentTheme.colors.primary}
-                    opacity="0.3"
-                  >
-                    <animateTransform
-                      attributeName="transform"
-                      type="translate"
-                      values={`0,0;${10 + (i % 20)},${-20 - (i % 30)};0,0`}
-                      dur={`${8 + (i % 5)}s`}
-                      repeatCount="indefinite"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      values="0.1;0.6;0.1"
-                      dur={`${6 + (i % 4)}s`}
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                ))}
-              </svg>
+          {/* Flowing Wave Pattern */}
+          <div className="absolute inset-0">
+            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: currentTheme.colors.primary, stopOpacity: 0.1 }} />
+                  <stop offset="50%" style={{ stopColor: currentTheme.colors.secondary, stopOpacity: 0.05 }} />
+                  <stop offset="100%" style={{ stopColor: currentTheme.colors.accent, stopOpacity: 0.1 }} />
+                </linearGradient>
+                <linearGradient id="wave2" x1="100%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: currentTheme.colors.secondary, stopOpacity: 0.08 }} />
+                  <stop offset="100%" style={{ stopColor: currentTheme.colors.primary, stopOpacity: 0.12 }} />
+                </linearGradient>
+              </defs>
               
-              {/* Gradient Mesh Overlay */}
-              <div 
-                className="absolute inset-0 opacity-20"
-                style={{
-                  background: `
-                    radial-gradient(circle at 20% 30%, ${currentTheme.colors.primary}40 0%, transparent 50%),
-                    radial-gradient(circle at 80% 70%, ${currentTheme.colors.secondary}30 0%, transparent 50%),
-                    radial-gradient(circle at 50% 50%, ${currentTheme.colors.accent}20 0%, transparent 50%)
-                  `
-                }}
-              />
-            </div>
+              {/* Animated Wave Paths */}
+              <path d="M0,100 Q100,50 200,100 T400,100 L400,0 L0,0 Z" fill="url(#wave1)">
+                <animateTransform
+                  attributeName="transform"
+                  type="translate"
+                  values="0,0;50,0;0,0"
+                  dur="20s"
+                  repeatCount="indefinite"
+                />
+              </path>
+              
+              <path d="M0,200 Q150,150 300,200 T600,200 L600,0 L0,0 Z" fill="url(#wave2)">
+                <animateTransform
+                  attributeName="transform"
+                  type="translate"
+                  values="0,0;-30,0;0,0"
+                  dur="15s"
+                  repeatCount="indefinite"
+                />
+              </path>
+              
+              {/* Floating Particles */}
+              {Array.from({ length: 12 }).map((_, i) => (
+                <circle
+                  key={i}
+                  cx={50 + (i * 30) % 350}
+                  cy={100 + (i * 60) % 600}
+                  r={2 + (i % 3)}
+                  fill={currentTheme.colors.primary}
+                  opacity="0.3"
+                >
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values={`0,0;${10 + (i % 20)},${-20 - (i % 30)};0,0`}
+                    dur={`${8 + (i % 5)}s`}
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    values="0.1;0.6;0.1"
+                    dur={`${6 + (i % 4)}s`}
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              ))}
+            </svg>
+            
+            {/* Gradient Mesh Overlay */}
+            <div 
+              className="absolute inset-0 opacity-20"
+              style={{
+                background: `
+                  radial-gradient(circle at 20% 30%, ${currentTheme.colors.primary}40 0%, transparent 50%),
+                  radial-gradient(circle at 80% 70%, ${currentTheme.colors.secondary}30 0%, transparent 50%),
+                  radial-gradient(circle at 50% 50%, ${currentTheme.colors.accent}20 0%, transparent 50%)
+                `
+              }}
+            />
           </div>
         </div>
       </div>
