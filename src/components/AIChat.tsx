@@ -34,9 +34,9 @@ import {
   Plus,
   Search,
   Edit2,
-   Check,
-   Plus,
-   CheckCircle
+  Check,
+  CheckCircle
+} from 'lucide-react';
 
 interface Message {
   id: string;
@@ -266,22 +266,6 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     if (!inputValue.trim()) return;
 
-    // Auto-create new chat if none exists
-    if (!currentChatId) {
-      const newChatId = Date.now().toString();
-      const newChat: ChatHistory = {
-        id: newChatId,
-        title: inputValue.slice(0, 50) + (inputValue.length > 50 ? '...' : ''),
-        messages: [],
-        timestamp: new Date().toISOString()
-      };
-      
-      const updatedHistory = [...chatHistory, newChat];
-      setChatHistory(updatedHistory);
-      setCurrentChatId(newChatId);
-      localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
-    }
-
     // Create new chat if none exists
     if (!currentChatId) {
       const newChatId = Date.now().toString();
@@ -350,18 +334,6 @@ export const AIChat: React.FC<AIChatProps> = ({
       setMessages(prev => [...prev, aiMessage]);
       setIsTyping(false);
       playSound('receive');
-
-      // Save chat to history after AI response
-      if (currentChatId) {
-        const updatedMessages = [...messages, userMessage, aiMessage];
-        const updatedHistory = chatHistory.map(chat => 
-          chat.id === currentChatId 
-            ? { ...chat, messages: updatedMessages }
-            : chat
-        );
-        setChatHistory(updatedHistory);
-        localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
-      }
       
       // Auto-save chat after AI response
       setTimeout(saveCurrentChat, 1000);
@@ -414,6 +386,11 @@ export const AIChat: React.FC<AIChatProps> = ({
     setCopiedMessageId(messageId);
     playSound('notification');
     setTimeout(() => setCopiedMessageId(null), 2000);
+  };
+
+  const copyToClipboard = (content: string) => {
+    navigator.clipboard.writeText(content);
+    playSound('notification');
   };
 
   const handleFileUpload = () => {
