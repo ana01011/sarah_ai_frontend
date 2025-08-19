@@ -87,6 +87,7 @@ export const AIChat: React.FC<AIChatProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -378,6 +379,13 @@ export const AIChat: React.FC<AIChatProps> = ({
   const copyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
     playSound('notification');
+  };
+
+  const copyMessageWithFeedback = (messageId: string, content: string) => {
+    navigator.clipboard.writeText(content);
+    setCopiedMessageId(messageId);
+    playSound('notification');
+    setTimeout(() => setCopiedMessageId(null), 2000);
   };
 
   const handleFileUpload = () => {

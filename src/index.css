@@ -35,6 +35,32 @@
   scrollbar-color: rgba(59, 130, 246, 0.6) rgba(0, 0, 0, 0.1);
 }
 
+/* Theme selector scrollbar */
+.theme-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.theme-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.theme-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.6);
+  border-radius: 4px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.theme-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.8);
+}
+
+/* Firefox theme scrollbar */
+.theme-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.6) rgba(0, 0, 0, 0.1);
+}
+
 /* Prose styles for markdown */
 .prose {
   max-width: none;

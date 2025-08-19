@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Palette, Check, Sun, Moon, Zap, Waves, Sunset, Circle, Lightbulb, Crown, Code, DollarSign, Megaphone, Settings, Users, Briefcase, Brain, Smartphone, Database, BarChart3, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
+import { Palette, Check, Sun, Moon, Zap, Waves, Circle, Lightbulb, Code, DollarSign, Megaphone, Users, Briefcase, Brain, Smartphone, Database, BarChart3, Sparkles } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const themeIcons = {
@@ -24,12 +24,8 @@ const themeIcons = {
 export const ThemeSelector: React.FC = () => {
   const { currentTheme, setTheme, themes } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
-  const [scrollPosition, setScrollPosition] = useState(0);
   const [showFirstTimeGuide, setShowFirstTimeGuide] = useState(false);
   const [hasSeenGuide, setHasSeenGuide] = useState(false);
-
-  const VISIBLE_THEMES = 4;
-  const maxScroll = Math.max(0, themes.length - VISIBLE_THEMES);
 
   useEffect(() => {
     // Check if user has seen the theme guide before
@@ -46,16 +42,6 @@ export const ThemeSelector: React.FC = () => {
     setHasSeenGuide(true);
     localStorage.setItem('hasSeenThemeGuide', 'true');
   };
-
-  const scrollUp = () => {
-    setScrollPosition(Math.max(0, scrollPosition - 1));
-  };
-
-  const scrollDown = () => {
-    setScrollPosition(Math.min(maxScroll, scrollPosition + 1));
-  };
-
-  const visibleThemes = themes.slice(scrollPosition, scrollPosition + VISIBLE_THEMES);
 
   return (
     <div className="relative">
@@ -138,7 +124,7 @@ export const ThemeSelector: React.FC = () => {
       {/* Theme Selector Dropdown */}
       {isOpen && (
         <div 
-          className="fixed sm:absolute top-full right-2 sm:right-0 mt-2 w-[calc(100vw-1rem)] sm:w-96 max-w-sm sm:max-w-none backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden"
+          className="fixed sm:absolute top-full right-2 sm:right-0 mt-2 w-[calc(100vw-1rem)] sm:w-96 backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden"
           style={{ 
             backgroundColor: currentTheme.colors.surface + 'f0',
             borderColor: currentTheme.colors.border,
@@ -165,7 +151,7 @@ export const ThemeSelector: React.FC = () => {
           {/* Scrollable Theme List */}
           <div className="relative">
             {/* Theme List Container */}
-            <div className="p-3 sm:p-4 max-h-80 overflow-y-auto custom-scrollbar">
+            <div className="p-3 sm:p-4 max-h-80 overflow-y-auto theme-scrollbar">
               <div className="space-y-2 sm:space-y-3 pr-2">
                 {themes.map((theme) => {
                   const Icon = themeIcons[theme.id as keyof typeof themeIcons];
