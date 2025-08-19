@@ -222,75 +222,6 @@ export const AIChat: React.FC<AIChatProps> = ({
     }
   };
 
-  const handleCopyMessage = async (content: string, messageId: string) => {
-    try {
-      await navigator.clipboard.writeText(content);
-      setCopiedMessageId(messageId);
-      playSound('notification');
-      
-      // Reset copied state after 2 seconds
-      setTimeout(() => {
-        setCopiedMessageId(null);
-      }, 2000);
-    } catch (error) {
-      console.error('Failed to copy message:', error);
-    }
-  };
-
-  const handleNewChat = () => {
-    setMessages([
-      {
-        id: '1',
-        content: agentContext 
-          ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. I specialize in ${agentContext.specialties.join(', ')}. How can I assist you with ${agentContext.department.toLowerCase()} matters today?`
-          : "Hello! I'm Sarah, your advanced AI assistant. I can help you with system monitoring, data analysis, model optimization, code generation, and much more. What would you like to explore today?",
-        sender: 'ai',
-        timestamp: new Date(),
-        suggestions: [
-          ...(agentContext ? [
-            `📊 Show ${agentContext.department.toLowerCase()} metrics`,
-            `💡 ${agentContext.specialties[0]} insights`,
-            `🎯 ${agentContext.role} recommendations`,
-            `📈 Department performance`
-          ] : [
-            "🚀 Show me system performance",
-            "📊 Analyze model accuracy trends", 
-            "⚡ Check GPU utilization",
-            "🔧 Optimize training pipeline",
-            "💡 Generate code snippets",
-            "📈 Create performance reports"
-          ])
-        ]
-      }
-    ]);
-    setCurrentChatId(null);
-    setIsSidebarOpen(false);
-  };
-
-  const handleChatSelect = (chat: ChatHistory) => {
-    setMessages(chat.messages);
-    setCurrentChatId(chat.id);
-    setIsSidebarOpen(false);
-  };
-
-  const handleDeleteChat = (chatId: string) => {
-    const updatedHistory = chatHistory.filter(chat => chat.id !== chatId);
-    setChatHistory(updatedHistory);
-    localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
-    
-    if (currentChatId === chatId) {
-      handleNewChat();
-    }
-  };
-
-  const handleEditTitle = (chatId: string, newTitle: string) => {
-    const updatedHistory = chatHistory.map(chat => 
-      chat.id === chatId ? { ...chat, title: newTitle } : chat
-    );
-    setChatHistory(updatedHistory);
-    localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
-  };
-
   // Filter chat history based on search
   const filteredChatHistory = chatHistory.filter(chat =>
     chat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -479,6 +410,13 @@ export const AIChat: React.FC<AIChatProps> = ({
   };
 
   const copyMessageWithFeedback = (messageId: string, content: string) => {
+    navigator.clipboard.writeText(content);
+    setCopiedMessageId(messageId);
+    playSound('notification');
+    setTimeout(() => setCopiedMessageId(null), 2000);
+  };
+
+  const handleCopyMessage = (content: string, messageId: string) => {
     navigator.clipboard.writeText(content);
     setCopiedMessageId(messageId);
     playSound('notification');
@@ -1141,27 +1079,47 @@ export const AIChat: React.FC<AIChatProps> = ({
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 sm:mt-4 pt-3 sm:pt-4 border-t space-y-2 sm:space-y-0"
                              style={{ borderColor: currentTheme.colors.border }}>
                           <div className="flex items-center space-x-2 sm:space-x-3">
+                            {/* Prominent Copy Button */}
                             <button
-                              onClick={() => copyToClipboard(message.content)}
-                              className="flex items-center space-x-1 px-3 py-1.5 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group/copy"
-                              style={{ 
-                                backgroundColor: currentTheme.colors.primary + '20',
-                                color: currentTheme.colors.primary
+                              onClick={() => handleCopyMessage(message.content, message.id)}
+                              className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 flex items-center space-x-2"
+                              style={{
+                                backgroundColor: copiedMessageId === message.id 
+                                  ? currentTheme.colors.success + '20' 
+                                  : currentTheme.colors.primary + '20',
+                                color: copiedMessageId === message.id 
+                                  ? currentTheme.colors.success 
+                                  : currentTheme.colors.primary,
+                                border: `1px solid ${copiedMessageId === message.id 
+                                  ? currentTheme.colors.success + '40' 
+                                  : currentTheme.colors.primary + '40'}`
                               }}
-                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.primary + '30'}
-                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.primary + '20'}
                             >
-                              <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                              <span className="text-xs font-medium">Copy</span>
+                              {copiedMessageId === message.id ? (
+                                <>
+                                  <Check className="w-3 h-3" />
+                                  <span>Copied!</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  <span>Copy</span>
+                                </>
+                              )}
                             </button>
+                            
                             <button
-                              onClick={() => copyToClipboard(message.content)}
+                              onClick={() => handleCopyMessage(message.content, message.id)}
                               className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn"
                               style={{ backgroundColor: 'transparent' }}
                               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
                               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
-                              <Copy className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.textSecondary }} />
+                              {copiedMessageId === message.id ? (
+                                <Check className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.success }} />
+                              ) : (
+                                <Copy className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.textSecondary }} />
+                              )}
                             </button>
                             <button
                               onClick={() => addReaction(message.id, '👍')}
