@@ -623,28 +623,18 @@ export const AIChat: React.FC<AIChatProps> = ({
                 className="p-2 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
                 <Menu className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: currentTheme.colors.textSecondary }} />
-                  className="w-5 h-5" 
-                  style={{ color: isSidebarOpen ? currentTheme.colors.primary : currentTheme.colors.textSecondary }}
-                />
               </button>
-              <div className="relative">
-                <Brain className="w-6 h-6 animate-pulse" 
-                       style={{ color: currentTheme.colors.primary }} />
-                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping"
-                     style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-              </div>
-              <div>
-                <h3 className="font-bold" style={{ color: currentTheme.colors.text }}>
-                  {agentContext ? `${agentContext.name}` : 'Sarah AI'}
-                </h3>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 rounded-full animate-pulse" 
-                       style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-                  <span className="text-xs" style={{ color: currentTheme.colors.secondary }}>
-                    Online
-                  </span>
-                </div>
-              </div>
+            </div>
+            <div className="flex-1 flex justify-center">
+              <h3 
+                className="text-xl font-bold bg-clip-text text-transparent animate-pulse"
+                style={{
+                  backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                  textShadow: `0 0 20px ${currentTheme.colors.primary}40`
+                }}
+              >
+                {agentContext ? `${agentContext.name}` : 'SARAH AI'}
+              </h3>
             </div>
           </div>
 
@@ -770,22 +760,23 @@ export const AIChat: React.FC<AIChatProps> = ({
       
       <div className={`fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm transition-all duration-300 ${isMaximized ? 'p-0' : ''}`}>
         <div 
-          className="fixed left-0 top-[80px] h-[calc(100vh-80px)] w-80 sm:w-96 backdrop-blur-xl border-r shadow-2xl z-[10000] overflow-hidden"
-          isMaximized 
-            ? 'w-full h-full rounded-none' 
-            : 'rounded-xl sm:rounded-2xl hover:scale-[1.01]'
-        }`}
-        style={{
-          width: isMaximized ? '100%' : '400px',
-          height: isMaximized ? '100%' : '600px',
-          minWidth: '300px',
-          minHeight: '400px',
-          maxWidth: isMaximized ? '100%' : '800px',
-          maxHeight: isMaximized ? '100%' : '800px',
-          background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
-          borderColor: currentTheme.colors.border,
-          boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
-        }}>
+          className={`backdrop-blur-xl border shadow-2xl transition-all duration-300 ${
+            isMaximized 
+              ? 'w-full h-full rounded-none' 
+              : 'rounded-xl sm:rounded-2xl hover:scale-[1.01]'
+          }`}
+          style={{
+            width: isMaximized ? '100%' : '400px',
+            height: isMaximized ? '100%' : '600px',
+            minWidth: '300px',
+            minHeight: '400px',
+            maxWidth: isMaximized ? '100%' : '800px',
+            maxHeight: isMaximized ? '100%' : '800px',
+            background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
+            borderColor: currentTheme.colors.border,
+            boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
+          }}
+        >
           {/* Enhanced Header */}
           <div className="flex items-center justify-between p-3 sm:p-6 border-b backdrop-blur-md"
                style={{
@@ -903,8 +894,24 @@ export const AIChat: React.FC<AIChatProps> = ({
                     <div className="flex items-center space-x-2 mb-2 sm:mb-3">
                       <div className="relative">
                         {agentContext ? (
-          {/* Beautiful Animated Background */}
+                          <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                               style={{ 
+                                 backgroundColor: currentTheme.colors.primary + '20',
+                                 color: currentTheme.colors.primary 
+                               }}>
+                            {agentContext.name.charAt(0)}
+                          </div>
                         ) : (
+                          <Brain className="w-6 h-6 animate-pulse" style={{ color: currentTheme.colors.primary }} />
+                        )}
+                      </div>
+                      <span className="text-sm font-medium" style={{ color: currentTheme.colors.text }}>
+                        {agentContext ? agentContext.name : 'Sarah'}
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div
                     className={`
                       relative p-3 sm:p-5 rounded-xl sm:rounded-2xl backdrop-blur-md border transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group-hover:shadow-xl
                       ${message.sender === 'user'
@@ -1191,6 +1198,14 @@ export const AIChat: React.FC<AIChatProps> = ({
                   <BarChart3 className="w-3 h-3" style={{ color: currentTheme.colors.secondary }} />
                   <span style={{ color: currentTheme.colors.textSecondary }}>
                     {agentContext ? `${agentContext.level} level access` : 'Analytics enabled'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Beautiful Animated Background */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl sm:rounded-2xl">
             {/* Flowing Wave Pattern */}
             <div className="absolute inset-0">
               <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
