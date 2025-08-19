@@ -259,6 +259,17 @@ export const AIChat: React.FC<AIChatProps> = ({
     console.log(`Playing ${type} sound`);
   };
 
+  const copyToClipboard = (content: string) => {
+    navigator.clipboard.writeText(content);
+    playSound('notification');
+  };
+
+  const copyMessageWithFeedback = (messageId: string, content: string) => {
+    copyToClipboard(content);
+    setCopiedMessageId(messageId);
+    setTimeout(() => setCopiedMessageId(null), 2000);
+  };
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) {
       e.preventDefault();
@@ -378,11 +389,6 @@ export const AIChat: React.FC<AIChatProps> = ({
   };
 
   const copyMessage = (content: string) => {
-    navigator.clipboard.writeText(content);
-    playSound('notification');
-  };
-
-  const copyToClipboard = (content: string) => {
     navigator.clipboard.writeText(content);
     playSound('notification');
   };
@@ -1038,6 +1044,33 @@ export const AIChat: React.FC<AIChatProps> = ({
                     
                     <div className="relative z-10">
                       <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: currentTheme.colors.text }}>{message.content}</p>
+                      
+                      {/* Copy Button for AI Messages */}
+                      {message.sender === 'ai' && (
+                        <div className="mt-3 flex justify-end">
+                          <button
+                            onClick={() => copyMessageWithFeedback(message.id, message.content)}
+                            className="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 hover:scale-105 active:scale-95"
+                            style={{
+                              backgroundColor: copiedMessageId === message.id ? currentTheme.colors.success + '20' : currentTheme.colors.primary + '20',
+                              color: copiedMessageId === message.id ? currentTheme.colors.success : currentTheme.colors.primary,
+                              border: `1px solid ${copiedMessageId === message.id ? currentTheme.colors.success + '30' : currentTheme.colors.primary + '30'}`
+                            }}
+                          >
+                            {copiedMessageId === message.id ? (
+                              <>
+                                <Check className="w-4 h-4" />
+                                <span>Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" />
+                                <span>Copy</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
                       
                       {message.sender === 'ai' && (
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 sm:mt-4 pt-3 sm:pt-4 border-t space-y-2 sm:space-y-0"
