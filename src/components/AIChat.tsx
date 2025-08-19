@@ -1065,7 +1065,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                             <button
                               onClick={() => handleCopyMessage(message.content, message.id)}
                               className="flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 text-sm"
-                              style={{
+                              className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 flex items-center space-x-1 sm:space-x-2"
                                 backgroundColor: copiedMessageId === message.id 
                                   ? currentTheme.colors.success + '20' 
                                   : currentTheme.colors.primary + '20',
@@ -1076,13 +1076,14 @@ export const AIChat: React.FC<AIChatProps> = ({
                             >
                               {copiedMessageId === message.id ? (
                                 <>
-                                  <Check className="w-4 h-4" />
-                                  <span>Copied!</span>
+                                  <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                                  <span className="hidden sm:inline">Copied!</span>
+                                  <span className="sm:hidden">✓</span>
                                 </>
                               ) : (
                                 <>
-                                  <Copy className="w-4 h-4" />
-                                  <span>Copy</span>
+                                  <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                                  <span className="hidden sm:inline">Copy</span>
                                 </>
                               )}
                             </button>
