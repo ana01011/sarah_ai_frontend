@@ -78,21 +78,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         : "Hello! I'm Sarah, your advanced AI assistant. I can help you with system monitoring, data analysis, model optimization, code generation, and much more. What would you like to explore today?",
       sender: 'ai',
       timestamp: new Date(),
-      suggestions: [
-        ...(agentContext ? [
-          `📊 Show ${agentContext.department.toLowerCase()} metrics`,
-          `💡 ${agentContext.specialties[0]} insights`,
-          `🎯 ${agentContext.role} recommendations`,
-          `📈 Department performance`
-        ] : [
-          "🚀 Show me system performance",
-          "📊 Analyze model accuracy trends", 
-          "⚡ Check GPU utilization",
-          "🔧 Optimize training pipeline",
-          "💡 Generate code snippets",
-          "📈 Create performance reports"
-        ])
-      ]
     }
   ]);
   
@@ -153,12 +138,12 @@ export const AIChat: React.FC<AIChatProps> = ({
   };
 
   useEffect(() => {
-    if (messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.sender === 'ai') {
-        scrollToBottom();
-      }
-    }
+    // Always scroll to bottom when messages change, with a delay to ensure rendering
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [messages]);
 
   useEffect(() => {
@@ -303,6 +288,11 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     setInputValue('');
     setIsTyping(true);
+    
+    // Scroll to show typing indicator immediately
+    setTimeout(() => {
+      scrollToBottom();
+    }, 50);
 
     try {
       // Call your actual backend API
@@ -362,6 +352,11 @@ export const AIChat: React.FC<AIChatProps> = ({
       
       setIsTyping(false);
       playSound('receive');
+      
+      // Ensure we scroll to the new AI message
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
 
     } catch (error) {
       console.error('Failed to get response:', error);
@@ -386,6 +381,11 @@ export const AIChat: React.FC<AIChatProps> = ({
       }
       setMessages(prev => [...prev, errorMessage]);
       playSound('receive');
+      
+      // Scroll to error message as well
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
     }
   };
 

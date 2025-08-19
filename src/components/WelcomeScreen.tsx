@@ -69,57 +69,6 @@ export const WelcomeScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <div 
-            className="backdrop-blur-xl border rounded-2xl p-8 transition-all duration-300 hover:scale-105"
-            style={{
-              background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
-              borderColor: currentTheme.colors.border
-            }}
-          >
-            <Zap className="w-12 h-12 mx-auto mb-4" style={{ color: currentTheme.colors.primary }} />
-            <h3 className="text-xl font-bold mb-2" style={{ color: currentTheme.colors.text }}>
-              Lightning Fast
-            </h3>
-            <p style={{ color: currentTheme.colors.textSecondary }}>
-              Process millions of operations with unprecedented speed and efficiency
-            </p>
-          </div>
-
-          <div 
-            className="backdrop-blur-xl border rounded-2xl p-8 transition-all duration-300 hover:scale-105"
-            style={{
-              background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
-              borderColor: currentTheme.colors.border
-            }}
-          >
-            <Shield className="w-12 h-12 mx-auto mb-4" style={{ color: currentTheme.colors.secondary }} />
-            <h3 className="text-xl font-bold mb-2" style={{ color: currentTheme.colors.text }}>
-              Enterprise Security
-            </h3>
-            <p style={{ color: currentTheme.colors.textSecondary }}>
-              Military-grade encryption and security protocols protect your data
-            </p>
-          </div>
-
-          <div 
-            className="backdrop-blur-xl border rounded-2xl p-8 transition-all duration-300 hover:scale-105"
-            style={{
-              background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
-              borderColor: currentTheme.colors.border
-            }}
-          >
-            <Globe className="w-12 h-12 mx-auto mb-4" style={{ color: currentTheme.colors.accent }} />
-            <h3 className="text-xl font-bold mb-2" style={{ color: currentTheme.colors.text }}>
-              Global Scale
-            </h3>
-            <p style={{ color: currentTheme.colors.textSecondary }}>
-              Deploy across multiple regions with automatic scaling and optimization
-            </p>
-          </div>
-        </div>
-
         {/* Get Started Button */}
         <button
           onClick={handleGetStarted}
