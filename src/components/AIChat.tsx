@@ -161,12 +161,17 @@ export const AIChat: React.FC<AIChatProps> = ({
     }, 150);
   };
 
+  const scrollToLatestMessage = () => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage) {
+      scrollToBottom();
+    }
+  };
+
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.sender === 'ai') {
-      scrollToAiResponse();
-    } else if (messages.length > 0) {
-      scrollToBottom();
+    if (lastMessage) {
+      scrollToLatestMessage();
     }
   }, [messages]);
 
@@ -832,7 +837,6 @@ export const AIChat: React.FC<AIChatProps> = ({
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask me anything..."
-                data-message-type="ai"
                 className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
                 style={{
                   backgroundColor: currentTheme.colors.surface + '40',
