@@ -690,7 +690,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         {/* Chat History Sidebar */}
         <div className={`
           fixed lg:relative top-0 left-0 h-full w-80 transform transition-transform duration-300 z-50 lg:z-auto
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            className="fixed left-0 top-[80px] w-80 h-[calc(100vh-80px)] backdrop-blur-xl border-r shadow-2xl z-[10000] overflow-hidden"
           backdrop-blur-xl border-r flex flex-col
         `}
         style={{
