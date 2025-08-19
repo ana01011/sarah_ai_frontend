@@ -233,12 +233,9 @@ export const Dashboard: React.FC = () => {
                   </p>
                 )}
               </div>
-              
-              <div className="flex items-center space-x-1 sm:space-x-2 hidden xl:flex">
-                <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-pulse" style={{ backgroundColor: currentTheme.colors.success }} />
-                <span className="text-xs sm:text-sm" style={{ color: currentTheme.colors.success }}>All Systems Operational</span>
-              </div>
-            </div>
+            <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.secondary }}>
+              v3.7.3
+            </p>
           </div>
         </div>
       </header>

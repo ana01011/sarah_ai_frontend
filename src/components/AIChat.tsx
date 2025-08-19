@@ -258,6 +258,30 @@ export const AIChat: React.FC<AIChatProps> = ({
       timestamp: new Date()
     };
 
+    // Create new chat if this is the first message and no current chat
+    if (!currentChatId && chatHistory.length === 0) {
+      const newChatId = Date.now().toString();
+      const newChat: ChatHistory = {
+        id: newChatId,
+        title: inputValue.length > 50 ? inputValue.substring(0, 50) + '...' : inputValue,
+        messages: [userMessage],
+        timestamp: new Date().toISOString()
+      };
+      
+      const updatedHistory = [newChat, ...chatHistory];
+      setChatHistory(updatedHistory);
+      setCurrentChatId(newChatId);
+      localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+    } else if (currentChatId) {
+      // Add message to existing chat
+      const updatedHistory = chatHistory.map(chat => 
+        chat.id === currentChatId 
+          ? { ...chat, messages: [...chat.messages, userMessage] }
+          : chat
+      );
+      setChatHistory(updatedHistory);
+      localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+    }
     // Create new chat if none exists
     if (!currentChatId) {
       const newChatId = Date.now().toString();
@@ -315,6 +339,16 @@ export const AIChat: React.FC<AIChatProps> = ({
         ]
       };
 
+      // Update chat history with AI response
+      if (currentChatId) {
+        const updatedHistory = chatHistory.map(chat => 
+          chat.id === currentChatId 
+            ? { ...chat, messages: [...chat.messages, aiMessage] }
+            : chat
+        );
+        setChatHistory(updatedHistory);
+        localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+      }
       setMessages(prev => [...prev, aiMessage]);
       
       // Update chat history with new messages
@@ -340,6 +374,16 @@ export const AIChat: React.FC<AIChatProps> = ({
         timestamp: new Date()
       };
       
+      // Update chat history with error message
+      if (currentChatId) {
+        const updatedHistory = chatHistory.map(chat => 
+          chat.id === currentChatId 
+            ? { ...chat, messages: [...chat.messages, errorMessage] }
+            : chat
+        );
+        setChatHistory(updatedHistory);
+        localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+      }
       setMessages(prev => [...prev, errorMessage]);
       playSound('receive');
     }
