@@ -65,7 +65,7 @@ export const Dashboard: React.FC = () => {
 
       {/* Header */}
       <header 
-        className="relative z-40 backdrop-blur-md border-b"
+        className="relative z-50 backdrop-blur-md border-b"
         style={{ 
           backgroundColor: currentTheme.colors.surface + '80',
           borderColor: currentTheme.colors.border

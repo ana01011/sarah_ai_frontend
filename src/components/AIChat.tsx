@@ -1078,6 +1078,16 @@ export const AIChat: React.FC<AIChatProps> = ({
             
             <div className="flex items-center space-x-1 sm:space-x-2">
               <button
+                onClick={() => setShowChatHistory(!showChatHistory)}
+                className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
+                style={{ backgroundColor: 'transparent' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.textSecondary }} />
+              </button>
+              
+              <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
                 className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 hidden sm:block"
                 style={{ backgroundColor: 'transparent' }}
