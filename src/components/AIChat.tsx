@@ -723,7 +723,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             </button>
           </form>
         </div>
-        </div>
+      </div>
       </div>
     );
   }
