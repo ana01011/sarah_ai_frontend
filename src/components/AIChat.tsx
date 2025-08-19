@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { 
-  MessageCircle, 
+  Menu, 
   Send, 
   X, 
   Brain, 
@@ -622,7 +622,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="p-2 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
-                <MessageCircle 
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: currentTheme.colors.textSecondary }} />
                   className="w-5 h-5" 
                   style={{ color: isSidebarOpen ? currentTheme.colors.primary : currentTheme.colors.textSecondary }}
                 />
@@ -770,7 +770,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       
       <div className={`fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm transition-all duration-300 ${isMaximized ? 'p-0' : ''}`}>
         <div 
-          className={`backdrop-blur-xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-500 relative ${
+          className="fixed left-0 top-[80px] h-[calc(100vh-80px)] w-80 sm:w-96 backdrop-blur-xl border-r shadow-2xl z-[10000] overflow-hidden"
           isMaximized 
             ? 'w-full h-full rounded-none' 
             : 'rounded-xl sm:rounded-2xl hover:scale-[1.01]'
@@ -903,26 +903,8 @@ export const AIChat: React.FC<AIChatProps> = ({
                     <div className="flex items-center space-x-2 mb-2 sm:mb-3">
                       <div className="relative">
                         {agentContext ? (
-                          <span className="text-lg">{agentContext.avatar}</span>
+          {/* Beautiful Animated Background */}
                         ) : (
-                          <Brain className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.primary }} />
-                        )}
-                        <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-                      </div>
-                      <span className="text-xs sm:text-sm font-medium" style={{ color: currentTheme.colors.textSecondary }}>
-                        {agentContext ? agentContext.name : 'Sarah AI'}
-                      </span>
-                      <span className="text-xs" style={{ color: currentTheme.colors.textSecondary + '80' }}>
-                        {message.timestamp.toLocaleTimeString()}
-                      </span>
-                      <div className="flex items-center space-x-1 hidden sm:flex">
-                        <Star className="w-3 h-3" style={{ color: currentTheme.colors.accent }} />
-                        <span className="text-xs" style={{ color: currentTheme.colors.accent }}>Premium</span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div
                     className={`
                       relative p-3 sm:p-5 rounded-xl sm:rounded-2xl backdrop-blur-md border transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group-hover:shadow-xl
                       ${message.sender === 'user'
@@ -1209,15 +1191,80 @@ export const AIChat: React.FC<AIChatProps> = ({
                   <BarChart3 className="w-3 h-3" style={{ color: currentTheme.colors.secondary }} />
                   <span style={{ color: currentTheme.colors.textSecondary }}>
                     {agentContext ? `${agentContext.level} level access` : 'Analytics enabled'}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Zap className="w-3 h-3 animate-pulse" style={{ color: currentTheme.colors.accent }} />
-                  <span className="font-medium text-xs" style={{ color: currentTheme.colors.accent }}>
-                    {agentContext ? `${agentContext.name} AI` : 'Sarah AI v3.7.2'}
-                  </span>
-                </div>
-              </div>
+            {/* Flowing Wave Pattern */}
+            <div className="absolute inset-0">
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                  <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style={{ stopColor: currentTheme.colors.primary, stopOpacity: 0.1 }} />
+                    <stop offset="50%" style={{ stopColor: currentTheme.colors.secondary, stopOpacity: 0.05 }} />
+                    <stop offset="100%" style={{ stopColor: currentTheme.colors.accent, stopOpacity: 0.1 }} />
+                  </linearGradient>
+                  <linearGradient id="wave2" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style={{ stopColor: currentTheme.colors.secondary, stopOpacity: 0.08 }} />
+                    <stop offset="100%" style={{ stopColor: currentTheme.colors.primary, stopOpacity: 0.12 }} />
+                  </linearGradient>
+                </defs>
+                
+                {/* Animated Wave Paths */}
+                <path d="M0,100 Q100,50 200,100 T400,100 L400,0 L0,0 Z" fill="url(#wave1)">
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values="0,0;50,0;0,0"
+                    dur="20s"
+                    repeatCount="indefinite"
+                  />
+                </path>
+                
+                <path d="M0,200 Q150,150 300,200 T600,200 L600,0 L0,0 Z" fill="url(#wave2)">
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values="0,0;-30,0;0,0"
+                    dur="15s"
+                    repeatCount="indefinite"
+                  />
+                </path>
+                
+                {/* Floating Particles */}
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <circle
+                    key={i}
+                    cx={50 + (i * 30) % 350}
+                    cy={100 + (i * 60) % 600}
+                    r={2 + (i % 3)}
+                    fill={currentTheme.colors.primary}
+                    opacity="0.3"
+                  >
+                    <animateTransform
+                      attributeName="transform"
+                      type="translate"
+                      values={`0,0;${10 + (i % 20)},${-20 - (i % 30)};0,0`}
+                      dur={`${8 + (i % 5)}s`}
+                      repeatCount="indefinite"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="0.1;0.6;0.1"
+                      dur={`${6 + (i % 4)}s`}
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                ))}
+              </svg>
+              
+              {/* Gradient Mesh Overlay */}
+              <div 
+                className="absolute inset-0 opacity-20"
+                style={{
+                  background: `
+                    radial-gradient(circle at 20% 30%, ${currentTheme.colors.primary}40 0%, transparent 50%),
+                    radial-gradient(circle at 80% 70%, ${currentTheme.colors.secondary}30 0%, transparent 50%),
+                    radial-gradient(circle at 50% 50%, ${currentTheme.colors.accent}20 0%, transparent 50%)
+                  `
+                }}
+              />
             </div>
           </div>
         </div>
