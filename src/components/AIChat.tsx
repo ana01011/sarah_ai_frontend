@@ -213,7 +213,16 @@ export const AIChat: React.FC<AIChatProps> = ({
     const selectedChat = chatHistory.find(chat => chat.id === chatId);
     if (selectedChat) {
       setCurrentChatId(chatId);
-      setMessages(selectedChat.messages);
+      
+      // Convert ChatMessage back to Message format
+      const convertedMessages: Message[] = selectedChat.messages.map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        sender: msg.role === 'user' ? 'user' : 'ai',
+        timestamp: msg.timestamp
+      }));
+      
+      setMessages(convertedMessages);
       setIsSidebarOpen(false);
     }
   };
@@ -351,9 +360,6 @@ export const AIChat: React.FC<AIChatProps> = ({
     setInputValue('');
     setIsTyping(true);
     
-    // Save user message to current chat immediately
-    saveMessageToHistory(userMessage);
-    
     // Scroll to show typing indicator immediately
     setTimeout(() => {
       scrollToBottom();
@@ -418,9 +424,6 @@ export const AIChat: React.FC<AIChatProps> = ({
       setIsTyping(false);
       playSound('receive');
       
-      // Save AI message to current chat
-      saveMessageToHistory(aiMessage);
-      
       // Ensure we scroll to the new AI message
       setTimeout(() => {
         scrollToBottom();
@@ -449,9 +452,6 @@ export const AIChat: React.FC<AIChatProps> = ({
       }
       setMessages(prev => [...prev, errorMessage]);
       
-      
-      // Save error message to current chat
-      saveMessageToHistory(errorMessage);
       // Save error message to current chat
       const currentChatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
       let updatedHistory = [...currentChatHistory];
