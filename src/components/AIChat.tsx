@@ -213,16 +213,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     const selectedChat = chatHistory.find(chat => chat.id === chatId);
     if (selectedChat) {
       setCurrentChatId(chatId);
-      
-      // Convert ChatMessage back to Message format
-      const convertedMessages: Message[] = selectedChat.messages.map(msg => ({
-        id: msg.id,
-        content: msg.content,
-        sender: msg.role === 'user' ? 'user' : 'ai',
-        timestamp: msg.timestamp
-      }));
-      
-      setMessages(convertedMessages);
+      setMessages(selectedChat.messages);
       setIsSidebarOpen(false);
     }
   };
@@ -841,6 +832,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask me anything..."
+                data-message-type="ai"
                 className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
                 style={{
                   backgroundColor: currentTheme.colors.surface + '40',

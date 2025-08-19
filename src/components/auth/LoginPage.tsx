@@ -33,7 +33,7 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4 transition-all duration-500"
+      className="min-h-screen flex items-center justify-center p-2 sm:p-4 transition-all duration-500"
       style={{ 
         background: `linear-gradient(135deg, ${currentTheme.colors.background}, ${currentTheme.colors.surface})`,
         color: currentTheme.colors.text
@@ -42,35 +42,35 @@ export const LoginPage: React.FC = () => {
       {/* Animated Background */}
       <div className="fixed inset-0 opacity-10">
         <div 
-          className="absolute top-0 left-0 w-[40rem] h-[40rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
+          className="absolute top-0 left-0 w-[20rem] sm:w-[40rem] h-[20rem] sm:h-[40rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse"
           style={{ backgroundColor: currentTheme.colors.primary }}
         />
         <div 
-          className="absolute top-0 right-0 w-[36rem] h-[36rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
+          className="absolute top-0 right-0 w-[18rem] sm:w-[36rem] h-[18rem] sm:h-[36rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"
           style={{ backgroundColor: currentTheme.colors.secondary }}
         />
         <div 
-          className="absolute bottom-0 left-1/2 w-[38rem] h-[38rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
+          className="absolute bottom-0 left-1/2 w-[19rem] sm:w-[38rem] h-[19rem] sm:h-[38rem] rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-2000"
           style={{ backgroundColor: currentTheme.colors.accent }}
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-sm sm:max-w-md">
         {/* Logo and Branding */}
-        <div className="text-center mb-8">
-          <div className="relative inline-block mb-6">
+        <div className="text-center mb-4 sm:mb-8">
+          <div className="relative inline-block mb-3 sm:mb-6">
             <div 
-              className="absolute -inset-6 rounded-full blur-2xl opacity-40 animate-pulse"
+              className="absolute -inset-3 sm:-inset-6 rounded-full blur-2xl opacity-40 animate-pulse"
               style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
             />
             <Brain 
-              className="w-16 h-16 mx-auto relative animate-pulse" 
+              className="w-12 h-12 sm:w-16 sm:h-16 mx-auto relative animate-pulse" 
               style={{ color: currentTheme.colors.primary }}
             />
           </div>
           
           <h1 
-            className="text-4xl font-bold bg-clip-text text-transparent mb-2"
+            className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent mb-2"
             style={{
               backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
             }}
@@ -78,19 +78,19 @@ export const LoginPage: React.FC = () => {
             SARAH
           </h1>
           
-          <p className="text-lg font-light mb-2" style={{ color: currentTheme.colors.textSecondary }}>
+          <p className="text-base sm:text-lg font-light mb-2" style={{ color: currentTheme.colors.textSecondary }}>
             Welcome Back
           </p>
           
           <div className="flex items-center justify-center space-x-2" style={{ color: currentTheme.colors.secondary }}>
-            <Sparkles className="w-4 h-4 animate-spin" />
-            <span className="text-sm font-mono">Secure Access Portal</span>
-            <Sparkles className="w-4 h-4 animate-spin" />
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
+            <span className="text-xs sm:text-sm font-mono">Secure Access Portal</span>
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
           </div>
         </div>
 
         <div 
-          className="backdrop-blur-xl border rounded-2xl p-8 shadow-2xl"
+          className="backdrop-blur-xl border rounded-2xl p-4 sm:p-8 shadow-2xl"
           style={{
             background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
             borderColor: currentTheme.colors.border,
@@ -99,7 +99,7 @@ export const LoginPage: React.FC = () => {
         >
           {error && (
             <div 
-              className="mb-6 p-4 rounded-xl border"
+              className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl border"
               style={{
                 backgroundColor: currentTheme.colors.error + '20',
                 borderColor: currentTheme.colors.error + '50',
@@ -110,15 +110,15 @@ export const LoginPage: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Email Input */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: currentTheme.colors.text }}>
+              <label className="block text-xs sm:text-sm font-medium mb-2" style={{ color: currentTheme.colors.text }}>
                 Email Address
               </label>
               <div className="relative">
                 <Mail 
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" 
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5" 
                   style={{ color: currentTheme.colors.textSecondary }}
                 />
                 <input
@@ -127,7 +127,7 @@ export const LoginPage: React.FC = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border transition-all duration-200 focus:outline-none"
+                  className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 rounded-xl border transition-all duration-200 focus:outline-none"
                   style={{
                     backgroundColor: currentTheme.colors.surface + '60',
                     borderColor: currentTheme.colors.border,
@@ -149,12 +149,12 @@ export const LoginPage: React.FC = () => {
 
             {/* Password Input */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: currentTheme.colors.text }}>
+              <label className="block text-xs sm:text-sm font-medium mb-2" style={{ color: currentTheme.colors.text }}>
                 Password
               </label>
               <div className="relative">
                 <Lock 
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" 
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5" 
                   style={{ color: currentTheme.colors.textSecondary }}
                 />
                 <input
@@ -163,7 +163,7 @@ export const LoginPage: React.FC = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-12 pr-12 py-3 rounded-xl border transition-all duration-200 focus:outline-none"
+                  className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 rounded-xl border transition-all duration-200 focus:outline-none"
                   style={{
                     backgroundColor: currentTheme.colors.surface + '60',
                     borderColor: currentTheme.colors.border,
@@ -186,7 +186,7 @@ export const LoginPage: React.FC = () => {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-lg transition-colors"
                   style={{ color: currentTheme.colors.textSecondary }}
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </button>
               </div>
             </div>
@@ -195,7 +195,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 
+              className="w-full py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-semibold transition-all duration-300 
                        hover:scale-[1.02] active:scale-95 hover:shadow-xl
                        flex items-center justify-center space-x-3 group relative overflow-hidden
                        backdrop-blur-sm border disabled:opacity-50 disabled:cursor-not-allowed"
@@ -211,11 +211,11 @@ export const LoginPage: React.FC = () => {
                 style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' }}
               />
               {isLoading ? (
-                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Sign In</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
+                  <span className="text-sm sm:text-base">Sign In</span>
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform relative z-10" />
                 </>
               )}
             </button>
