@@ -36,7 +36,8 @@ import {
   Trash2,
   ArrowLeft,
   Check,
-  Users
+  Users,
+  MessageCircle
 } from 'lucide-react';
 import { ChatHistory, ChatMessage } from '../types/User';
 
@@ -622,7 +623,10 @@ export const AIChat: React.FC<AIChatProps> = ({
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="p-2 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
-                <Menu className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: currentTheme.colors.textSecondary }} />
+                <Menu 
+                  className="w-5 h-5" 
+                  style={{ color: isSidebarOpen ? currentTheme.colors.primary : currentTheme.colors.textSecondary }}
+                />
               </button>
               <div className="relative">
                 <Brain className="w-6 h-6 animate-pulse" 
@@ -646,29 +650,7 @@ export const AIChat: React.FC<AIChatProps> = ({
           </div>
 
           {/* Messages */}
-          <div 
-            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar relative"
-            style={{
-              background: `
-                radial-gradient(circle at 10% 20%, ${currentTheme.colors.primary}08 0%, transparent 50%),
-                radial-gradient(circle at 90% 80%, ${currentTheme.colors.secondary}06 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, ${currentTheme.colors.accent}04 0%, transparent 50%)
-              `
-            }}
-          >
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-30 pointer-events-none">
-              <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <defs>
-                  <pattern id="chatPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <circle cx="2" cy="2" r="1" fill={currentTheme.colors.primary} opacity="0.1" />
-                    <circle cx="18" cy="18" r="1" fill={currentTheme.colors.secondary} opacity="0.1" />
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#chatPattern)" />
-              </svg>
-            </div>
-            
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -689,6 +671,25 @@ export const AIChat: React.FC<AIChatProps> = ({
                   >
                     <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
                   </div>
+                  
+                  {message.suggestions && (
+                    <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
+                      {message.suggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs border rounded-full transition-all duration-200 hover:scale-105 min-h-[32px]"
+                          style={{
+                            background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
+                            borderColor: currentTheme.colors.border,
+                            color: currentTheme.colors.textSecondary
+                          }}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -770,7 +771,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       
       <div className={`fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm transition-all duration-300 ${isMaximized ? 'p-0' : ''}`}>
         <div 
-          className={`backdrop-blur-xl border shadow-2xl transition-all duration-300 ${
+          className={`backdrop-blur-xl border shadow-2xl transition-all duration-300 overflow-hidden ${
             isMaximized 
               ? 'w-full h-full rounded-none' 
               : 'rounded-xl sm:rounded-2xl hover:scale-[1.01]'
@@ -912,10 +913,8 @@ export const AIChat: React.FC<AIChatProps> = ({
                             {agentContext.name.charAt(0)}
                           </div>
                         ) : (
-                          <Brain className="w-6 h-6 animate-pulse" style={{ color: currentTheme.colors.primary }} />
+                          <Brain className="w-6 h-6" style={{ color: currentTheme.colors.primary }} />
                         )}
-                        <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping"
-                             style={{ backgroundColor: currentTheme.colors.secondary }}></div>
                       </div>
                       <span className="text-sm font-medium" style={{ color: currentTheme.colors.text }}>
                         {agentContext ? agentContext.name : 'Sarah'}
@@ -1217,7 +1216,7 @@ export const AIChat: React.FC<AIChatProps> = ({
           </div>
 
           {/* Beautiful Animated Background */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
             {/* Flowing Wave Pattern */}
             <div className="absolute inset-0">
               <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
