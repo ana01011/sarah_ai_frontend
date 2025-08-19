@@ -234,7 +234,7 @@ export const LoginPage: React.FC = () => {
             type="button"
             onClick={() => {
               // TODO: Replace with actual Google OAuth implementation
-              console.log('Google login clicked - implement with client ID: 123456789-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com');
+              console.log('Google login clicked - implement with client ID: 136426881868-agle26pe3r9ii73jcjal39b80iss1k2o.apps.googleusercontent.com');
             }}
             className="w-full py-2.5 px-4 rounded-xl font-medium transition-all duration-300 
                      hover:scale-[1.02] active:scale-95 hover:shadow-lg
