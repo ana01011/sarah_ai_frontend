@@ -86,6 +86,9 @@ export const AIChat: React.FC<AIChatProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showChatHistory, setShowChatHistory] = useState(false);
+  const [chatHistories, setChatHistories] = useState<ChatHistory[]>([]);
+  const [currentChatId, setCurrentChatId] = useState<string>('');
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
@@ -196,11 +199,120 @@ export const AIChat: React.FC<AIChatProps> = ({
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
     }
+    
+    // Load chat histories on component mount
+    loadChatHistories();
+    
+    // Initialize current chat if none exists
+    if (!currentChatId) {
+      const newChatId = Date.now().toString();
+      setCurrentChatId(newChatId);
+    }
   }, [isOpen]);
 
   const playSound = (type: 'send' | 'receive' | 'notification') => {
     if (!soundEnabled) return;
     console.log(`Playing ${type} sound`);
+  };
+
+  const loadChatHistories = () => {
+    try {
+      const saved = localStorage.getItem('chat-histories');
+      if (saved) {
+        const histories = JSON.parse(saved);
+        setChatHistories(histories);
+      }
+    } catch (error) {
+      console.error('Error loading chat histories:', error);
+    }
+  };
+
+  const saveChatHistory = (chatId: string, messages: Message[]) => {
+    try {
+      const chatMessages: ChatMessage[] = messages.map(msg => ({
+        id: msg.id,
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.content,
+        timestamp: msg.timestamp
+      }));
+
+      const title = messages.find(m => m.sender === 'user')?.content.slice(0, 50) + '...' || 'New Chat';
+      
+      const chatHistory: ChatHistory = {
+        id: chatId,
+        title,
+        messages: chatMessages,
+        timestamp: new Date().toISOString()
+      };
+
+      const existingHistories = JSON.parse(localStorage.getItem('chat-histories') || '[]');
+      const updatedHistories = existingHistories.filter((h: ChatHistory) => h.id !== chatId);
+      updatedHistories.unshift(chatHistory);
+      
+      // Keep only last 50 chats
+      const limitedHistories = updatedHistories.slice(0, 50);
+      
+      localStorage.setItem('chat-histories', JSON.stringify(limitedHistories));
+      setChatHistories(limitedHistories);
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+    }
+  };
+
+  const loadChatHistory = (chatId: string) => {
+    try {
+      const histories = JSON.parse(localStorage.getItem('chat-histories') || '[]');
+      const chat = histories.find((h: ChatHistory) => h.id === chatId);
+      
+      if (chat) {
+        const loadedMessages: Message[] = chat.messages.map(msg => ({
+          id: msg.id,
+          content: msg.content,
+          sender: msg.role === 'user' ? 'user' : 'ai',
+          timestamp: new Date(msg.timestamp)
+        }));
+        
+        setMessages(loadedMessages);
+        setCurrentChatId(chatId);
+        setShowChatHistory(false);
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    }
+  };
+
+  const startNewChat = () => {
+    const newChatId = Date.now().toString();
+    const initialMessage: Message = {
+      id: '1',
+      content: agentContext 
+        ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. I specialize in ${agentContext.specialties.join(', ')}. How can I assist you with ${agentContext.department.toLowerCase()} matters today?`
+        : "Hello! I'm Sarah, your advanced AI assistant. I can help you with system monitoring, data analysis, model optimization, code generation, and much more. What would you like to explore today?",
+      sender: 'ai',
+      timestamp: new Date(),
+      suggestions: [
+        ...(agentContext ? [
+          `📊 Show ${agentContext.department.toLowerCase()} metrics`,
+          `💡 ${agentContext.specialties[0]} insights`,
+          `🎯 ${agentContext.role} recommendations`,
+          `📈 Department performance`
+        ] : [
+          "🚀 Show me system performance",
+          "📊 Analyze model accuracy trends", 
+          "⚡ Check GPU utilization",
+          "🔧 Optimize training pipeline",
+          "💡 Generate code snippets",
+          "📈 Create performance reports"
+        ])
+      ]
+    };
+    
+    setMessages([initialMessage]);
+    setCurrentChatId(newChatId);
+    setShowChatHistory(false);
+    
+    // Save the initial chat
+    saveChatHistory(newChatId, [initialMessage]);
   };
 
   const handleNewChat = () => {
@@ -373,6 +485,10 @@ export const AIChat: React.FC<AIChatProps> = ({
     setInputValue('');
     setIsTyping(true);
     
+    // Save chat after user message
+    const updatedMessages = [...messages, userMessage];
+    saveChatHistory(currentChatId, updatedMessages);
+    
     // Scroll to show typing indicator immediately
     setTimeout(() => {
       scrollToBottom();
@@ -436,6 +552,10 @@ export const AIChat: React.FC<AIChatProps> = ({
       
       setIsTyping(false);
       playSound('receive');
+      
+      // Save chat after AI response
+      const finalMessages = [...messages, userMessage, aiMessage];
+      saveChatHistory(currentChatId, finalMessages);
       
       // Ensure we scroll to the new AI message
       setTimeout(() => {
