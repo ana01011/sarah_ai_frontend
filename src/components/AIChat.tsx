@@ -29,8 +29,14 @@ import {
   Lightbulb,
   Rocket,
   Shield,
-  Star
-} from 'lucide-react';
+  Star,
+  Menu,
+  Plus,
+  Search,
+  Edit2,
+  Check
+  Plus,
+  CheckCircle
 
 interface Message {
   id: string;
@@ -81,6 +87,8 @@ export const AIChat: React.FC<AIChatProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [editingChatId, setEditingChatId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState<any[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
@@ -179,6 +187,32 @@ export const AIChat: React.FC<AIChatProps> = ({
     setIsSidebarOpen(false);
   };
 
+  const updateChatTitle = (chatId: string, newTitle: string) => {
+    const updatedHistories = chatHistory.map(chat => 
+      chat.id === chatId ? { ...chat, title: newTitle } : chat
+    );
+    setChatHistory(updatedHistories);
+    localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
+  };
+
+  const handleTitleEdit = (chatId: string, currentTitle: string) => {
+    setEditingChatId(chatId);
+    setEditingTitle(currentTitle);
+  };
+
+  const handleTitleSave = () => {
+    if (editingChatId && editingTitle.trim()) {
+      updateChatTitle(editingChatId, editingTitle.trim());
+    }
+    setEditingChatId(null);
+    setEditingTitle('');
+  };
+
+  const handleTitleCancel = () => {
+    setEditingChatId(null);
+    setEditingTitle('');
+  };
+
   // Delete a chat
   const deleteChat = (chatId: string) => {
     setChatHistory(prev => prev.filter(chat => chat.id !== chatId));
@@ -231,8 +265,21 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     if (!inputValue.trim()) return;
 
-    // Create new chat if needed (when user first starts typing)
-    const chatId = createNewChatIfNeeded();
+    // Create new chat if none exists
+    if (!currentChatId) {
+      const newChatId = Date.now().toString();
+      const newChat = {
+        id: newChatId,
+        title: inputValue.slice(0, 50) + (inputValue.length > 50 ? '...' : ''),
+        messages: [],
+        timestamp: new Date().toISOString()
+      };
+      
+      const updatedHistories = [newChat, ...chatHistory];
+      setChatHistory(updatedHistories);
+      localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
+      setCurrentChatId(newChatId);
+    }
 
     playSound('send');
 
@@ -427,8 +474,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             {filteredChatHistory.map((chat) => (
               <div
                 key={chat.id}
-                onClick={() => loadChat(chat.id)}
-                className={`p-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] group relative ${
+                className={`group p-3 rounded-xl cursor-pointer transition-all duration-200 hover:scale-[1.02] border ${
                   currentChatId === chat.id ? 'ring-2' : ''
                 }`}
                 style={{
@@ -437,29 +483,90 @@ export const AIChat: React.FC<AIChatProps> = ({
                     : currentTheme.colors.surface + '40',
                   borderColor: currentChatId === chat.id 
                     ? currentTheme.colors.primary + '50' 
-                    : 'transparent',
+                    : currentTheme.colors.border,
                   ringColor: currentChatId === chat.id ? currentTheme.colors.primary + '50' : 'transparent'
                 }}
               >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium truncate" style={{ color: currentTheme.colors.text }}>
-                      {chat.title}
-                    </h4>
-                    <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
-                      {new Date(chat.lastMessage).toLocaleDateString()}
-                    </p>
+                <div className="flex items-center justify-between" onClick={() => loadChat(chat.id)}>
+                  <div className="flex-1 min-w-0 mr-2">
+                    {editingChatId === chat.id ? (
+                      <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleTitleSave();
+                            if (e.key === 'Escape') handleTitleCancel();
+                          }}
+                          className="flex-1 text-sm px-2 py-1 rounded border"
+                          style={{
+                            backgroundColor: currentTheme.colors.surface + '60',
+                            borderColor: currentTheme.colors.border,
+                            color: currentTheme.colors.text,
+                            fontSize: '16px'
+                          }}
+                          autoFocus
+                        />
+                        <button
+                          onClick={handleTitleSave}
+                          className="p-1 rounded hover:bg-white/10"
+                          style={{ color: currentTheme.colors.success }}
+                        >
+                          <Check className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={handleTitleCancel}
+                          className="p-1 rounded hover:bg-white/10"
+                          style={{ color: currentTheme.colors.error }}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <h4 
+                          className="font-medium text-sm truncate cursor-pointer hover:underline" 
+                          style={{ color: currentTheme.colors.text }}
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
+                            handleTitleEdit(chat.id, chat.title);
+                          }}
+                        >
+                          {chat.title}
+                        </h4>
+                        <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
+                          {new Date(chat.timestamp).toLocaleDateString()} • {chat.messages.length} messages
+                        </p>
+                      </>
+                    )}
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteChat(chat.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded transition-all duration-200 hover:bg-red-500/20"
-                    style={{ color: currentTheme.colors.error }}
-                  >
-                    ×
-                  </button>
+                  {editingChatId !== chat.id && (
+                    <div className="flex items-center space-x-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTitleEdit(chat.id, chat.title);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                        style={{ color: currentTheme.colors.textSecondary }}
+                        title="Edit title"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteChat(chat.id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                        style={{ color: currentTheme.colors.error }}
+                        title="Delete chat"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -930,7 +1037,20 @@ export const AIChat: React.FC<AIChatProps> = ({
                              style={{ borderColor: currentTheme.colors.border }}>
                           <div className="flex items-center space-x-2 sm:space-x-3">
                             <button
-                              onClick={() => copyMessage(message.content)}
+                              onClick={() => copyToClipboard(message.content)}
+                              className="flex items-center space-x-1 px-3 py-1.5 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 group/copy"
+                              style={{ 
+                                backgroundColor: currentTheme.colors.primary + '20',
+                                color: currentTheme.colors.primary
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.primary + '30'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.primary + '20'}
+                            >
+                              <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <span className="text-xs font-medium">Copy</span>
+                            </button>
+                            <button
+                              onClick={() => copyToClipboard(message.content)}
                               className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn"
                               style={{ backgroundColor: 'transparent' }}
                               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}

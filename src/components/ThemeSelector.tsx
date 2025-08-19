@@ -138,7 +138,7 @@ export const ThemeSelector: React.FC = () => {
       {/* Theme Selector Dropdown */}
       {isOpen && (
         <div 
-          className="absolute top-full right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden"
+          className="fixed sm:absolute top-full right-2 sm:right-0 mt-2 w-[calc(100vw-1rem)] sm:w-96 max-w-sm sm:max-w-none backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden"
           style={{ 
             backgroundColor: currentTheme.colors.surface + 'f0',
             borderColor: currentTheme.colors.border,
@@ -164,26 +164,10 @@ export const ThemeSelector: React.FC = () => {
 
           {/* Scrollable Theme List */}
           <div className="relative">
-            {/* Scroll Up Button */}
-            {scrollPosition > 0 && (
-              <button
-                onClick={scrollUp}
-                className="absolute top-2 right-2 z-10 p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 border shadow-lg"
-                style={{ 
-                  backgroundColor: currentTheme.colors.primary + '90',
-                  borderColor: currentTheme.colors.primary + '50',
-                  color: currentTheme.colors.text,
-                  boxShadow: `0 4px 12px -4px ${currentTheme.colors.primary}60`
-                }}
-              >
-                <ChevronUp className="w-4 h-4" />
-              </button>
-            )}
-
             {/* Theme List Container */}
-            <div className="p-3 sm:p-4 max-h-80 overflow-hidden">
-              <div className="space-y-2 sm:space-y-3">
-                {visibleThemes.map((theme) => {
+            <div className="p-3 sm:p-4 max-h-80 overflow-y-auto custom-scrollbar">
+              <div className="space-y-2 sm:space-y-3 pr-2">
+                {themes.map((theme) => {
                   const Icon = themeIcons[theme.id as keyof typeof themeIcons];
                   const isSelected = currentTheme.id === theme.id;
                   
@@ -274,38 +258,6 @@ export const ThemeSelector: React.FC = () => {
                 })}
               </div>
             </div>
-
-            {/* Scroll Down Button */}
-            {scrollPosition < maxScroll && (
-              <button
-                onClick={scrollDown}
-                className="absolute bottom-2 right-2 z-10 p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 border shadow-lg"
-                style={{ 
-                  backgroundColor: currentTheme.colors.primary + '90',
-                  borderColor: currentTheme.colors.primary + '50',
-                  color: currentTheme.colors.text,
-                  boxShadow: `0 4px 12px -4px ${currentTheme.colors.primary}60`
-                }}
-              >
-                <ChevronDown className="w-4 h-4" />
-              </button>
-            )}
-
-            {/* Scroll indicators */}
-            <div className="absolute left-2 top-1/2 transform -translate-y-1/2 flex flex-col space-y-1">
-              {Array.from({ length: Math.ceil(themes.length / VISIBLE_THEMES) }).map((_, index) => (
-                <div
-                  key={index}
-                  className="w-2 h-6 rounded-full transition-all duration-300 border"
-                  style={{
-                    backgroundColor: Math.floor(scrollPosition / VISIBLE_THEMES) === index 
-                      ? currentTheme.colors.primary 
-                      : currentTheme.colors.textSecondary + '40',
-                    borderColor: currentTheme.colors.primary + '30'
-                  }}
-                />
-              ))}
-            </div>
           </div>
 
           {/* Footer */}
@@ -313,13 +265,6 @@ export const ThemeSelector: React.FC = () => {
             <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
               Theme preferences are saved automatically
             </p>
-            <div className="flex items-center justify-center space-x-2 mt-2">
-              <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: currentTheme.colors.primary }}></div>
-              <span className="text-xs font-mono" style={{ color: currentTheme.colors.primary }}>
-                {scrollPosition + 1}-{Math.min(scrollPosition + VISIBLE_THEMES, themes.length)} of {themes.length}
-              </span>
-              <div className="w-2 h-2 rounded-full animate-pulse delay-500" style={{ backgroundColor: currentTheme.colors.primary }}></div>
-            </div>
           </div>
         </div>
       )}
