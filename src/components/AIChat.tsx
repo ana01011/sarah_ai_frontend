@@ -148,30 +148,47 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   const scrollToAiResponse = () => {
     setTimeout(() => {
-      if (messagesEndRef.current) {
-        const container = messagesEndRef.current.closest('.overflow-y-auto');
-        if (container) {
-          const aiMessages = container.querySelectorAll('[data-message-type="ai"]');
-          if (aiMessages.length > 0) {
-            const lastAiMessage = aiMessages[aiMessages.length - 1];
-            lastAiMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+      const messagesContainer = messagesEndRef.current?.closest('.overflow-y-auto');
+      if (messagesContainer) {
+        const aiMessages = messagesContainer.querySelectorAll('[data-message-type="ai"]');
+        if (aiMessages.length > 0) {
+          const lastAiMessage = aiMessages[aiMessages.length - 1];
+          lastAiMessage.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+          });
+        } else {
+          // Fallback to bottom if no AI messages found
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      }
+    }, 200);
+  };
+
+  const scrollToLatestMessage = () => {
+    setTimeout(() => {
+      const messagesContainer = messagesEndRef.current?.closest('.overflow-y-auto');
+      if (messagesContainer) {
+        const allMessages = messagesContainer.querySelectorAll('[data-message-type]');
+        if (allMessages.length > 0) {
+          const lastMessage = allMessages[allMessages.length - 1];
+          lastMessage.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+          });
         }
       }
     }, 150);
   };
 
-  const scrollToLatestMessage = () => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage) {
-      scrollToBottom();
-    }
-  };
-
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage) {
-      scrollToLatestMessage();
+    if (lastMessage?.sender === 'ai') {
+      scrollToAiResponse();
+    } else if (messages.length > 0) {
+      scrollToBottom();
     }
   }, [messages]);
 
@@ -733,6 +750,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               <div
                 key={message.id}
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                data-message-type={message.sender}
               >
                 <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
                   <div
@@ -1009,6 +1027,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               <div
                 key={message.id}
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} group`}
+                data-message-type={message.sender}
               >
                 <div className={`max-w-[90%] sm:max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
                   {message.sender === 'ai' && (
