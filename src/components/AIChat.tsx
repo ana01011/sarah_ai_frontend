@@ -92,7 +92,6 @@ export const AIChat: React.FC<AIChatProps> = ({
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
-  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
