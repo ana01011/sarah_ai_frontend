@@ -57,20 +57,10 @@ export const LoginPage: React.FC = () => {
 
       <div className="relative z-10 w-full max-w-sm sm:max-w-md">
         {/* Logo and Branding */}
-        <div className="text-center mb-3 sm:mb-6">
-          <div className="relative inline-block mb-3 sm:mb-6">
-            <div 
-              className="absolute -inset-3 sm:-inset-6 rounded-full blur-2xl opacity-40 animate-pulse"
-              style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
-            />
-            <Brain 
-              className="w-10 h-10 sm:w-14 sm:h-14 mx-auto relative animate-pulse" 
-              style={{ color: currentTheme.colors.primary }}
-            />
-          </div>
+        <div className="text-center mb-2 sm:mb-4">
           
           <h1 
-            className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent mb-2"
+            className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent mb-1 sm:mb-2"
             style={{
               backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
             }}
@@ -78,11 +68,11 @@ export const LoginPage: React.FC = () => {
             SARAH
           </h1>
           
-          <p className="text-sm sm:text-base font-light mb-2" style={{ color: currentTheme.colors.textSecondary }}>
+          <p className="text-xs sm:text-sm font-light mb-1 sm:mb-2" style={{ color: currentTheme.colors.textSecondary }}>
             Advanced AI Operations Platform
           </p>
           
-          <div className="flex items-center justify-center space-x-2" style={{ color: currentTheme.colors.secondary }}>
+          <div className="flex items-center justify-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.secondary }}>
             <Sparkles className="w-3 h-3 animate-spin" />
             <span className="text-xs sm:text-sm font-mono">Secure Access Portal</span>
             <Sparkles className="w-3 h-3 animate-spin" />
@@ -90,7 +80,7 @@ export const LoginPage: React.FC = () => {
         </div>
 
         <div 
-          className="backdrop-blur-xl border rounded-2xl p-3 sm:p-6 shadow-2xl"
+          className="backdrop-blur-xl border rounded-2xl p-3 sm:p-4 shadow-2xl"
           style={{
             background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
             borderColor: currentTheme.colors.border,
@@ -99,7 +89,7 @@ export const LoginPage: React.FC = () => {
         >
           {error && (
             <div 
-              className="mb-3 sm:mb-4 p-2 sm:p-3 rounded-xl border"
+              className="mb-2 sm:mb-3 p-2 rounded-xl border"
               style={{
                 backgroundColor: currentTheme.colors.error + '20',
                 borderColor: currentTheme.colors.error + '50',
@@ -110,15 +100,15 @@ export const LoginPage: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-3">
             {/* Email Input */}
             <div>
-              <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2" style={{ color: currentTheme.colors.text }}>
+              <label className="block text-xs font-medium mb-1" style={{ color: currentTheme.colors.text }}>
                 Email Address
               </label>
               <div className="relative">
                 <Mail 
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5" 
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" 
                   style={{ color: currentTheme.colors.textSecondary }}
                 />
                 <input
@@ -127,7 +117,7 @@ export const LoginPage: React.FC = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-2.5 rounded-xl border transition-all duration-200 focus:outline-none"
+                  className="w-full pl-10 pr-4 py-2 rounded-xl border transition-all duration-200 focus:outline-none"
                   style={{
                     backgroundColor: currentTheme.colors.surface + '60',
                     borderColor: currentTheme.colors.border,
@@ -149,12 +139,12 @@ export const LoginPage: React.FC = () => {
 
             {/* Password Input */}
             <div>
-              <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2" style={{ color: currentTheme.colors.text }}>
+              <label className="block text-xs font-medium mb-1" style={{ color: currentTheme.colors.text }}>
                 Password
               </label>
               <div className="relative">
                 <Lock 
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5" 
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" 
                   style={{ color: currentTheme.colors.textSecondary }}
                 />
                 <input
@@ -163,7 +153,7 @@ export const LoginPage: React.FC = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2 sm:py-2.5 rounded-xl border transition-all duration-200 focus:outline-none"
+                  className="w-full pl-10 pr-10 py-2 rounded-xl border transition-all duration-200 focus:outline-none"
                   style={{
                     backgroundColor: currentTheme.colors.surface + '60',
                     borderColor: currentTheme.colors.border,
@@ -186,7 +176,7 @@ export const LoginPage: React.FC = () => {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-lg transition-colors"
                   style={{ color: currentTheme.colors.textSecondary }}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -195,7 +185,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-all duration-300 
+              className="w-full py-2.5 px-4 rounded-xl font-semibold transition-all duration-300 
                        hover:scale-[1.02] active:scale-95 hover:shadow-xl
                        flex items-center justify-center space-x-3 group relative overflow-hidden
                        backdrop-blur-sm border disabled:opacity-50 disabled:cursor-not-allowed"
@@ -211,24 +201,24 @@ export const LoginPage: React.FC = () => {
                 style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' }}
               />
               {isLoading ? (
-                <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <span className="text-sm sm:text-base">Sign In</span>
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform relative z-10" />
+                  <span className="text-sm">Sign In</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform relative z-10" />
                 </>
               )}
             </button>
           </form>
-        </div>
+
           {/* Divider */}
-          <div className="relative my-4 sm:my-6">
+          <div className="relative my-3">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t" style={{ borderColor: currentTheme.colors.border }}></div>
             </div>
-            <div className="relative flex justify-center text-xs sm:text-sm">
+            <div className="relative flex justify-center text-xs">
               <span 
-                className="bg-transparent px-2 sm:px-4" 
+                className="bg-transparent px-2" 
                 style={{ 
                   color: currentTheme.colors.textSecondary,
                   backgroundColor: currentTheme.colors.surface + 'f0'
@@ -246,7 +236,7 @@ export const LoginPage: React.FC = () => {
               // TODO: Replace with actual Google OAuth implementation
               console.log('Google login clicked - implement with client ID: 123456789-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com');
             }}
-            className="w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium transition-all duration-300 
+            className="w-full py-2.5 px-4 rounded-xl font-medium transition-all duration-300 
                      hover:scale-[1.02] active:scale-95 hover:shadow-lg
                      flex items-center justify-center space-x-3 group relative overflow-hidden
                      backdrop-blur-sm border"
@@ -271,7 +261,7 @@ export const LoginPage: React.FC = () => {
             />
             
             {/* Google Icon */}
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -290,13 +280,14 @@ export const LoginPage: React.FC = () => {
               />
             </svg>
             
-            <span className="text-sm sm:text-base relative z-10">Continue with Google</span>
+            <span className="text-sm relative z-10">Continue with Google</span>
           </button>
 
           {/* Footer Note */}
-          <p className="mt-3 sm:mt-4 text-center text-xs" style={{ color: currentTheme.colors.textSecondary }}>
+          <p className="mt-2 text-center text-xs" style={{ color: currentTheme.colors.textSecondary }}>
             By signing in, you agree to our Terms of Service and Privacy Policy
           </p>
+        </div>
       </div>
     </div>
   );
