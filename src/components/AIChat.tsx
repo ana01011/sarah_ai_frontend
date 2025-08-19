@@ -229,6 +229,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       msg.content.toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
+  
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       const container = messagesEndRef.current.closest('.overflow-y-auto');
@@ -379,13 +380,6 @@ export const AIChat: React.FC<AIChatProps> = ({
   const copyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
     playSound('notification');
-  };
-
-  const copyMessageWithFeedback = (messageId: string, content: string) => {
-    navigator.clipboard.writeText(content);
-    setCopiedMessageId(messageId);
-    playSound('notification');
-    setTimeout(() => setCopiedMessageId(null), 2000);
   };
 
   const copyToClipboard = (content: string) => {
