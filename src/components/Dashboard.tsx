@@ -233,9 +233,10 @@ export const Dashboard: React.FC = () => {
                   </p>
                 )}
               </div>
-            <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.secondary }}>
-              v3.7.3
-            </p>
+              <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.secondary }}>
+                v3.7.3
+              </p>
+            </div>
           </div>
         </div>
       </header>
