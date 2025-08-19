@@ -34,9 +34,9 @@ import {
   Plus,
   Search,
   Edit2,
-  Check,
-  CheckCircle
-} from 'lucide-react';
+   Check,
+   Plus,
+   CheckCircle
 
 interface Message {
   id: string;
@@ -222,6 +222,75 @@ export const AIChat: React.FC<AIChatProps> = ({
     }
   };
 
+  const handleCopyMessage = async (content: string, messageId: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedMessageId(messageId);
+      playSound('notification');
+      
+      // Reset copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedMessageId(null);
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy message:', error);
+    }
+  };
+
+  const handleNewChat = () => {
+    setMessages([
+      {
+        id: '1',
+        content: agentContext 
+          ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. I specialize in ${agentContext.specialties.join(', ')}. How can I assist you with ${agentContext.department.toLowerCase()} matters today?`
+          : "Hello! I'm Sarah, your advanced AI assistant. I can help you with system monitoring, data analysis, model optimization, code generation, and much more. What would you like to explore today?",
+        sender: 'ai',
+        timestamp: new Date(),
+        suggestions: [
+          ...(agentContext ? [
+            `📊 Show ${agentContext.department.toLowerCase()} metrics`,
+            `💡 ${agentContext.specialties[0]} insights`,
+            `🎯 ${agentContext.role} recommendations`,
+            `📈 Department performance`
+          ] : [
+            "🚀 Show me system performance",
+            "📊 Analyze model accuracy trends", 
+            "⚡ Check GPU utilization",
+            "🔧 Optimize training pipeline",
+            "💡 Generate code snippets",
+            "📈 Create performance reports"
+          ])
+        ]
+      }
+    ]);
+    setCurrentChatId(null);
+    setIsSidebarOpen(false);
+  };
+
+  const handleChatSelect = (chat: ChatHistory) => {
+    setMessages(chat.messages);
+    setCurrentChatId(chat.id);
+    setIsSidebarOpen(false);
+  };
+
+  const handleDeleteChat = (chatId: string) => {
+    const updatedHistory = chatHistory.filter(chat => chat.id !== chatId);
+    setChatHistory(updatedHistory);
+    localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+    
+    if (currentChatId === chatId) {
+      handleNewChat();
+    }
+  };
+
+  const handleEditTitle = (chatId: string, newTitle: string) => {
+    const updatedHistory = chatHistory.map(chat => 
+      chat.id === chatId ? { ...chat, title: newTitle } : chat
+    );
+    setChatHistory(updatedHistory);
+    localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+  };
+
   // Filter chat history based on search
   const filteredChatHistory = chatHistory.filter(chat =>
     chat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -229,7 +298,6 @@ export const AIChat: React.FC<AIChatProps> = ({
       msg.content.toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
-  
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       const container = messagesEndRef.current.closest('.overflow-y-auto');
@@ -259,17 +327,6 @@ export const AIChat: React.FC<AIChatProps> = ({
     console.log(`Playing ${type} sound`);
   };
 
-  const copyToClipboard = (content: string) => {
-    navigator.clipboard.writeText(content);
-    playSound('notification');
-  };
-
-  const copyMessageWithFeedback = (messageId: string, content: string) => {
-    copyToClipboard(content);
-    setCopiedMessageId(messageId);
-    setTimeout(() => setCopiedMessageId(null), 2000);
-  };
-
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) {
       e.preventDefault();
@@ -277,6 +334,22 @@ export const AIChat: React.FC<AIChatProps> = ({
     }
 
     if (!inputValue.trim()) return;
+
+    // Auto-create new chat if none exists
+    if (!currentChatId) {
+      const newChatId = Date.now().toString();
+      const newChat: ChatHistory = {
+        id: newChatId,
+        title: inputValue.slice(0, 50) + (inputValue.length > 50 ? '...' : ''),
+        messages: [],
+        timestamp: new Date().toISOString()
+      };
+      
+      const updatedHistory = [...chatHistory, newChat];
+      setChatHistory(updatedHistory);
+      setCurrentChatId(newChatId);
+      localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+    }
 
     // Create new chat if none exists
     if (!currentChatId) {
@@ -346,6 +419,18 @@ export const AIChat: React.FC<AIChatProps> = ({
       setMessages(prev => [...prev, aiMessage]);
       setIsTyping(false);
       playSound('receive');
+
+      // Save chat to history after AI response
+      if (currentChatId) {
+        const updatedMessages = [...messages, userMessage, aiMessage];
+        const updatedHistory = chatHistory.map(chat => 
+          chat.id === currentChatId 
+            ? { ...chat, messages: updatedMessages }
+            : chat
+        );
+        setChatHistory(updatedHistory);
+        localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+      }
       
       // Auto-save chat after AI response
       setTimeout(saveCurrentChat, 1000);
@@ -391,6 +476,13 @@ export const AIChat: React.FC<AIChatProps> = ({
   const copyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
     playSound('notification');
+  };
+
+  const copyMessageWithFeedback = (messageId: string, content: string) => {
+    navigator.clipboard.writeText(content);
+    setCopiedMessageId(messageId);
+    playSound('notification');
+    setTimeout(() => setCopiedMessageId(null), 2000);
   };
 
   const handleFileUpload = () => {
@@ -1044,33 +1136,6 @@ export const AIChat: React.FC<AIChatProps> = ({
                     
                     <div className="relative z-10">
                       <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: currentTheme.colors.text }}>{message.content}</p>
-                      
-                      {/* Copy Button for AI Messages */}
-                      {message.sender === 'ai' && (
-                        <div className="mt-3 flex justify-end">
-                          <button
-                            onClick={() => copyMessageWithFeedback(message.id, message.content)}
-                            className="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm transition-all duration-200 hover:scale-105 active:scale-95"
-                            style={{
-                              backgroundColor: copiedMessageId === message.id ? currentTheme.colors.success + '20' : currentTheme.colors.primary + '20',
-                              color: copiedMessageId === message.id ? currentTheme.colors.success : currentTheme.colors.primary,
-                              border: `1px solid ${copiedMessageId === message.id ? currentTheme.colors.success + '30' : currentTheme.colors.primary + '30'}`
-                            }}
-                          >
-                            {copiedMessageId === message.id ? (
-                              <>
-                                <Check className="w-4 h-4" />
-                                <span>Copied!</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-4 h-4" />
-                                <span>Copy</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      )}
                       
                       {message.sender === 'ai' && (
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 sm:mt-4 pt-3 sm:pt-4 border-t space-y-2 sm:space-y-0"
