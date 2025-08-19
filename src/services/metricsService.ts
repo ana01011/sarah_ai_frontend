@@ -300,8 +300,10 @@ class MetricsService {
     try {
       const response = await fetch(`${this.baseUrl}/health`, {
         method: 'GET',
-        timeout: 5000,
-      } as RequestInit);
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
       return {
         status: response.ok ? 'healthy' : 'unhealthy',

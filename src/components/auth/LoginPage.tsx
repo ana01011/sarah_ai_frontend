@@ -7,8 +7,8 @@ export const LoginPage: React.FC = () => {
   const { currentTheme } = useTheme();
   const { login, error, isLoading, clearError } = useAuth();
   const [formData, setFormData] = useState({
-    email: 'test@250323',
-    password: 'Ahmed@250323'
+    email: '',
+    password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -84,20 +84,19 @@ export const LoginPage: React.FC = () => {
           
           <div className="flex items-center justify-center space-x-2" style={{ color: currentTheme.colors.secondary }}>
             <Sparkles className="w-4 h-4 animate-spin" />
-          {/* Test Credentials Info */}
-          <div 
-            className="mb-6 p-4 rounded-xl border"
-            style={{
-              backgroundColor: currentTheme.colors.info + '20',
-              borderColor: currentTheme.colors.info + '50',
-              color: currentTheme.colors.info
-            }}
-          >
-            <p className="text-sm font-medium mb-1">Test Credentials:</p>
-            <p className="text-xs">Email: test@250323</p>
-            <p className="text-xs">Password: Ahmed@250323</p>
+            <span className="text-sm font-mono">Secure Access Portal</span>
+            <Sparkles className="w-4 h-4 animate-spin" />
           </div>
+        </div>
 
+        <div 
+          className="backdrop-blur-xl border rounded-2xl p-8 shadow-2xl"
+          style={{
+            background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
+            borderColor: currentTheme.colors.border,
+            boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
+          }}
+        >
           {error && (
             <div 
               className="mb-6 p-4 rounded-xl border"
@@ -132,7 +131,8 @@ export const LoginPage: React.FC = () => {
                   style={{
                     backgroundColor: currentTheme.colors.surface + '60',
                     borderColor: currentTheme.colors.border,
-                    color: currentTheme.colors.text
+                    color: currentTheme.colors.text,
+                    fontSize: '16px'
                   }}
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';
@@ -167,7 +167,8 @@ export const LoginPage: React.FC = () => {
                   style={{
                     backgroundColor: currentTheme.colors.surface + '60',
                     borderColor: currentTheme.colors.border,
-                    color: currentTheme.colors.text
+                    color: currentTheme.colors.text,
+                    fontSize: '16px'
                   }}
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';
@@ -224,5 +225,3 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
-  )
-}

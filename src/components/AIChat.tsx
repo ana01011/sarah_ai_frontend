@@ -133,6 +133,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsTyping(true);
 
@@ -144,7 +145,7 @@ export const AIChat: React.FC<AIChatProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: inputValue,
+          message: currentInput,
           agent_role: 'general',
           max_tokens: 200,
           temperature: 0.7
