@@ -159,7 +159,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         }
       }
     }, 150);
-    }
   };
 
   useEffect(() => {
@@ -168,7 +167,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       scrollToAiResponse();
     } else if (messages.length > 0) {
       scrollToBottom();
-    return () => clearTimeout(timer);
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -733,7 +732,6 @@ export const AIChat: React.FC<AIChatProps> = ({
                 <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
                   <div
                     className="p-3 sm:p-4 rounded-xl backdrop-blur-md border transition-all duration-300 relative group"
-                    data-message-type={message.sender}
                     style={{
                       background: message.sender === 'user' 
                         ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
@@ -805,7 +803,6 @@ export const AIChat: React.FC<AIChatProps> = ({
             {isTyping && (
               <div className="flex justify-start">
                 <div className="border rounded-xl p-4 backdrop-blur-md"
-                     data-message-type="ai"
                      style={{
                        backgroundColor: currentTheme.colors.surface + '40',
                        borderColor: currentTheme.colors.border

@@ -101,11 +101,8 @@ export const Dashboard: React.FC = () => {
                 >
                   SARAH
                 </h1>
-                <p className="text-xs sm:text-sm flex items-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.textSecondary }}>
-                  <span className="hidden sm:inline">AI Operations Dashboard</span>
-                  <span className="sm:hidden">AI Dashboard</span>
-                  <span>•</span>
-                  <span style={{ color: currentTheme.colors.secondary }}>v3.7.2</span>
+                <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.secondary }}>
+                  v3.7.3
                 </p>
               </div>
             </div>
@@ -233,9 +230,6 @@ export const Dashboard: React.FC = () => {
                   </p>
                 )}
               </div>
-              <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.secondary }}>
-                v3.7.3
-              </p>
             </div>
           </div>
         </div>
