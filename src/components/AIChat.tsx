@@ -30,13 +30,14 @@ import {
   Rocket,
   Shield,
   Star,
-  Menu,
-  Plus,
   Search,
+  Menu,
+  Trash2,
   Edit2,
-   Check,
-   Plus,
-   CheckCircle
+  Check,
+  Plus,
+  CheckCircle
+} from 'lucide-react';
 
 interface Message {
   id: string;
@@ -47,6 +48,13 @@ interface Message {
   suggestions?: string[];
   attachments?: string[];
   reactions?: { type: string; count: number }[];
+}
+
+interface ChatHistory {
+  id: string;
+  title: string;
+  messages: Message[];
+  timestamp: string;
 }
 
 interface AIChatProps {
@@ -77,158 +85,64 @@ export const AIChat: React.FC<AIChatProps> = ({
           `🎯 ${agentContext.role} recommendations`,
           `📈 Department performance`
         ] : [
-          // No default suggestions
+          "🚀 Show me system performance",
+          "📊 Analyze model accuracy trends", 
+          "⚡ Check GPU utilization",
+          "🔧 Optimize training pipeline",
+          "💡 Generate code snippets",
+          "📈 Create performance reports"
         ])
       ]
     }
   ]);
+  
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
-  const [editingChatId, setEditingChatId] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [chatHistory, setChatHistory] = useState<any[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  
   const { currentTheme } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
-  // Load chat history on component mount
+  // Load chat history from localStorage on component mount
   useEffect(() => {
-    const savedHistory = localStorage.getItem('sarah-chat-history');
+    const savedHistory = localStorage.getItem('chatHistory');
     if (savedHistory) {
       try {
-        const history = JSON.parse(savedHistory);
-        setChatHistory(history);
+        const parsedHistory = JSON.parse(savedHistory);
+        setChatHistory(parsedHistory);
       } catch (error) {
-        console.error('Failed to load chat history:', error);
+        console.error('Error loading chat history:', error);
       }
     }
   }, []);
 
-  // Save chat history whenever it changes
+  // Save chat history to localStorage whenever it changes
   useEffect(() => {
     if (chatHistory.length > 0) {
-      localStorage.setItem('sarah-chat-history', JSON.stringify(chatHistory));
+      localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
     }
   }, [chatHistory]);
 
-  // Auto-create new chat when user starts typing (only if no current chat exists)
-  const createNewChatIfNeeded = () => {
-    if (!currentChatId && messages.length <= 1) {
-      const newChatId = Date.now().toString();
-      const newChat = {
-        id: newChatId,
-        title: 'New Chat',
-        messages: [...messages],
-        timestamp: new Date().toISOString(),
-        lastMessage: new Date().toISOString()
-      };
-      
-      setChatHistory(prev => [newChat, ...prev]);
-      setCurrentChatId(newChatId);
-      return newChatId;
+  // Focus title input when editing
+  useEffect(() => {
+    if (editingTitleId && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
     }
-    return currentChatId;
-  };
+  }, [editingTitleId]);
 
-  // Save current chat to history
-  const saveCurrentChat = () => {
-    if (currentChatId && messages.length > 1) {
-      const userMessages = messages.filter(m => m.sender === 'user');
-      const title = userMessages.length > 0 
-        ? userMessages[0].content.slice(0, 50) + (userMessages[0].content.length > 50 ? '...' : '')
-        : 'New Chat';
-
-      setChatHistory(prev => prev.map(chat => 
-        chat.id === currentChatId 
-          ? { ...chat, title, messages: [...messages], lastMessage: new Date().toISOString() }
-          : chat
-      ));
-    }
-  };
-
-  // Load a chat from history
-  const loadChat = (chatId: string) => {
-    const chat = chatHistory.find(c => c.id === chatId);
-    if (chat) {
-      setMessages(chat.messages);
-      setCurrentChatId(chatId);
-      setIsSidebarOpen(false);
-    }
-  };
-
-  // Start a new chat
-  const startNewChat = () => {
-    setMessages([
-      {
-        id: '1',
-        content: agentContext 
-          ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. I specialize in ${agentContext.specialties.join(', ')}. How can I assist you with ${agentContext.department.toLowerCase()} matters today?`
-          : "Hello! I'm Sarah, your advanced AI assistant. I can help you with system monitoring, data analysis, model optimization, code generation, and much more. What would you like to explore today?",
-        sender: 'ai',
-        timestamp: new Date(),
-        suggestions: [
-          ...(agentContext ? [
-            `📊 Show ${agentContext.department.toLowerCase()} metrics`,
-            `💡 ${agentContext.specialties[0]} insights`,
-            `🎯 ${agentContext.role} recommendations`,
-            `📈 Department performance`
-          ] : [])
-        ]
-      }
-    ]);
-    setCurrentChatId(null);
-    setIsSidebarOpen(false);
-  };
-
-  const updateChatTitle = (chatId: string, newTitle: string) => {
-    const updatedHistories = chatHistory.map(chat => 
-      chat.id === chatId ? { ...chat, title: newTitle } : chat
-    );
-    setChatHistory(updatedHistories);
-    localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
-  };
-
-  const handleTitleEdit = (chatId: string, currentTitle: string) => {
-    setEditingChatId(chatId);
-    setEditingTitle(currentTitle);
-  };
-
-  const handleTitleSave = () => {
-    if (editingChatId && editingTitle.trim()) {
-      updateChatTitle(editingChatId, editingTitle.trim());
-    }
-    setEditingChatId(null);
-    setEditingTitle('');
-  };
-
-  const handleTitleCancel = () => {
-    setEditingChatId(null);
-    setEditingTitle('');
-  };
-
-  // Delete a chat
-  const deleteChat = (chatId: string) => {
-    setChatHistory(prev => prev.filter(chat => chat.id !== chatId));
-    if (currentChatId === chatId) {
-      startNewChat();
-    }
-  };
-
-  // Filter chat history based on search
-  const filteredChatHistory = chatHistory.filter(chat =>
-    chat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    chat.messages.some((msg: any) => 
-      msg.content.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       const container = messagesEndRef.current.closest('.overflow-y-auto');
@@ -258,6 +172,75 @@ export const AIChat: React.FC<AIChatProps> = ({
     console.log(`Playing ${type} sound`);
   };
 
+  const handleNewChat = () => {
+    const newChatId = Date.now().toString();
+    const newChat: ChatHistory = {
+      id: newChatId,
+      title: 'New Chat',
+      messages: [{
+        id: '1',
+        content: agentContext 
+          ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. How can I assist you today?`
+          : "Hello! I'm Sarah, your advanced AI assistant. How can I help you today?",
+        sender: 'ai',
+        timestamp: new Date(),
+        suggestions: [
+          "🚀 Show me system performance",
+          "📊 Analyze data trends", 
+          "💡 Generate code snippets",
+          "🔧 Optimize processes"
+        ]
+      }],
+      timestamp: new Date().toISOString()
+    };
+    
+    setChatHistory(prev => [newChat, ...prev]);
+    setCurrentChatId(newChatId);
+    setMessages(newChat.messages);
+    setIsSidebarOpen(false);
+  };
+
+  const handleChatSelect = (chatId: string) => {
+    const selectedChat = chatHistory.find(chat => chat.id === chatId);
+    if (selectedChat) {
+      setCurrentChatId(chatId);
+      setMessages(selectedChat.messages);
+      setIsSidebarOpen(false);
+    }
+  };
+
+  const handleDeleteChat = (chatId: string) => {
+    setChatHistory(prev => prev.filter(chat => chat.id !== chatId));
+    if (currentChatId === chatId) {
+      setCurrentChatId(null);
+      setMessages([]);
+    }
+  };
+
+  const handleEditTitle = (chatId: string, newTitle: string) => {
+    setChatHistory(prev => prev.map(chat => 
+      chat.id === chatId ? { ...chat, title: newTitle } : chat
+    ));
+    setEditingTitleId(null);
+    setEditingTitle('');
+  };
+
+  const handleCopyMessage = async (content: string, messageId: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedMessageId(messageId);
+      playSound('notification');
+      setTimeout(() => setCopiedMessageId(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy message:', error);
+    }
+  };
+
+  const filteredChatHistory = chatHistory.filter(chat =>
+    chat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    chat.messages.some(msg => msg.content.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) {
       e.preventDefault();
@@ -265,38 +248,6 @@ export const AIChat: React.FC<AIChatProps> = ({
     }
 
     if (!inputValue.trim()) return;
-
-    // Auto-create new chat if none exists
-    if (!currentChatId) {
-      const newChatId = Date.now().toString();
-      const newChat: ChatHistory = {
-        id: newChatId,
-        title: inputValue.slice(0, 50) + (inputValue.length > 50 ? '...' : ''),
-        messages: [],
-        timestamp: new Date().toISOString()
-      };
-      
-      const updatedHistory = [...chatHistory, newChat];
-      setChatHistory(updatedHistory);
-      setCurrentChatId(newChatId);
-      localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
-    }
-
-    // Create new chat if none exists
-    if (!currentChatId) {
-      const newChatId = Date.now().toString();
-      const newChat = {
-        id: newChatId,
-        title: inputValue.slice(0, 50) + (inputValue.length > 50 ? '...' : ''),
-        messages: [],
-        timestamp: new Date().toISOString()
-      };
-      
-      const updatedHistories = [newChat, ...chatHistory];
-      setChatHistory(updatedHistories);
-      localStorage.setItem('chatHistories', JSON.stringify(updatedHistories));
-      setCurrentChatId(newChatId);
-    }
 
     playSound('send');
 
@@ -307,8 +258,25 @@ export const AIChat: React.FC<AIChatProps> = ({
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    const currentInput = inputValue;
+    // Create new chat if none exists
+    if (!currentChatId) {
+      const newChatId = Date.now().toString();
+      const chatTitle = inputValue.length > 50 ? inputValue.substring(0, 50) + '...' : inputValue;
+      
+      const newChat: ChatHistory = {
+        id: newChatId,
+        title: chatTitle,
+        messages: [userMessage],
+        timestamp: new Date().toISOString()
+      };
+      
+      setChatHistory(prev => [newChat, ...prev]);
+      setCurrentChatId(newChatId);
+      setMessages([userMessage]);
+    } else {
+      setMessages(prev => [...prev, userMessage]);
+    }
+
     setInputValue('');
     setIsTyping(true);
 
@@ -320,8 +288,8 @@ export const AIChat: React.FC<AIChatProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: currentInput,
-          agent_role: 'general',
+          message: inputValue,
+          agent_role: agentContext?.role || 'general',
           max_tokens: 200,
           temperature: 0.7
         })
@@ -336,10 +304,10 @@ export const AIChat: React.FC<AIChatProps> = ({
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.response,  // Use actual response from backend
+        content: data.response,
         sender: 'ai',
         timestamp: new Date(),
-        suggestions: [],  // You can add suggestions if needed
+        suggestions: [],
         reactions: [
           { type: '👍', count: 0 },
           { type: '❤️', count: 0 },
@@ -348,23 +316,18 @@ export const AIChat: React.FC<AIChatProps> = ({
       };
 
       setMessages(prev => [...prev, aiMessage]);
-      setIsTyping(false);
-      playSound('receive');
-
-      // Save chat to history after AI response
+      
+      // Update chat history with new messages
       if (currentChatId) {
-        const updatedMessages = [...messages, userMessage, aiMessage];
-        const updatedHistory = chatHistory.map(chat => 
+        setChatHistory(prev => prev.map(chat => 
           chat.id === currentChatId 
-            ? { ...chat, messages: updatedMessages }
+            ? { ...chat, messages: [...chat.messages, userMessage, aiMessage] }
             : chat
-        );
-        setChatHistory(updatedHistory);
-        localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+        ));
       }
       
-      // Auto-save chat after AI response
-      setTimeout(saveCurrentChat, 1000);
+      setIsTyping(false);
+      playSound('receive');
 
     } catch (error) {
       console.error('Failed to get response:', error);
@@ -379,9 +342,6 @@ export const AIChat: React.FC<AIChatProps> = ({
       
       setMessages(prev => [...prev, errorMessage]);
       playSound('receive');
-      
-      // Auto-save chat even after error
-      setTimeout(saveCurrentChat, 1000);
     }
   };
 
@@ -402,25 +362,6 @@ export const AIChat: React.FC<AIChatProps> = ({
   const toggleVoice = () => {
     setIsListening(!isListening);
     playSound('notification');
-  };
-
-  const copyMessage = (content: string) => {
-    navigator.clipboard.writeText(content);
-    playSound('notification');
-  };
-
-  const copyMessageWithFeedback = (messageId: string, content: string) => {
-    navigator.clipboard.writeText(content);
-    setCopiedMessageId(messageId);
-    playSound('notification');
-    setTimeout(() => setCopiedMessageId(null), 2000);
-  };
-
-  const handleCopyMessage = (content: string, messageId: string) => {
-    navigator.clipboard.writeText(content);
-    setCopiedMessageId(messageId);
-    playSound('notification');
-    setTimeout(() => setCopiedMessageId(null), 2000);
   };
 
   const handleFileUpload = () => {
@@ -471,39 +412,51 @@ export const AIChat: React.FC<AIChatProps> = ({
   if (isIntegrated) {
     return (
       <div className="h-full flex bg-transparent">
-        {/* Chat History Sidebar - Desktop */}
-        <div 
-          className={`hidden lg:flex flex-col border-r transition-all duration-300 ${
-            isSidebarOpen ? 'w-80' : 'w-80'
-          }`}
-          style={{ 
-            backgroundColor: currentTheme.colors.surface + '60',
-            borderColor: currentTheme.colors.border
-          }}
-        >
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* Chat History Sidebar */}
+        <div className={`
+          fixed lg:relative top-0 left-0 h-full w-80 transform transition-transform duration-300 z-50 lg:z-auto
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          backdrop-blur-xl border-r flex flex-col
+        `}
+        style={{
+          background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
+          borderColor: currentTheme.colors.border
+        }}>
           {/* Sidebar Header */}
           <div className="p-4 border-b" style={{ borderColor: currentTheme.colors.border }}>
-            <button
-              onClick={startNewChat}
-              className="w-full p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2"
-              style={{
-                background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                borderColor: currentTheme.colors.border,
-                color: currentTheme.colors.text
-              }}
-            >
-              <span>+ New Chat</span>
-            </button>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold" style={{ color: currentTheme.colors.text }}>
+                Chat History
+              </h3>
+              <button
+                onClick={handleNewChat}
+                className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{ backgroundColor: currentTheme.colors.primary + '20' }}
+              >
+                <Plus className="w-4 h-4" style={{ color: currentTheme.colors.primary }} />
+              </button>
+            </div>
             
-            <div className="mt-3 relative">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" 
+                      style={{ color: currentTheme.colors.textSecondary }} />
               <input
                 type="text"
                 placeholder="Search chats..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border text-sm transition-all duration-200 focus:outline-none"
+                className="w-full pl-10 pr-4 py-2 rounded-lg border transition-all duration-200 focus:outline-none text-sm"
                 style={{
-                  backgroundColor: currentTheme.colors.surface + '40',
+                  backgroundColor: currentTheme.colors.surface + '60',
                   borderColor: currentTheme.colors.border,
                   color: currentTheme.colors.text,
                   fontSize: '16px'
@@ -511,15 +464,17 @@ export const AIChat: React.FC<AIChatProps> = ({
               />
             </div>
           </div>
-          
-          {/* Chat History List */}
-          <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
+
+          {/* Chat List */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
             {filteredChatHistory.map((chat) => (
               <div
                 key={chat.id}
-                className={`group p-3 rounded-xl cursor-pointer transition-all duration-200 hover:scale-[1.02] border ${
-                  currentChatId === chat.id ? 'ring-2' : ''
-                }`}
+                onClick={() => handleChatSelect(chat.id)}
+                className={`
+                  group p-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] border
+                  ${currentChatId === chat.id ? 'ring-2' : ''}
+                `}
                 style={{
                   backgroundColor: currentChatId === chat.id 
                     ? currentTheme.colors.primary + '20' 
@@ -530,92 +485,74 @@ export const AIChat: React.FC<AIChatProps> = ({
                   ringColor: currentChatId === chat.id ? currentTheme.colors.primary + '50' : 'transparent'
                 }}
               >
-                <div className="flex items-center justify-between" onClick={() => loadChat(chat.id)}>
-                  <div className="flex-1 min-w-0 mr-2">
-                    {editingChatId === chat.id ? (
-                      <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="text"
-                          value={editingTitle}
-                          onChange={(e) => setEditingTitle(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleTitleSave();
-                            if (e.key === 'Escape') handleTitleCancel();
-                          }}
-                          className="flex-1 text-sm px-2 py-1 rounded border"
-                          style={{
-                            backgroundColor: currentTheme.colors.surface + '60',
-                            borderColor: currentTheme.colors.border,
-                            color: currentTheme.colors.text,
-                            fontSize: '16px'
-                          }}
-                          autoFocus
-                        />
-                        <button
-                          onClick={handleTitleSave}
-                          className="p-1 rounded hover:bg-white/10"
-                          style={{ color: currentTheme.colors.success }}
-                        >
-                          <Check className="w-3 h-3" />
-                        </button>
-                        <button
-                          onClick={handleTitleCancel}
-                          className="p-1 rounded hover:bg-white/10"
-                          style={{ color: currentTheme.colors.error }}
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    {editingTitleId === chat.id ? (
+                      <input
+                        ref={titleInputRef}
+                        type="text"
+                        value={editingTitle}
+                        onChange={(e) => setEditingTitle(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleEditTitle(chat.id, editingTitle);
+                          } else if (e.key === 'Escape') {
+                            setEditingTitleId(null);
+                            setEditingTitle('');
+                          }
+                        }}
+                        onBlur={() => handleEditTitle(chat.id, editingTitle)}
+                        className="w-full bg-transparent border-none outline-none font-medium text-sm"
+                        style={{ color: currentTheme.colors.text, fontSize: '16px' }}
+                      />
                     ) : (
-                      <>
-                        <h4 
-                          className="font-medium text-sm truncate cursor-pointer hover:underline" 
-                          style={{ color: currentTheme.colors.text }}
-                          onDoubleClick={(e) => {
-                            e.stopPropagation();
-                            handleTitleEdit(chat.id, chat.title);
-                          }}
-                        >
-                          {chat.title}
-                        </h4>
-                        <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
-                          {new Date(chat.timestamp).toLocaleDateString()} • {chat.messages.length} messages
-                        </p>
-                      </>
+                      <h4 
+                        className="font-medium text-sm truncate cursor-pointer"
+                        style={{ color: currentTheme.colors.text }}
+                        onDoubleClick={() => {
+                          setEditingTitleId(chat.id);
+                          setEditingTitle(chat.title);
+                        }}
+                      >
+                        {chat.title}
+                      </h4>
                     )}
+                    <p className="text-xs mt-1 truncate" style={{ color: currentTheme.colors.textSecondary }}>
+                      {chat.messages.length} messages • {new Date(chat.timestamp).toLocaleDateString()}
+                    </p>
                   </div>
-                  {editingChatId !== chat.id && (
-                    <div className="flex items-center space-x-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTitleEdit(chat.id, chat.title);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-                        style={{ color: currentTheme.colors.textSecondary }}
-                        title="Edit title"
-                      >
-                        <Edit2 className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteChat(chat.id);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-                        style={{ color: currentTheme.colors.error }}
-                        title="Delete chat"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
+                  
+                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingTitleId(chat.id);
+                        setEditingTitle(chat.title);
+                      }}
+                      className="p-1 rounded transition-colors"
+                      style={{ color: currentTheme.colors.textSecondary }}
+                    >
+                      <Edit2 className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteChat(chat.id);
+                      }}
+                      className="p-1 rounded transition-colors hover:text-red-400"
+                      style={{ color: currentTheme.colors.textSecondary }}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
             
             {filteredChatHistory.length === 0 && (
               <div className="text-center py-8">
+                <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" 
+                               style={{ color: currentTheme.colors.textSecondary }} />
                 <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
                   {searchTerm ? 'No chats found' : 'No chat history yet'}
                 </p>
@@ -624,256 +561,175 @@ export const AIChat: React.FC<AIChatProps> = ({
           </div>
         </div>
 
-        {/* Mobile Sidebar Overlay */}
-        {isSidebarOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex">
-            <div 
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => setIsSidebarOpen(false)}
-            />
-            <div 
-              className="relative w-80 max-w-[85vw] flex flex-col border-r"
-              style={{ 
-                backgroundColor: currentTheme.colors.surface + 'f0',
-                borderColor: currentTheme.colors.border
-              }}
-            >
-              {/* Mobile Sidebar Header */}
-              <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: currentTheme.colors.border }}>
-                <h3 className="font-semibold" style={{ color: currentTheme.colors.text }}>Chat History</h3>
-                <button
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="p-2 rounded-lg transition-all duration-200 hover:bg-white/10"
-                  style={{ color: currentTheme.colors.textSecondary }}
-                >
-                  ×
-                </button>
-              </div>
-              
-              <div className="p-4 border-b" style={{ borderColor: currentTheme.colors.border }}>
-                <button
-                  onClick={startNewChat}
-                  className="w-full p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2 min-h-[44px]"
-                  style={{
-                    background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                    borderColor: currentTheme.colors.border,
-                    color: currentTheme.colors.text
-                  }}
-                >
-                  <span>+ New Chat</span>
-                </button>
-                
-                <div className="mt-3 relative">
-                  <input
-                    type="text"
-                    placeholder="Search chats..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border text-sm transition-all duration-200 focus:outline-none"
-                    style={{
-                      backgroundColor: currentTheme.colors.surface + '40',
-                      borderColor: currentTheme.colors.border,
-                      color: currentTheme.colors.text,
-                      fontSize: '16px'
-                    }}
-                  />
-                </div>
-              </div>
-              
-              {/* Mobile Chat History List */}
-              <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
-                {filteredChatHistory.map((chat) => (
-                  <div
-                    key={chat.id}
-                    onClick={() => loadChat(chat.id)}
-                    className={`p-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] group relative min-h-[44px] flex items-center ${
-                      currentChatId === chat.id ? 'ring-2' : ''
-                    }`}
-                    style={{
-                      backgroundColor: currentChatId === chat.id 
-                        ? currentTheme.colors.primary + '20' 
-                        : currentTheme.colors.surface + '40',
-                      borderColor: currentChatId === chat.id 
-                        ? currentTheme.colors.primary + '50' 
-                        : 'transparent',
-                      ringColor: currentChatId === chat.id ? currentTheme.colors.primary + '50' : 'transparent'
-                    }}
-                  >
-                    <div className="flex justify-between items-start w-full">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium truncate" style={{ color: currentTheme.colors.text }}>
-                          {chat.title}
-                        </h4>
-                        <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
-                          {new Date(chat.lastMessage).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteChat(chat.id);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 p-2 rounded transition-all duration-200 hover:bg-red-500/20 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                        style={{ color: currentTheme.colors.error }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                
-                {filteredChatHistory.length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
-                      {searchTerm ? 'No chats found' : 'No chat history yet'}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b"
-             style={{ borderColor: currentTheme.colors.border }}>
-          <div className="flex items-center space-x-3">
-            {/* Mobile Hamburger Menu */}
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg transition-all duration-200 hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
-              style={{ color: currentTheme.colors.textSecondary }}
-            >
-              <div className="space-y-1">
-                <div className="w-5 h-0.5" style={{ backgroundColor: currentTheme.colors.textSecondary }}></div>
-                <div className="w-5 h-0.5" style={{ backgroundColor: currentTheme.colors.textSecondary }}></div>
-                <div className="w-5 h-0.5" style={{ backgroundColor: currentTheme.colors.textSecondary }}></div>
-              </div>
-            </button>
-            
-            <div className="relative">
-              <Brain className="w-6 h-6 animate-pulse" 
-                     style={{ color: currentTheme.colors.primary }} />
-              <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping"
-                   style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-            </div>
-            <div>
-              <h3 className="font-bold" style={{ color: currentTheme.colors.text }}>
-                {agentContext ? `${agentContext.name}` : 'Sarah AI'}
-              </h3>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full animate-pulse" 
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b"
+               style={{ borderColor: currentTheme.colors.border }}>
+            <div className="flex items-center space-x-3">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              >
+                <Menu className="w-5 h-5" style={{ color: currentTheme.colors.textSecondary }} />
+              </button>
+
+              <div className="relative">
+                <Brain className="w-6 h-6 animate-pulse" 
+                       style={{ color: currentTheme.colors.primary }} />
+                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping"
                      style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-                <span className="text-xs" style={{ color: currentTheme.colors.secondary }}>
-                  Online
-                </span>
+              </div>
+              <div>
+                <h3 className="font-bold" style={{ color: currentTheme.colors.text }}>
+                  {agentContext ? `${agentContext.name}` : 'Sarah AI'}
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full animate-pulse" 
+                       style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                  <span className="text-xs" style={{ color: currentTheme.colors.secondary }}>
+                    Online
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
-                <div
-                  className="p-3 sm:p-4 rounded-xl backdrop-blur-md border transition-all duration-300"
-                  style={{
-                    background: message.sender === 'user' 
-                      ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
-                      : currentTheme.colors.surface + '40',
-                    borderColor: message.sender === 'user' 
-                      ? currentTheme.colors.primary + '40'
-                      : currentTheme.colors.border,
-                    color: currentTheme.colors.text
-                  }}
-                >
-                  <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
-                </div>
-                
-                {message.suggestions && (
-                  <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
-                    {message.suggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs border rounded-full transition-all duration-200 hover:scale-105"
-                        style={{
-                          background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
-                          borderColor: currentTheme.colors.border,
-                          color: currentTheme.colors.textSecondary
-                        }}
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
+                  <div
+                    className="p-3 sm:p-4 rounded-xl backdrop-blur-md border transition-all duration-300 relative group"
+                    style={{
+                      background: message.sender === 'user' 
+                        ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
+                        : currentTheme.colors.surface + '40',
+                      borderColor: message.sender === 'user' 
+                        ? currentTheme.colors.primary + '40'
+                        : currentTheme.colors.border,
+                      color: currentTheme.colors.text
+                    }}
+                  >
+                    <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
+                    
+                    {/* Copy Button for AI Messages */}
+                    {message.sender === 'ai' && (
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t" 
+                           style={{ borderColor: currentTheme.colors.border }}>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleCopyMessage(message.content, message.id)}
+                            className="flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 text-sm"
+                            style={{
+                              backgroundColor: copiedMessageId === message.id 
+                                ? currentTheme.colors.success + '20' 
+                                : currentTheme.colors.primary + '20',
+                              color: copiedMessageId === message.id 
+                                ? currentTheme.colors.success 
+                                : currentTheme.colors.primary
+                            }}
+                          >
+                            {copiedMessageId === message.id ? (
+                              <>
+                                <Check className="w-4 h-4" />
+                                <span>Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" />
+                                <span>Copy</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                  
+                  {message.suggestions && (
+                    <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
+                      {message.suggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs border rounded-full transition-all duration-200 hover:scale-105"
+                          style={{
+                            background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
+                            borderColor: currentTheme.colors.border,
+                            color: currentTheme.colors.textSecondary
+                          }}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-          
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="border rounded-xl p-4 backdrop-blur-md"
-                   style={{
-                     backgroundColor: currentTheme.colors.surface + '40',
-                     borderColor: currentTheme.colors.border
-                   }}>
-                <div className="flex items-center space-x-3">
-                  <Brain className="w-4 h-4 animate-pulse" style={{ color: currentTheme.colors.primary }} />
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: currentTheme.colors.primary }}></div>
-                    <div className="w-2 h-2 rounded-full animate-bounce delay-100" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-                    <div className="w-2 h-2 rounded-full animate-bounce delay-200" style={{ backgroundColor: currentTheme.colors.accent }}></div>
+            ))}
+            
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="border rounded-xl p-4 backdrop-blur-md"
+                     style={{
+                       backgroundColor: currentTheme.colors.surface + '40',
+                       borderColor: currentTheme.colors.border
+                     }}>
+                  <div className="flex items-center space-x-3">
+                    <Brain className="w-4 h-4 animate-pulse" style={{ color: currentTheme.colors.primary }} />
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: currentTheme.colors.primary }}></div>
+                      <div className="w-2 h-2 rounded-full animate-bounce delay-100" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                      <div className="w-2 h-2 rounded-full animate-bounce delay-200" style={{ backgroundColor: currentTheme.colors.accent }}></div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
+            )}
+            
+            <div ref={messagesEndRef} />
+          </div>
 
-        {/* Input */}
-        <div className="p-4 sm:p-6 border-t" style={{ borderColor: currentTheme.colors.border }}>
-          <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-3">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask me anything..."
-              className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
-              style={{
-                backgroundColor: currentTheme.colors.surface + '40',
-                borderColor: currentTheme.colors.border,
-                color: currentTheme.colors.text
-              }}
-            />
-            <button
-              type="submit"
-              disabled={!inputValue.trim()}
-              className="p-2 sm:p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-              style={{
-                background: !inputValue.trim() 
-                  ? `linear-gradient(135deg, ${currentTheme.colors.textSecondary}60, ${currentTheme.colors.textSecondary}60)`
-                  : `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                color: currentTheme.colors.text
-              }}
-            >
-              <Send className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          </form>
+          {/* Input */}
+          <div className="p-4 sm:p-6 border-t" style={{ borderColor: currentTheme.colors.border }}>
+            <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-3">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask me anything..."
+                className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
+                style={{
+                  backgroundColor: currentTheme.colors.surface + '40',
+                  borderColor: currentTheme.colors.border,
+                  color: currentTheme.colors.text,
+                  fontSize: '16px'
+                }}
+              />
+              <button
+                type="submit"
+                disabled={!inputValue.trim()}
+                className="p-2 sm:p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{
+                  background: !inputValue.trim() 
+                    ? `linear-gradient(135deg, ${currentTheme.colors.textSecondary}60, ${currentTheme.colors.textSecondary}60)`
+                    : `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                  color: currentTheme.colors.text
+                }}
+              >
+                <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
       </div>
     );
   }
@@ -1079,46 +935,28 @@ export const AIChat: React.FC<AIChatProps> = ({
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 sm:mt-4 pt-3 sm:pt-4 border-t space-y-2 sm:space-y-0"
                              style={{ borderColor: currentTheme.colors.border }}>
                           <div className="flex items-center space-x-2 sm:space-x-3">
-                            {/* Prominent Copy Button */}
                             <button
                               onClick={() => handleCopyMessage(message.content, message.id)}
-                              className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 flex items-center space-x-2"
+                              className="flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 text-sm"
                               style={{
                                 backgroundColor: copiedMessageId === message.id 
                                   ? currentTheme.colors.success + '20' 
                                   : currentTheme.colors.primary + '20',
                                 color: copiedMessageId === message.id 
                                   ? currentTheme.colors.success 
-                                  : currentTheme.colors.primary,
-                                border: `1px solid ${copiedMessageId === message.id 
-                                  ? currentTheme.colors.success + '40' 
-                                  : currentTheme.colors.primary + '40'}`
+                                  : currentTheme.colors.primary
                               }}
                             >
                               {copiedMessageId === message.id ? (
                                 <>
-                                  <Check className="w-3 h-3" />
+                                  <Check className="w-4 h-4" />
                                   <span>Copied!</span>
                                 </>
                               ) : (
                                 <>
-                                  <Copy className="w-3 h-3" />
+                                  <Copy className="w-4 h-4" />
                                   <span>Copy</span>
                                 </>
-                              )}
-                            </button>
-                            
-                            <button
-                              onClick={() => handleCopyMessage(message.content, message.id)}
-                              className="p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 group/btn"
-                              style={{ backgroundColor: 'transparent' }}
-                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '40'}
-                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                            >
-                              {copiedMessageId === message.id ? (
-                                <Check className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.success }} />
-                              ) : (
-                                <Copy className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: currentTheme.colors.textSecondary }} />
                               )}
                             </button>
                             <button
@@ -1256,7 +1094,8 @@ export const AIChat: React.FC<AIChatProps> = ({
                     backgroundColor: currentTheme.colors.surface + '40',
                     borderColor: currentTheme.colors.border,
                     color: currentTheme.colors.text,
-                    boxShadow: `0 4px 12px -4px ${currentTheme.shadows.primary}`
+                    boxShadow: `0 4px 12px -4px ${currentTheme.shadows.primary}`,
+                    fontSize: '16px'
                   }}
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';
