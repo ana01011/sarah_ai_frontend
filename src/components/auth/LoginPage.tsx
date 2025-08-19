@@ -84,20 +84,6 @@ export const LoginPage: React.FC = () => {
           
           <div className="flex items-center justify-center space-x-2" style={{ color: currentTheme.colors.secondary }}>
             <Sparkles className="w-4 h-4 animate-spin" />
-            <span className="text-sm font-mono">AI Operations Platform</span>
-            <Sparkles className="w-4 h-4 animate-spin" />
-          </div>
-        </div>
-
-        {/* Login Form */}
-        <div 
-          className="backdrop-blur-xl border rounded-2xl p-8"
-          style={{
-            background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
-            borderColor: currentTheme.colors.border,
-            boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
-          }}
-        >
           {/* Test Credentials Info */}
           <div 
             className="mb-6 p-4 rounded-xl border"
