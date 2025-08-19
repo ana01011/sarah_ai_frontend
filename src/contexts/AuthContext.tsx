@@ -31,8 +31,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     if (savedUser && savedToken) {
       try {
-        setUser(JSON.parse(savedUser));
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
       } catch (error) {
+        console.error('Error parsing saved user data:', error);
         localStorage.removeItem('user');
         localStorage.removeItem('token');
       }

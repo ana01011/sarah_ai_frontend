@@ -3,6 +3,13 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, Brain, Sparkles } from 'lucide-rea
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 
+// Declare global google object
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
 export const LoginPage: React.FC = () => {
   const { currentTheme } = useTheme();
   const { login, error, isLoading, clearError } = useAuth();
@@ -11,6 +18,61 @@ export const LoginPage: React.FC = () => {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleGoogleLogin = () => {
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: '136426881868-agle26pe3r9ii73jcjal39b80iss1k2o.apps.googleusercontent.com',
+        callback: handleGoogleResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+
+      window.google.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // Fallback to popup if prompt fails
+          window.google.accounts.id.renderButton(
+            document.getElementById('google-signin-button'),
+            {
+              theme: 'outline',
+              size: 'large',
+              width: '100%',
+            }
+          );
+        }
+      });
+    } else {
+      console.error('Google Identity Services not loaded');
+      alert('Google login is temporarily unavailable. Please try again later.');
+    }
+  };
+
+  const handleGoogleResponse = async (response: any) => {
+    try {
+      // Decode the JWT token to get user info
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      
+      const googleUser = {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture,
+        given_name: payload.given_name,
+        family_name: payload.family_name,
+      };
+
+      // Store user data and token
+      localStorage.setItem('user', JSON.stringify(googleUser));
+      localStorage.setItem('token', response.credential);
+      
+      // Trigger auth context update
+      window.location.reload();
+      
+    } catch (error) {
+      console.error('Google login error:', error);
+      alert('Google login failed. Please try again.');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -231,11 +293,9 @@ export const LoginPage: React.FC = () => {
 
           {/* Google Login Button */}
           <button
+            id="google-signin-button"
             type="button"
-            onClick={() => {
-              // TODO: Replace with actual Google OAuth implementation
-              console.log('Google login clicked - implement with client ID: 136426881868-agle26pe3r9ii73jcjal39b80iss1k2o.apps.googleusercontent.com');
-            }}
+            onClick={handleGoogleLogin}
             className="w-full py-2.5 px-4 rounded-xl font-medium transition-all duration-300 
                      hover:scale-[1.02] active:scale-95 hover:shadow-lg
                      flex items-center justify-center space-x-3 group relative overflow-hidden
