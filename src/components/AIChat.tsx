@@ -81,11 +81,119 @@ export const AIChat: React.FC<AIChatProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [chatHistory, setChatHistory] = useState<any[]>([]);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { currentTheme } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Load chat history on component mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('sarah-chat-history');
+    if (savedHistory) {
+      try {
+        const history = JSON.parse(savedHistory);
+        setChatHistory(history);
+      } catch (error) {
+        console.error('Failed to load chat history:', error);
+      }
+    }
+  }, []);
+
+  // Save chat history whenever it changes
+  useEffect(() => {
+    if (chatHistory.length > 0) {
+      localStorage.setItem('sarah-chat-history', JSON.stringify(chatHistory));
+    }
+  }, [chatHistory]);
+
+  // Auto-create new chat when user starts typing (only if no current chat exists)
+  const createNewChatIfNeeded = () => {
+    if (!currentChatId && messages.length <= 1) {
+      const newChatId = Date.now().toString();
+      const newChat = {
+        id: newChatId,
+        title: 'New Chat',
+        messages: [...messages],
+        timestamp: new Date().toISOString(),
+        lastMessage: new Date().toISOString()
+      };
+      
+      setChatHistory(prev => [newChat, ...prev]);
+      setCurrentChatId(newChatId);
+      return newChatId;
+    }
+    return currentChatId;
+  };
+
+  // Save current chat to history
+  const saveCurrentChat = () => {
+    if (currentChatId && messages.length > 1) {
+      const userMessages = messages.filter(m => m.sender === 'user');
+      const title = userMessages.length > 0 
+        ? userMessages[0].content.slice(0, 50) + (userMessages[0].content.length > 50 ? '...' : '')
+        : 'New Chat';
+
+      setChatHistory(prev => prev.map(chat => 
+        chat.id === currentChatId 
+          ? { ...chat, title, messages: [...messages], lastMessage: new Date().toISOString() }
+          : chat
+      ));
+    }
+  };
+
+  // Load a chat from history
+  const loadChat = (chatId: string) => {
+    const chat = chatHistory.find(c => c.id === chatId);
+    if (chat) {
+      setMessages(chat.messages);
+      setCurrentChatId(chatId);
+      setIsSidebarOpen(false);
+    }
+  };
+
+  // Start a new chat
+  const startNewChat = () => {
+    setMessages([
+      {
+        id: '1',
+        content: agentContext 
+          ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. I specialize in ${agentContext.specialties.join(', ')}. How can I assist you with ${agentContext.department.toLowerCase()} matters today?`
+          : "Hello! I'm Sarah, your advanced AI assistant. I can help you with system monitoring, data analysis, model optimization, code generation, and much more. What would you like to explore today?",
+        sender: 'ai',
+        timestamp: new Date(),
+        suggestions: [
+          ...(agentContext ? [
+            `📊 Show ${agentContext.department.toLowerCase()} metrics`,
+            `💡 ${agentContext.specialties[0]} insights`,
+            `🎯 ${agentContext.role} recommendations`,
+            `📈 Department performance`
+          ] : [])
+        ]
+      }
+    ]);
+    setCurrentChatId(null);
+    setIsSidebarOpen(false);
+  };
+
+  // Delete a chat
+  const deleteChat = (chatId: string) => {
+    setChatHistory(prev => prev.filter(chat => chat.id !== chatId));
+    if (currentChatId === chatId) {
+      startNewChat();
+    }
+  };
+
+  // Filter chat history based on search
+  const filteredChatHistory = chatHistory.filter(chat =>
+    chat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    chat.messages.some((msg: any) => 
+      msg.content.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       const container = messagesEndRef.current.closest('.overflow-y-auto');
@@ -122,6 +230,9 @@ export const AIChat: React.FC<AIChatProps> = ({
     }
 
     if (!inputValue.trim()) return;
+
+    // Create new chat if needed (when user first starts typing)
+    const chatId = createNewChatIfNeeded();
 
     playSound('send');
 
@@ -192,6 +303,9 @@ export const AIChat: React.FC<AIChatProps> = ({
       
       setMessages(prev => [...prev, errorMessage]);
       playSound('receive');
+      
+      // Auto-save chat even after error
+      setTimeout(saveCurrentChat, 1000);
     }
   };
 
@@ -266,11 +380,229 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   if (isIntegrated) {
     return (
-      <div className="h-full flex flex-col bg-transparent">
+      <div className="h-full flex bg-transparent">
+        {/* Chat History Sidebar - Desktop */}
+        <div 
+          className={`hidden lg:flex flex-col border-r transition-all duration-300 ${
+            isSidebarOpen ? 'w-80' : 'w-80'
+          }`}
+          style={{ 
+            backgroundColor: currentTheme.colors.surface + '60',
+            borderColor: currentTheme.colors.border
+          }}
+        >
+          {/* Sidebar Header */}
+          <div className="p-4 border-b" style={{ borderColor: currentTheme.colors.border }}>
+            <button
+              onClick={startNewChat}
+              className="w-full p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2"
+              style={{
+                background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                borderColor: currentTheme.colors.border,
+                color: currentTheme.colors.text
+              }}
+            >
+              <span>+ New Chat</span>
+            </button>
+            
+            <div className="mt-3 relative">
+              <input
+                type="text"
+                placeholder="Search chats..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border text-sm transition-all duration-200 focus:outline-none"
+                style={{
+                  backgroundColor: currentTheme.colors.surface + '40',
+                  borderColor: currentTheme.colors.border,
+                  color: currentTheme.colors.text,
+                  fontSize: '16px'
+                }}
+              />
+            </div>
+          </div>
+          
+          {/* Chat History List */}
+          <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
+            {filteredChatHistory.map((chat) => (
+              <div
+                key={chat.id}
+                onClick={() => loadChat(chat.id)}
+                className={`p-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] group relative ${
+                  currentChatId === chat.id ? 'ring-2' : ''
+                }`}
+                style={{
+                  backgroundColor: currentChatId === chat.id 
+                    ? currentTheme.colors.primary + '20' 
+                    : currentTheme.colors.surface + '40',
+                  borderColor: currentChatId === chat.id 
+                    ? currentTheme.colors.primary + '50' 
+                    : 'transparent',
+                  ringColor: currentChatId === chat.id ? currentTheme.colors.primary + '50' : 'transparent'
+                }}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-medium truncate" style={{ color: currentTheme.colors.text }}>
+                      {chat.title}
+                    </h4>
+                    <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
+                      {new Date(chat.lastMessage).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteChat(chat.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded transition-all duration-200 hover:bg-red-500/20"
+                    style={{ color: currentTheme.colors.error }}
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            ))}
+            
+            {filteredChatHistory.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+                  {searchTerm ? 'No chats found' : 'No chat history yet'}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 flex">
+            <div 
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+            <div 
+              className="relative w-80 max-w-[85vw] flex flex-col border-r"
+              style={{ 
+                backgroundColor: currentTheme.colors.surface + 'f0',
+                borderColor: currentTheme.colors.border
+              }}
+            >
+              {/* Mobile Sidebar Header */}
+              <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: currentTheme.colors.border }}>
+                <h3 className="font-semibold" style={{ color: currentTheme.colors.text }}>Chat History</h3>
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-2 rounded-lg transition-all duration-200 hover:bg-white/10"
+                  style={{ color: currentTheme.colors.textSecondary }}
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="p-4 border-b" style={{ borderColor: currentTheme.colors.border }}>
+                <button
+                  onClick={startNewChat}
+                  className="w-full p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-95 flex items-center justify-center space-x-2 min-h-[44px]"
+                  style={{
+                    background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                    borderColor: currentTheme.colors.border,
+                    color: currentTheme.colors.text
+                  }}
+                >
+                  <span>+ New Chat</span>
+                </button>
+                
+                <div className="mt-3 relative">
+                  <input
+                    type="text"
+                    placeholder="Search chats..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border text-sm transition-all duration-200 focus:outline-none"
+                    style={{
+                      backgroundColor: currentTheme.colors.surface + '40',
+                      borderColor: currentTheme.colors.border,
+                      color: currentTheme.colors.text,
+                      fontSize: '16px'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              {/* Mobile Chat History List */}
+              <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
+                {filteredChatHistory.map((chat) => (
+                  <div
+                    key={chat.id}
+                    onClick={() => loadChat(chat.id)}
+                    className={`p-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] group relative min-h-[44px] flex items-center ${
+                      currentChatId === chat.id ? 'ring-2' : ''
+                    }`}
+                    style={{
+                      backgroundColor: currentChatId === chat.id 
+                        ? currentTheme.colors.primary + '20' 
+                        : currentTheme.colors.surface + '40',
+                      borderColor: currentChatId === chat.id 
+                        ? currentTheme.colors.primary + '50' 
+                        : 'transparent',
+                      ringColor: currentChatId === chat.id ? currentTheme.colors.primary + '50' : 'transparent'
+                    }}
+                  >
+                    <div className="flex justify-between items-start w-full">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium truncate" style={{ color: currentTheme.colors.text }}>
+                          {chat.title}
+                        </h4>
+                        <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
+                          {new Date(chat.lastMessage).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteChat(chat.id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-2 rounded transition-all duration-200 hover:bg-red-500/20 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        style={{ color: currentTheme.colors.error }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                {filteredChatHistory.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+                      {searchTerm ? 'No chats found' : 'No chat history yet'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b"
              style={{ borderColor: currentTheme.colors.border }}>
           <div className="flex items-center space-x-3">
+            {/* Mobile Hamburger Menu */}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 rounded-lg transition-all duration-200 hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              style={{ color: currentTheme.colors.textSecondary }}
+            >
+              <div className="space-y-1">
+                <div className="w-5 h-0.5" style={{ backgroundColor: currentTheme.colors.textSecondary }}></div>
+                <div className="w-5 h-0.5" style={{ backgroundColor: currentTheme.colors.textSecondary }}></div>
+                <div className="w-5 h-0.5" style={{ backgroundColor: currentTheme.colors.textSecondary }}></div>
+              </div>
+            </button>
+            
             <div className="relative">
               <Brain className="w-6 h-6 animate-pulse" 
                      style={{ color: currentTheme.colors.primary }} />
@@ -390,6 +722,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               <Send className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </form>
+        </div>
         </div>
       </div>
     );
