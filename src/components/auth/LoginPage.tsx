@@ -28,19 +28,8 @@ export const LoginPage: React.FC = () => {
         cancel_on_tap_outside: true,
       });
 
-      window.google.accounts.id.prompt((notification: any) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // Fallback to popup if prompt fails
-          window.google.accounts.id.renderButton(
-            document.getElementById('google-signin-button'),
-            {
-              theme: 'outline',
-              size: 'large',
-              width: '100%',
-            }
-          );
-        }
-      });
+      // Trigger the Google One Tap prompt
+      window.google.accounts.id.prompt();
     } else {
       console.error('Google Identity Services not loaded');
       alert('Google login is temporarily unavailable. Please try again later.');
