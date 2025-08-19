@@ -50,7 +50,7 @@ export const WelcomeScreen: React.FC = () => {
           </div>
           
           <h1 
-            className="text-6xl md:text-8xl font-bold bg-clip-text text-transparent mb-6"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-clip-text text-transparent mb-4"
             style={{
               backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
             }}
@@ -58,13 +58,13 @@ export const WelcomeScreen: React.FC = () => {
             SARAH
           </h1>
           
-          <p className="text-2xl md:text-3xl font-light mb-4" style={{ color: currentTheme.colors.textSecondary }}>
+          <p className="text-lg sm:text-xl md:text-2xl font-light mb-3" style={{ color: currentTheme.colors.textSecondary }}>
             Advanced AI Operations Platform
           </p>
           
-          <div className="flex items-center justify-center space-x-4 mb-8" style={{ color: currentTheme.colors.secondary }}>
+          <div className="flex items-center justify-center space-x-2 sm:space-x-4 mb-6" style={{ color: currentTheme.colors.secondary }}>
             <Sparkles className="w-6 h-6 animate-spin" />
-            <span className="text-lg font-mono">Intelligent • Adaptive • Powerful</span>
+            <span className="text-sm sm:text-base md:text-lg font-mono">Intelligent • Adaptive • Powerful</span>
             <Sparkles className="w-6 h-6 animate-spin" />
           </div>
         </div>
@@ -72,7 +72,7 @@ export const WelcomeScreen: React.FC = () => {
         {/* Get Started Button */}
         <button
           onClick={handleGetStarted}
-          className="group relative px-12 py-6 rounded-2xl font-bold text-xl transition-all duration-300 
+          className="group relative px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-2xl font-bold text-lg sm:text-xl transition-all duration-300 
                    hover:scale-105 active:scale-95 hover:shadow-2xl
                    flex items-center justify-center space-x-4 mx-auto
                    backdrop-blur-sm border overflow-hidden"
@@ -91,7 +91,7 @@ export const WelcomeScreen: React.FC = () => {
           <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform relative z-10" />
         </button>
 
-        <p className="mt-6 text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+        <p className="mt-4 text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
           Experience the future of AI-powered operations
         </p>
       </div>

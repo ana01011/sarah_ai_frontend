@@ -129,20 +129,45 @@ export const AIChat: React.FC<AIChatProps> = ({
   }, [editingTitleId]);
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      const container = messagesEndRef.current.closest('.overflow-y-auto');
-      if (container) {
-        container.scrollTop = container.scrollHeight;
+    setTimeout(() => {
+      if (messagesEndRef.current) {
+        const container = messagesEndRef.current.closest('.overflow-y-auto');
+        if (container) {
+          // Find the last AI message element
+          const aiMessages = container.querySelectorAll('[data-message-type="ai"]');
+          if (aiMessages.length > 0) {
+            const lastAiMessage = aiMessages[aiMessages.length - 1];
+            lastAiMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            container.scrollTop = container.scrollHeight;
+          }
+        }
       }
+    }, 100);
+  };
+
+  const scrollToAiResponse = () => {
+    setTimeout(() => {
+      if (messagesEndRef.current) {
+        const container = messagesEndRef.current.closest('.overflow-y-auto');
+        if (container) {
+          const aiMessages = container.querySelectorAll('[data-message-type="ai"]');
+          if (aiMessages.length > 0) {
+            const lastAiMessage = aiMessages[aiMessages.length - 1];
+            lastAiMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      }
+    }, 150);
     }
   };
 
   useEffect(() => {
-    // Always scroll to bottom when messages change, with a delay to ensure rendering
-    const timer = setTimeout(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.sender === 'ai') {
+      scrollToAiResponse();
+    } else if (messages.length > 0) {
       scrollToBottom();
-    }, 100);
-    
     return () => clearTimeout(timer);
   }, [messages]);
 
@@ -244,6 +269,44 @@ export const AIChat: React.FC<AIChatProps> = ({
     };
 
     // Create new chat if this is the first message and no current chat
+    
+    // Save user message to current chat immediately
+    const currentChatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+    let updatedHistory = [...currentChatHistory];
+    
+    if (currentChatId) {
+      // Update existing chat
+      const chatIndex = updatedHistory.findIndex(chat => chat.id === currentChatId);
+      if (chatIndex !== -1) {
+        updatedHistory[chatIndex].messages.push({
+          id: userMessage.id,
+          role: 'user',
+          content: userMessage.content,
+          timestamp: userMessage.timestamp
+        });
+        updatedHistory[chatIndex].timestamp = new Date().toISOString();
+      }
+    } else {
+      // Create new chat
+      const newChatId = Date.now().toString();
+      setCurrentChatId(newChatId);
+      const newChat = {
+        id: newChatId,
+        title: inputValue.slice(0, 50) + (inputValue.length > 50 ? '...' : ''),
+        messages: [{
+          id: userMessage.id,
+          role: 'user',
+          content: userMessage.content,
+          timestamp: userMessage.timestamp
+        }],
+        timestamp: new Date().toISOString()
+      };
+      updatedHistory.unshift(newChat);
+    }
+    
+    localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+    setChatHistory(updatedHistory);
+    
     if (!currentChatId && chatHistory.length === 0) {
       const newChatId = Date.now().toString();
       const newChat: ChatHistory = {
@@ -380,6 +443,26 @@ export const AIChat: React.FC<AIChatProps> = ({
         localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
       }
       setMessages(prev => [...prev, errorMessage]);
+      
+      // Save error message to current chat
+      const currentChatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+      let updatedHistory = [...currentChatHistory];
+      
+      if (currentChatId) {
+        const chatIndex = updatedHistory.findIndex(chat => chat.id === currentChatId);
+        if (chatIndex !== -1) {
+          updatedHistory[chatIndex].messages.push({
+            id: errorMessage.id,
+            role: 'assistant',
+            content: errorMessage.content,
+            timestamp: errorMessage.timestamp
+          });
+          updatedHistory[chatIndex].timestamp = new Date().toISOString();
+          localStorage.setItem('chatHistory', JSON.stringify(updatedHistory));
+          setChatHistory(updatedHistory);
+        }
+      }
+      
       playSound('receive');
       
       // Scroll to error message as well
