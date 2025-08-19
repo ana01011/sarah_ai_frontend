@@ -29,7 +29,13 @@ import {
   Lightbulb,
   Rocket,
   Shield,
-  Star
+  Star,
+  Menu,
+  Plus,
+  Clock,
+  Search,
+  Trash2,
+  Edit3
 } from 'lucide-react';
 
 interface Message {
@@ -41,6 +47,14 @@ interface Message {
   suggestions?: string[];
   attachments?: string[];
   reactions?: { type: string; count: number }[];
+}
+
+interface ChatHistory {
+  id: string;
+  title: string;
+  messages: Message[];
+  timestamp: Date;
+  preview: string;
 }
 
 interface AIChatProps {
@@ -76,11 +90,39 @@ export const AIChat: React.FC<AIChatProps> = ({
       ]
     }
   ]);
+  
+  const [chatHistory, setChatHistory] = useState<ChatHistory[]>([
+    {
+      id: '1',
+      title: 'System Performance Analysis',
+      messages: [],
+      timestamp: new Date(Date.now() - 86400000),
+      preview: 'Analyzed GPU utilization and model accuracy trends...'
+    },
+    {
+      id: '2', 
+      title: 'Code Generation Help',
+      messages: [],
+      timestamp: new Date(Date.now() - 172800000),
+      preview: 'Generated Python scripts for data processing...'
+    },
+    {
+      id: '3',
+      title: 'Database Optimization',
+      messages: [],
+      timestamp: new Date(Date.now() - 259200000),
+      preview: 'Optimized query performance and indexing strategies...'
+    }
+  ]);
+  
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { currentTheme } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -113,6 +155,54 @@ export const AIChat: React.FC<AIChatProps> = ({
   const playSound = (type: 'send' | 'receive' | 'notification') => {
     if (!soundEnabled) return;
     console.log(`Playing ${type} sound`);
+  };
+
+  const generateChatTitle = (firstMessage: string): string => {
+    const words = firstMessage.split(' ').slice(0, 4);
+    return words.join(' ') + (firstMessage.split(' ').length > 4 ? '...' : '');
+  };
+
+  const saveCurrentChat = () => {
+    if (messages.length > 1 && !currentChatId) {
+      const newChat: ChatHistory = {
+        id: Date.now().toString(),
+        title: generateChatTitle(messages[1].content),
+        messages: [...messages],
+        timestamp: new Date(),
+        preview: messages[messages.length - 1].content.slice(0, 50) + '...'
+      };
+      setChatHistory(prev => [newChat, ...prev]);
+      setCurrentChatId(newChat.id);
+    }
+  };
+
+  const startNewChat = () => {
+    saveCurrentChat();
+    setMessages([{
+      id: '1',
+      content: agentContext 
+        ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. How can I assist you today?`
+        : "Hello! I'm Sarah, your advanced AI assistant. What would you like to explore today?",
+      sender: 'ai',
+      timestamp: new Date(),
+    }]);
+    setCurrentChatId(null);
+    setIsSidebarOpen(false);
+  };
+
+  const loadChat = (chat: ChatHistory) => {
+    saveCurrentChat();
+    setMessages(chat.messages);
+    setCurrentChatId(chat.id);
+    setIsSidebarOpen(false);
+  };
+
+  const deleteChat = (chatId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setChatHistory(prev => prev.filter(chat => chat.id !== chatId));
+    if (currentChatId === chatId) {
+      startNewChat();
+    }
   };
 
   const handleSendMessage = async (e?: React.FormEvent) => {
@@ -259,134 +349,281 @@ export const AIChat: React.FC<AIChatProps> = ({
     playSound('notification');
   };
 
+  const filteredHistory = chatHistory.filter(chat =>
+    chat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    chat.preview.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (!isOpen) return null;
 
   if (isIntegrated) {
     return (
-      <div className="h-full flex flex-col bg-transparent">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b"
-             style={{ borderColor: currentTheme.colors.border }}>
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Brain className="w-6 h-6 animate-pulse" 
-                     style={{ color: currentTheme.colors.primary }} />
-              <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping"
-                   style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-            </div>
-            <div>
-              <h3 className="font-bold" style={{ color: currentTheme.colors.text }}>
-                {agentContext ? `${agentContext.name}` : 'Sarah AI'}
-              </h3>
+      <div className="h-full flex bg-transparent">
+        {/* Sidebar */}
+        <div className={`
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          fixed inset-y-0 left-0 z-50 w-80 transition-transform duration-300 ease-in-out
+          lg:relative lg:translate-x-0 lg:w-80
+          backdrop-blur-xl border-r
+        `}
+        style={{
+          background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
+          borderColor: currentTheme.colors.border
+        }}>
+          {/* Sidebar Header */}
+          <div className="p-4 border-b" style={{ borderColor: currentTheme.colors.border }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold" style={{ color: currentTheme.colors.text }}>
+                Chat History
+              </h2>
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full animate-pulse" 
-                     style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-                <span className="text-xs" style={{ color: currentTheme.colors.secondary }}>
-                  Online
-                </span>
+                <button
+                  onClick={startNewChat}
+                  className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                  style={{ backgroundColor: currentTheme.colors.primary + '20' }}
+                >
+                  <Plus className="w-4 h-4" style={{ color: currentTheme.colors.primary }} />
+                </button>
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 lg:hidden"
+                  style={{ backgroundColor: currentTheme.colors.surface + '40' }}
+                >
+                  <X className="w-4 h-4" style={{ color: currentTheme.colors.textSecondary }} />
+                </button>
               </div>
             </div>
+            
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" 
+                      style={{ color: currentTheme.colors.textSecondary }} />
+              <input
+                type="text"
+                placeholder="Search chats..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border transition-all duration-200 focus:outline-none text-sm"
+                style={{
+                  backgroundColor: currentTheme.colors.surface + '60',
+                  borderColor: currentTheme.colors.border,
+                  color: currentTheme.colors.text,
+                  fontSize: '16px'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Chat List */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+            {filteredHistory.map((chat) => (
+              <div
+                key={chat.id}
+                onClick={() => loadChat(chat)}
+                className={`
+                  group p-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] relative
+                  ${currentChatId === chat.id ? 'ring-2' : ''}
+                `}
+                style={{
+                  backgroundColor: currentChatId === chat.id 
+                    ? currentTheme.colors.primary + '20' 
+                    : currentTheme.colors.surface + '40',
+                  ringColor: currentChatId === chat.id ? currentTheme.colors.primary + '50' : 'transparent'
+                }}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-sm truncate mb-1" 
+                        style={{ color: currentTheme.colors.text }}>
+                      {chat.title}
+                    </h3>
+                    <p className="text-xs line-clamp-2 mb-2" 
+                       style={{ color: currentTheme.colors.textSecondary }}>
+                      {chat.preview}
+                    </p>
+                    <div className="flex items-center space-x-1">
+                      <Clock className="w-3 h-3" style={{ color: currentTheme.colors.textSecondary }} />
+                      <span className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
+                        {chat.timestamp.toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => deleteChat(chat.id, e)}
+                      className="p-1 rounded transition-colors hover:bg-red-500/20"
+                    >
+                      <Trash2 className="w-3 h-3" style={{ color: currentTheme.colors.error }} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            {filteredHistory.length === 0 && (
+              <div className="text-center py-8">
+                <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" 
+                               style={{ color: currentTheme.colors.textSecondary }} />
+                <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+                  {searchTerm ? 'No chats found' : 'No chat history yet'}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
-                <div
-                  className="p-3 sm:p-4 rounded-xl backdrop-blur-md border transition-all duration-300"
-                  style={{
-                    background: message.sender === 'user' 
-                      ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
-                      : currentTheme.colors.surface + '40',
-                    borderColor: message.sender === 'user' 
-                      ? currentTheme.colors.primary + '40'
-                      : currentTheme.colors.border,
-                    color: currentTheme.colors.text
-                  }}
-                >
-                  <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
-                </div>
-                
-                {message.suggestions && (
-                  <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
-                    {message.suggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs border rounded-full transition-all duration-200 hover:scale-105"
-                        style={{
-                          background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
-                          borderColor: currentTheme.colors.border,
-                          color: currentTheme.colors.textSecondary
-                        }}
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-          
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="border rounded-xl p-4 backdrop-blur-md"
-                   style={{
-                     backgroundColor: currentTheme.colors.surface + '40',
-                     borderColor: currentTheme.colors.border
-                   }}>
-                <div className="flex items-center space-x-3">
-                  <Brain className="w-4 h-4 animate-pulse" style={{ color: currentTheme.colors.primary }} />
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: currentTheme.colors.primary }}></div>
-                    <div className="w-2 h-2 rounded-full animate-bounce delay-100" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-                    <div className="w-2 h-2 rounded-full animate-bounce delay-200" style={{ backgroundColor: currentTheme.colors.accent }}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
+        {/* Overlay for mobile */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
 
-        {/* Input */}
-        <div className="p-4 sm:p-6 border-t" style={{ borderColor: currentTheme.colors.border }}>
-          <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-3">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask me anything..."
-              className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
-              style={{
-                backgroundColor: currentTheme.colors.surface + '40',
-                borderColor: currentTheme.colors.border,
-                color: currentTheme.colors.text
-              }}
-            />
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0"
+               style={{ borderColor: currentTheme.colors.border }}>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 lg:hidden"
+                style={{ backgroundColor: currentTheme.colors.surface + '40' }}
+              >
+                <Menu className="w-5 h-5" style={{ color: currentTheme.colors.textSecondary }} />
+              </button>
+              
+              <div className="relative">
+                <Brain className="w-6 h-6 animate-pulse" 
+                       style={{ color: currentTheme.colors.primary }} />
+                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping"
+                     style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+              </div>
+              <div>
+                <h3 className="font-bold" style={{ color: currentTheme.colors.text }}>
+                  {agentContext ? `${agentContext.name}` : 'Sarah AI'}
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full animate-pulse" 
+                       style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                  <span className="text-xs" style={{ color: currentTheme.colors.secondary }}>
+                    Online
+                  </span>
+                </div>
+              </div>
+            </div>
+            
             <button
-              type="submit"
-              disabled={!inputValue.trim()}
-              className="p-2 sm:p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-              style={{
-                background: !inputValue.trim() 
-                  ? `linear-gradient(135deg, ${currentTheme.colors.textSecondary}60, ${currentTheme.colors.textSecondary}60)`
-                  : `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                color: currentTheme.colors.text
-              }}
+              onClick={startNewChat}
+              className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+              style={{ backgroundColor: currentTheme.colors.primary + '20' }}
             >
-              <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Plus className="w-5 h-5" style={{ color: currentTheme.colors.primary }} />
             </button>
-          </form>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
+                  <div
+                    className="p-3 sm:p-4 rounded-xl backdrop-blur-md border transition-all duration-300"
+                    style={{
+                      background: message.sender === 'user' 
+                        ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
+                        : currentTheme.colors.surface + '40',
+                      borderColor: message.sender === 'user' 
+                        ? currentTheme.colors.primary + '40'
+                        : currentTheme.colors.border,
+                      color: currentTheme.colors.text
+                    }}
+                  >
+                    <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
+                  </div>
+                  
+                  {message.suggestions && (
+                    <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
+                      {message.suggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs border rounded-full transition-all duration-200 hover:scale-105"
+                          style={{
+                            background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
+                            borderColor: currentTheme.colors.border,
+                            color: currentTheme.colors.textSecondary
+                          }}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="border rounded-xl p-4 backdrop-blur-md"
+                     style={{
+                       backgroundColor: currentTheme.colors.surface + '40',
+                       borderColor: currentTheme.colors.border
+                     }}>
+                  <div className="flex items-center space-x-3">
+                    <Brain className="w-4 h-4 animate-pulse" style={{ color: currentTheme.colors.primary }} />
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: currentTheme.colors.primary }}></div>
+                      <div className="w-2 h-2 rounded-full animate-bounce delay-100" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                      <div className="w-2 h-2 rounded-full animate-bounce delay-200" style={{ backgroundColor: currentTheme.colors.accent }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="p-4 sm:p-6 border-t flex-shrink-0" style={{ borderColor: currentTheme.colors.border }}>
+            <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-3">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask me anything..."
+                className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
+                style={{
+                  backgroundColor: currentTheme.colors.surface + '40',
+                  borderColor: currentTheme.colors.border,
+                  color: currentTheme.colors.text,
+                  fontSize: '16px'
+                }}
+              />
+              <button
+                type="submit"
+                disabled={!inputValue.trim()}
+                className="p-2 sm:p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{
+                  background: !inputValue.trim() 
+                    ? `linear-gradient(135deg, ${currentTheme.colors.textSecondary}60, ${currentTheme.colors.textSecondary}60)`
+                    : `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                  color: currentTheme.colors.text
+                }}
+              >
+                <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     );
