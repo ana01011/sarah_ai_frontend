@@ -28,7 +28,7 @@ export const ThemeSelector: React.FC = () => {
   const [showFirstTimeGuide, setShowFirstTimeGuide] = useState(false);
   const [hasSeenGuide, setHasSeenGuide] = useState(false);
 
-  const VISIBLE_THEMES = 5;
+  const VISIBLE_THEMES = 4;
   const maxScroll = Math.max(0, themes.length - VISIBLE_THEMES);
 
   useEffect(() => {
@@ -61,9 +61,9 @@ export const ThemeSelector: React.FC = () => {
     <div className="relative">
       {/* First Time User Guide */}
       {showFirstTimeGuide && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
           <div 
-            className="relative max-w-sm w-full backdrop-blur-xl border rounded-2xl p-6 shadow-2xl animate-fade-in"
+            className="relative max-w-xs sm:max-w-sm w-full mx-4 backdrop-blur-xl border rounded-2xl p-4 sm:p-6 shadow-2xl animate-fade-in"
             style={{ 
               backgroundColor: currentTheme.colors.surface + 'f0',
               borderColor: currentTheme.colors.border,
@@ -80,18 +80,18 @@ export const ThemeSelector: React.FC = () => {
             
             <div className="text-center">
               <div className="mb-4">
-                <Palette className="w-12 h-12 mx-auto animate-bounce" style={{ color: currentTheme.colors.primary }} />
+                <Palette className="w-8 h-8 sm:w-12 sm:h-12 mx-auto animate-bounce" style={{ color: currentTheme.colors.primary }} />
               </div>
               
-              <h3 className="text-xl font-bold mb-3" style={{ color: currentTheme.colors.text }}>
+              <h3 className="text-lg sm:text-xl font-bold mb-3" style={{ color: currentTheme.colors.text }}>
                 🎨 Customize Your Experience!
               </h3>
               
-              <p className="text-sm mb-4 leading-relaxed" style={{ color: currentTheme.colors.textSecondary }}>
+              <p className="text-xs sm:text-sm mb-4 leading-relaxed" style={{ color: currentTheme.colors.textSecondary }}>
                 Welcome to SARAH! You can switch between <span className="font-semibold" style={{ color: currentTheme.colors.primary }}>{themes.length} beautiful themes</span> by clicking the palette icon in the header.
               </p>
               
-              <div className="mb-6 p-3 rounded-xl" style={{ backgroundColor: currentTheme.colors.surface + '40' }}>
+              <div className="mb-4 sm:mb-6 p-2 sm:p-3 rounded-xl" style={{ backgroundColor: currentTheme.colors.surface + '40' }}>
                 <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
                   💡 <strong>Pro Tip:</strong> Each theme is designed for different roles - CEO, CTO, Developer, etc.
                 </p>
@@ -99,7 +99,7 @@ export const ThemeSelector: React.FC = () => {
               
               <button
                 onClick={handleFirstTimeGuideClose}
-                className="w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 hover:scale-105 active:scale-95"
+                className="w-full py-2 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-all duration-300 hover:scale-105 active:scale-95 text-sm sm:text-base"
                 style={{
                   background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
                   color: currentTheme.id === 'light' ? '#ffffff' : currentTheme.colors.text
@@ -138,7 +138,7 @@ export const ThemeSelector: React.FC = () => {
       {/* Theme Selector Dropdown */}
       {isOpen && (
         <div 
-          className="absolute top-full right-0 mt-2 w-72 sm:w-80 md:w-96 backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden"
+          className="absolute top-full right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden"
           style={{ 
             backgroundColor: currentTheme.colors.surface + 'f0',
             borderColor: currentTheme.colors.border,
@@ -168,10 +168,12 @@ export const ThemeSelector: React.FC = () => {
             {scrollPosition > 0 && (
               <button
                 onClick={scrollUp}
-                className="absolute top-2 right-2 z-10 p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                className="absolute top-2 right-2 z-10 p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 border shadow-lg"
                 style={{ 
-                  backgroundColor: currentTheme.colors.surface + '80',
-                  color: currentTheme.colors.textSecondary
+                  backgroundColor: currentTheme.colors.primary + '90',
+                  borderColor: currentTheme.colors.primary + '50',
+                  color: currentTheme.colors.text,
+                  boxShadow: `0 4px 12px -4px ${currentTheme.colors.primary}60`
                 }}
               >
                 <ChevronUp className="w-4 h-4" />
@@ -277,10 +279,12 @@ export const ThemeSelector: React.FC = () => {
             {scrollPosition < maxScroll && (
               <button
                 onClick={scrollDown}
-                className="absolute bottom-2 right-2 z-10 p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                className="absolute bottom-2 right-2 z-10 p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 border shadow-lg"
                 style={{ 
-                  backgroundColor: currentTheme.colors.surface + '80',
-                  color: currentTheme.colors.textSecondary
+                  backgroundColor: currentTheme.colors.primary + '90',
+                  borderColor: currentTheme.colors.primary + '50',
+                  color: currentTheme.colors.text,
+                  boxShadow: `0 4px 12px -4px ${currentTheme.colors.primary}60`
                 }}
               >
                 <ChevronDown className="w-4 h-4" />
@@ -288,15 +292,16 @@ export const ThemeSelector: React.FC = () => {
             )}
 
             {/* Scroll indicators */}
-            <div className="absolute right-1 top-1/2 transform -translate-y-1/2 flex flex-col space-y-1">
+            <div className="absolute left-2 top-1/2 transform -translate-y-1/2 flex flex-col space-y-1">
               {Array.from({ length: Math.ceil(themes.length / VISIBLE_THEMES) }).map((_, index) => (
                 <div
                   key={index}
-                  className="w-1 h-4 rounded-full transition-all duration-300"
+                  className="w-2 h-6 rounded-full transition-all duration-300 border"
                   style={{
                     backgroundColor: Math.floor(scrollPosition / VISIBLE_THEMES) === index 
                       ? currentTheme.colors.primary 
-                      : currentTheme.colors.textSecondary + '40'
+                      : currentTheme.colors.textSecondary + '40',
+                    borderColor: currentTheme.colors.primary + '30'
                   }}
                 />
               ))}
@@ -309,11 +314,11 @@ export const ThemeSelector: React.FC = () => {
               Theme preferences are saved automatically
             </p>
             <div className="flex items-center justify-center space-x-2 mt-2">
-              <div className="w-1 h-1 rounded-full" style={{ backgroundColor: currentTheme.colors.primary }}></div>
+              <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: currentTheme.colors.primary }}></div>
               <span className="text-xs font-mono" style={{ color: currentTheme.colors.primary }}>
                 {scrollPosition + 1}-{Math.min(scrollPosition + VISIBLE_THEMES, themes.length)} of {themes.length}
               </span>
-              <div className="w-1 h-1 rounded-full" style={{ backgroundColor: currentTheme.colors.primary }}></div>
+              <div className="w-2 h-2 rounded-full animate-pulse delay-500" style={{ backgroundColor: currentTheme.colors.primary }}></div>
             </div>
           </div>
         </div>
