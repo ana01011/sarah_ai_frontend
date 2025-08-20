@@ -433,20 +433,18 @@ export const AIChat: React.FC<AIChatProps> = ({
           >
             {/* Static Twinkling Stars Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {sidebarStars.map((star) => (
-                <div
-                  key={star.id}
-                  className="absolute w-0.5 h-0.5 rounded-full animate-pulse"
-                  style={{
-                    left: `${star.left}%`,
-                    top: `${star.top}%`,
-                    backgroundColor: currentTheme.colors.primary,
-                    opacity: star.opacity,
-                    animationDelay: `${star.delay}s`,
-                    animationDuration: `${star.duration}s`
-                  }}
-                />
-              ))}
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '15%', top: '10%', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '75%', top: '20%', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '25%', top: '35%', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '85%', top: '45%', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '45%', top: '55%', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '65%', top: '65%', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '20%', top: '75%', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '80%', top: '80%', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '35%', top: '25%', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '55%', top: '40%', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '10%', top: '60%', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '90%', top: '30%', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }} />
             </div>
             
             {/* Animated Background */}
