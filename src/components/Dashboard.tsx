@@ -192,7 +192,16 @@ export const Dashboard: React.FC = () => {
 
               <button 
                 onClick={handleAgentsClick}
-                className="relative p-1.5 sm:p-2 lg:p-3 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center group overflow-hidden"
+                className="relative p-1.5 sm:p-2 lg:p-3 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center group overflow-hidden"
+                style={{ backdropFilter: 'blur(8px)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.primary}30, ${currentTheme.colors.secondary}30)`;
+                  e.currentTarget.style.transform = 'scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
               >
                 {/* Animated background glow */}
                 <div 

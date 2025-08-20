@@ -797,7 +797,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               </div>
             )}
             
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} className="relative z-10" />
           </div>
 
           {/* Input */}
@@ -1185,7 +1185,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               </div>
             )}
             
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} className="relative z-10" />
           </div>
 
           {/* Enhanced Input */}
