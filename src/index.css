@@ -112,6 +112,21 @@
   animation: fade-in 0.3s ease-out;
 }
 
+@keyframes theme-dropdown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+.animate-theme-dropdown {
+  animation: theme-dropdown 0.3s ease-out;
+}
+
 /* Mobile touch targets */
 @media (max-width: 768px) {
   button, .clickable {

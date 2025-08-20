@@ -139,12 +139,11 @@ export const ThemeSelector: React.FC = () => {
       {/* Theme Selector Dropdown */}
       {isOpen && (
         <div 
-          className="fixed left-1/2 transform -translate-x-1/2 top-16 w-80 sm:w-96 backdrop-blur-xl border rounded-2xl shadow-2xl z-[9999] overflow-hidden max-w-[calc(100vw-1rem)] transition-all duration-300 ease-out"
+          className="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 w-80 sm:w-96 backdrop-blur-xl border rounded-2xl shadow-2xl z-[9999] overflow-hidden max-w-[calc(100vw-2rem)] animate-theme-dropdown"
           style={{ 
             backgroundColor: currentTheme.colors.surface + 'f0',
             borderColor: currentTheme.colors.border,
-            boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`,
-            animation: 'fadeIn 0.3s ease-out'
+            boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
           }}
         >
           {/* Header */}

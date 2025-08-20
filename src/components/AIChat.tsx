@@ -29,7 +29,12 @@ import {
   Lightbulb,
   Rocket,
   Shield,
-  Star
+  Star,
+  Plus,
+  Menu,
+  Edit3,
+  Trash2,
+  Clock
 } from 'lucide-react';
 
 interface Message {
@@ -40,6 +45,14 @@ interface Message {
   typing?: boolean;
   attachments?: string[];
   reactions?: { type: string; count: number }[];
+}
+
+interface ChatHistory {
+  id: string;
+  title: string;
+  preview: string;
+  timestamp: Date;
+  messages: Message[];
 }
 
 interface AIChatProps {
@@ -65,11 +78,53 @@ export const AIChat: React.FC<AIChatProps> = ({
       timestamp: new Date()
     }
   ]);
+  
+  const [chatHistories, setChatHistories] = useState<ChatHistory[]>([
+    {
+      id: '1',
+      title: 'System Performance Analysis',
+      preview: 'Analyzed GPU utilization and model accuracy...',
+      timestamp: new Date(Date.now() - 1000 * 60 * 30),
+      messages: []
+    },
+    {
+      id: '2', 
+      title: 'Code Generation Request',
+      preview: 'Generated Python scripts for data processing...',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
+      messages: []
+    },
+    {
+      id: '3',
+      title: 'Model Optimization',
+      preview: 'Optimized neural network parameters...',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
+      messages: []
+    },
+    {
+      id: '4',
+      title: 'Data Pipeline Setup',
+      preview: 'Configured automated data processing...',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48),
+      messages: []
+    },
+    {
+      id: '5',
+      title: 'Security Audit',
+      preview: 'Reviewed system security protocols...',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72),
+      messages: []
+    }
+  ]);
+
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  
   const { currentTheme } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -240,222 +295,298 @@ export const AIChat: React.FC<AIChatProps> = ({
     playSound('notification');
   };
 
+  const handleNewChat = () => {
+    setMessages([
+      {
+        id: '1',
+        content: agentContext 
+          ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. How can I assist you today?`
+          : "Hello! I'm Sarah, your advanced AI assistant. What would you like to explore today?",
+        sender: 'ai',
+        timestamp: new Date()
+      }
+    ]);
+    setCurrentChatId(null);
+  };
+
+  const handleChatSelect = (chatId: string) => {
+    const selectedChat = chatHistories.find(chat => chat.id === chatId);
+    if (selectedChat) {
+      setCurrentChatId(chatId);
+      // In a real app, you would load the actual messages from the selected chat
+      setMessages([
+        {
+          id: '1',
+          content: `Resuming conversation: ${selectedChat.title}`,
+          sender: 'ai',
+          timestamp: new Date()
+        }
+      ]);
+    }
+  };
+
+  const handleDeleteChat = (chatId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setChatHistories(prev => prev.filter(chat => chat.id !== chatId));
+    if (currentChatId === chatId) {
+      handleNewChat();
+    }
+  };
+
+  const formatTime = (date: Date) => {
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  };
+
   if (!isOpen) return null;
 
   if (isIntegrated) {
     return (
-      <div className="h-full flex bg-transparent relative">
-        {/* Chat History Sidebar */}
+      <div className="h-full flex bg-transparent">
+        {/* Sidebar */}
         <div 
-          className="w-64 border-r flex-shrink-0 flex flex-col backdrop-blur-md relative overflow-hidden"
-          style={{ 
-            backgroundColor: currentTheme.colors.surface + '40',
-            borderColor: currentTheme.colors.border
-          }}
+          className={`${isSidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 relative`}
         >
-          {/* Static Stars Background for Sidebar */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            <div className="absolute" style={{ left: '15%', top: '12%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-            <div className="absolute" style={{ left: '25%', top: '28%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-            <div className="absolute" style={{ left: '35%', top: '45%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
-            <div className="absolute" style={{ left: '45%', top: '62%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
-            <div className="absolute" style={{ left: '55%', top: '78%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
-            <div className="absolute" style={{ left: '65%', top: '15%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-            <div className="absolute" style={{ left: '75%', top: '35%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-            <div className="absolute" style={{ left: '85%', top: '52%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
-            <div className="absolute" style={{ left: '20%', top: '68%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
-            <div className="absolute" style={{ left: '30%', top: '85%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
-            <div className="absolute" style={{ left: '70%', top: '8%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-            <div className="absolute" style={{ left: '80%', top: '25%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-          </div>
+          <div 
+            className="h-full backdrop-blur-md border-r rounded-tr-2xl rounded-br-2xl relative overflow-hidden"
+            style={{ 
+              backgroundColor: currentTheme.colors.surface + '80',
+              borderColor: currentTheme.colors.border
+            }}
+          >
+            {/* Static Stars Background */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute" style={{ left: '15%', top: '8%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
+              <div className="absolute" style={{ left: '75%', top: '15%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
+              <div className="absolute" style={{ left: '25%', top: '25%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
+              <div className="absolute" style={{ left: '85%', top: '35%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
+              <div className="absolute" style={{ left: '45%', top: '45%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
+              <div className="absolute" style={{ left: '65%', top: '55%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
+              <div className="absolute" style={{ left: '20%', top: '65%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
+              <div className="absolute" style={{ left: '80%', top: '75%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
+              <div className="absolute" style={{ left: '35%', top: '85%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
+              <div className="absolute" style={{ left: '55%', top: '12%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
+              <div className="absolute" style={{ left: '10%', top: '40%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
+              <div className="absolute" style={{ left: '90%', top: '60%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
+            </div>
 
-          {/* Sidebar Header */}
-          <div className="p-4 border-b relative z-10" style={{ borderColor: currentTheme.colors.border }}>
-            <h3 className="font-semibold text-sm" style={{ color: currentTheme.colors.text }}>
-              Chat History
-            </h3>
-          </div>
+            {/* Sidebar Header */}
+            <div className="p-4 border-b relative z-10" style={{ borderColor: currentTheme.colors.border }}>
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-sm" style={{ color: currentTheme.colors.text }}>
+                  Chat History
+                </h3>
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-1 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                >
+                  <X className="w-4 h-4" style={{ color: currentTheme.colors.textSecondary }} />
+                </button>
+              </div>
+            </div>
 
-          {/* Chat History List */}
-          <div className="flex-1 overflow-y-auto p-2 space-y-2 relative z-10">
-            {[
-              { id: 1, title: "System Performance Analysis", time: "2 hours ago", preview: "Can you analyze the current system performance..." },
-              { id: 2, title: "Code Review Discussion", time: "5 hours ago", preview: "Please review this React component..." },
-              { id: 3, title: "Database Optimization", time: "1 day ago", preview: "How can we optimize our database queries..." },
-              { id: 4, title: "AI Model Training", time: "2 days ago", preview: "What's the best approach for training..." },
-              { id: 5, title: "Security Assessment", time: "3 days ago", preview: "Can you help assess our security..." }
-            ].map((chat) => (
+            {/* New Chat Button */}
+            <div className="p-4 relative z-10">
               <button
-                key={chat.id}
-                className="w-full p-3 rounded-lg text-left transition-all duration-200 hover:scale-[1.02] group"
+                onClick={handleNewChat}
+                className="w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-95"
                 style={{
-                  backgroundColor: currentTheme.colors.surface + '60',
-                  borderColor: currentTheme.colors.border
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '80';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '60';
+                  background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                  color: currentTheme.id === 'light' ? '#ffffff' : currentTheme.colors.text
                 }}
               >
-                <div className="flex justify-between items-start mb-1">
-                  <h4 className="text-sm font-medium truncate pr-2" style={{ color: currentTheme.colors.text }}>
-                    {chat.title}
-                  </h4>
-                </div>
-                <p className="text-xs truncate mb-1" style={{ color: currentTheme.colors.textSecondary }}>
-                  {chat.preview}
-                </p>
-                <span className="text-xs" style={{ color: currentTheme.colors.textSecondary + '80' }}>
-                  {chat.time}
-                </span>
+                <Plus className="w-4 h-4" />
+                <span className="text-sm font-medium">New Chat</span>
               </button>
-            ))}
-          </div>
+            </div>
 
-          {/* New Chat Button */}
-          <div className="p-4 border-t relative z-10" style={{ borderColor: currentTheme.colors.border }}>
-            <button
-              className="w-full py-2 px-4 rounded-lg font-medium transition-all duration-200 hover:scale-[1.02]"
-              style={{
-                background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                color: currentTheme.id === 'light' ? '#ffffff' : currentTheme.colors.text
-              }}
-            >
-              + New Chat
-            </button>
+            {/* Chat History List */}
+            <div className="flex-1 overflow-y-auto px-4 pb-4 relative z-10 custom-scrollbar">
+              <div className="space-y-2">
+                {chatHistories.map((chat) => (
+                  <div
+                    key={chat.id}
+                    onClick={() => handleChatSelect(chat.id)}
+                    className={`group p-3 rounded-xl cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 relative ${
+                      currentChatId === chat.id ? 'ring-1' : ''
+                    }`}
+                    style={{
+                      backgroundColor: currentChatId === chat.id 
+                        ? currentTheme.colors.primary + '20' 
+                        : currentTheme.colors.surface + '40',
+                      ringColor: currentChatId === chat.id ? currentTheme.colors.primary + '50' : 'transparent'
+                    }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium truncate mb-1" style={{ color: currentTheme.colors.text }}>
+                          {chat.title}
+                        </h4>
+                        <p className="text-xs truncate mb-2" style={{ color: currentTheme.colors.textSecondary }}>
+                          {chat.preview}
+                        </p>
+                        <div className="flex items-center space-x-1">
+                          <Clock className="w-3 h-3" style={{ color: currentTheme.colors.textSecondary }} />
+                          <span className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
+                            {formatTime(chat.timestamp)}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteChat(chat.id, e)}
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                      >
+                        <Trash2 className="w-3 h-3" style={{ color: currentTheme.colors.error }} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col bg-transparent relative">
-        {/* Static Stars Background for Sidebar */}
-
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b relative z-10"
-             style={{ borderColor: currentTheme.colors.border }}>
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Brain className="w-6 h-6" 
-                     style={{ color: currentTheme.colors.primary }} />
-              <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full"
-                   style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-            </div>
-            <div>
-              <h3 className="font-bold" style={{ color: currentTheme.colors.text }}>
-                {agentContext ? `${agentContext.name}` : 'Sarah AI'}
-              </h3>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full" 
-                     style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-                <span className="text-xs" style={{ color: currentTheme.colors.secondary }}>
-                  Online
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar relative z-10">
-          {/* Static Stars Background for Chat */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            <div className="absolute" style={{ left: '10%', top: '8%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
-            <div className="absolute" style={{ left: '20%', top: '22%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
-            <div className="absolute" style={{ left: '30%', top: '38%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }}></div>
-            <div className="absolute" style={{ left: '40%', top: '55%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.20 }}></div>
-            <div className="absolute" style={{ left: '50%', top: '72%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
-            <div className="absolute" style={{ left: '60%', top: '18%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
-            <div className="absolute" style={{ left: '70%', top: '42%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
-            <div className="absolute" style={{ left: '80%', top: '65%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }}></div>
-            <div className="absolute" style={{ left: '90%', top: '12%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.20 }}></div>
-            <div className="absolute" style={{ left: '15%', top: '48%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
-            <div className="absolute" style={{ left: '25%', top: '78%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
-            <div className="absolute" style={{ left: '35%', top: '5%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
-            <div className="absolute" style={{ left: '45%', top: '32%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }}></div>
-            <div className="absolute" style={{ left: '55%', top: '58%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.20 }}></div>
-            <div className="absolute" style={{ left: '75%', top: '85%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
+        <div className="flex-1 flex flex-col relative">
+          {/* Static Stars Background */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute" style={{ left: '12%', top: '10%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
+            <div className="absolute" style={{ left: '78%', top: '18%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
+            <div className="absolute" style={{ left: '28%', top: '28%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }}></div>
+            <div className="absolute" style={{ left: '88%', top: '38%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
+            <div className="absolute" style={{ left: '48%', top: '48%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
+            <div className="absolute" style={{ left: '68%', top: '58%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
+            <div className="absolute" style={{ left: '18%', top: '68%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.20 }}></div>
+            <div className="absolute" style={{ left: '82%', top: '78%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }}></div>
+            <div className="absolute" style={{ left: '38%', top: '88%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
+            <div className="absolute" style={{ left: '58%', top: '15%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
+            <div className="absolute" style={{ left: '8%', top: '45%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
+            <div className="absolute" style={{ left: '92%', top: '65%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.20 }}></div>
+            <div className="absolute" style={{ left: '32%', top: '5%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
+            <div className="absolute" style={{ left: '72%', top: '95%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
+            <div className="absolute" style={{ left: '52%', top: '75%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
           </div>
 
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} relative z-10`}
-            >
-              <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
-                <div
-                  className="p-3 sm:p-4 rounded-xl backdrop-blur-md border transition-all duration-300"
-                  style={{
-                    background: message.sender === 'user' 
-                      ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
-                      : currentTheme.colors.surface + '40',
-                    borderColor: message.sender === 'user' 
-                      ? currentTheme.colors.primary + '40'
-                      : currentTheme.colors.border,
-                    color: currentTheme.colors.text
-                  }}
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b relative z-10"
+               style={{ borderColor: currentTheme.colors.border }}>
+            <div className="flex items-center space-x-3">
+              {!isSidebarOpen && (
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="p-2 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 >
-                  <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
+                  <Menu className="w-5 h-5" style={{ color: currentTheme.colors.textSecondary }} />
+                </button>
+              )}
+              <div className="relative">
+                <Brain className="w-6 h-6 animate-pulse" 
+                       style={{ color: currentTheme.colors.primary }} />
+                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping"
+                     style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+              </div>
+              <div>
+                <h3 className="font-bold" style={{ color: currentTheme.colors.text }}>
+                  {agentContext ? `${agentContext.name}` : 'Sarah AI'}
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full animate-pulse" 
+                       style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                  <span className="text-xs" style={{ color: currentTheme.colors.secondary }}>
+                    Online
+                  </span>
                 </div>
               </div>
             </div>
-          ))}
-          
-          {isTyping && (
-            <div className="flex justify-start relative z-10">
-              <div className="border rounded-xl p-4 backdrop-blur-md"
-                   style={{
-                     backgroundColor: currentTheme.colors.surface + '40',
-                     borderColor: currentTheme.colors.border
-                   }}>
-                <div className="flex items-center space-x-3">
-                  <Brain className="w-4 h-4" style={{ color: currentTheme.colors.primary }} />
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: currentTheme.colors.primary }}></div>
-                    <div className="w-2 h-2 rounded-full animate-bounce delay-100" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-                    <div className="w-2 h-2 rounded-full animate-bounce delay-200" style={{ backgroundColor: currentTheme.colors.accent }}></div>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar relative z-10">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
+                  <div
+                    className="p-3 sm:p-4 rounded-xl backdrop-blur-md border transition-all duration-300"
+                    style={{
+                      background: message.sender === 'user' 
+                        ? `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`
+                        : currentTheme.colors.surface + '40',
+                      borderColor: message.sender === 'user' 
+                        ? currentTheme.colors.primary + '40'
+                        : currentTheme.colors.border,
+                      color: currentTheme.colors.text
+                    }}
+                  >
+                    <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
+            ))}
+            
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="border rounded-xl p-4 backdrop-blur-md"
+                     style={{
+                       backgroundColor: currentTheme.colors.surface + '40',
+                       borderColor: currentTheme.colors.border
+                     }}>
+                  <div className="flex items-center space-x-3">
+                    <Brain className="w-4 h-4 animate-pulse" style={{ color: currentTheme.colors.primary }} />
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: currentTheme.colors.primary }}></div>
+                      <div className="w-2 h-2 rounded-full animate-bounce delay-100" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                      <div className="w-2 h-2 rounded-full animate-bounce delay-200" style={{ backgroundColor: currentTheme.colors.accent }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div ref={messagesEndRef} />
+          </div>
 
-        {/* Input */}
-        <div className="p-4 sm:p-6 border-t relative z-10" style={{ borderColor: currentTheme.colors.border }}>
-          <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-3">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask me anything..."
-              className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
-              style={{
-                backgroundColor: currentTheme.colors.surface + '40',
-                borderColor: currentTheme.colors.border,
-                color: currentTheme.colors.text
-              }}
-            />
-            <button
-              type="submit"
-              disabled={!inputValue.trim()}
-              className="p-2 sm:p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-              style={{
-                background: !inputValue.trim() 
-                  ? `linear-gradient(135deg, ${currentTheme.colors.textSecondary}60, ${currentTheme.colors.textSecondary}60)`
-                  : `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                color: currentTheme.colors.text
-              }}
-            >
-              <Send className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          </form>
-        </div>
+          {/* Input */}
+          <div className="p-4 sm:p-6 border-t relative z-10" style={{ borderColor: currentTheme.colors.border }}>
+            <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-3">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask me anything..."
+                className="flex-1 border rounded-lg px-3 sm:px-4 py-2 sm:py-3 focus:outline-none transition-all duration-200 text-sm sm:text-base"
+                style={{
+                  backgroundColor: currentTheme.colors.surface + '40',
+                  borderColor: currentTheme.colors.border,
+                  color: currentTheme.colors.text
+                }}
+              />
+              <button
+                type="submit"
+                disabled={!inputValue.trim()}
+                className="p-2 sm:p-3 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                style={{
+                  background: !inputValue.trim() 
+                    ? `linear-gradient(135deg, ${currentTheme.colors.textSecondary}60, ${currentTheme.colors.textSecondary}60)`
+                    : `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                  color: currentTheme.colors.text
+                }}
+              >
+                <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     );
@@ -478,7 +609,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       
       <div className={`fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm transition-all duration-300 ${isMaximized ? 'p-0' : ''}`}>
         <div 
-          className={`backdrop-blur-xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-500 relative rounded-tr-2xl rounded-br-2xl ${
+          className={`backdrop-blur-xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-500 relative ${
           isMaximized 
             ? 'w-full h-full rounded-none' 
             : 'rounded-xl sm:rounded-2xl hover:scale-[1.01]'
@@ -494,24 +625,8 @@ export const AIChat: React.FC<AIChatProps> = ({
           borderColor: currentTheme.colors.border,
           boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
         }}>
-          {/* Static Stars Background for Sidebar */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            <div className="absolute" style={{ left: '15%', top: '12%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-            <div className="absolute" style={{ left: '25%', top: '28%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-            <div className="absolute" style={{ left: '35%', top: '45%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
-            <div className="absolute" style={{ left: '45%', top: '62%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
-            <div className="absolute" style={{ left: '55%', top: '78%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
-            <div className="absolute" style={{ left: '65%', top: '15%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-            <div className="absolute" style={{ left: '75%', top: '35%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-            <div className="absolute" style={{ left: '85%', top: '52%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
-            <div className="absolute" style={{ left: '20%', top: '68%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
-            <div className="absolute" style={{ left: '30%', top: '85%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
-            <div className="absolute" style={{ left: '70%', top: '8%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-            <div className="absolute" style={{ left: '80%', top: '25%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-          </div>
-
           {/* Enhanced Header */}
-          <div className="flex items-center justify-between p-3 sm:p-6 border-b backdrop-blur-md relative z-10"
+          <div className="flex items-center justify-between p-3 sm:p-6 border-b backdrop-blur-md"
                style={{
                  background: `linear-gradient(135deg, ${currentTheme.colors.surface}80, ${currentTheme.colors.surface}40)`,
                  borderColor: currentTheme.colors.border
@@ -520,9 +635,9 @@ export const AIChat: React.FC<AIChatProps> = ({
               <div className="relative group">
                 <div className="absolute -inset-2 rounded-full blur opacity-30 group-hover:opacity-50 transition-opacity"
                      style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}></div>
-                <Brain className="w-8 h-8 sm:w-10 sm:h-10 relative z-10" 
+                <Brain className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse relative z-10" 
                        style={{ color: currentTheme.colors.primary }} />
-                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-ping"
                      style={{ backgroundColor: currentTheme.colors.secondary }}></div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full"
                      style={{ backgroundColor: currentTheme.colors.secondary }}></div>
@@ -534,7 +649,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                 </h2>
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   <div className="flex items-center space-x-1" style={{ color: currentTheme.colors.secondary }}>
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
                     <span className="text-xs sm:text-sm font-medium" style={{ color: currentTheme.colors.secondary }}>
                       Online • {agentContext ? `${agentContext.department} Mode` : 'Advanced Mode'}
                     </span>
@@ -616,30 +731,11 @@ export const AIChat: React.FC<AIChatProps> = ({
           </div>
 
           {/* Enhanced Messages */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6 custom-scrollbar relative z-10">
-            {/* Static Stars Background for Chat */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-              <div className="absolute" style={{ left: '10%', top: '8%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
-              <div className="absolute" style={{ left: '20%', top: '22%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
-              <div className="absolute" style={{ left: '30%', top: '38%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }}></div>
-              <div className="absolute" style={{ left: '40%', top: '55%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.20 }}></div>
-              <div className="absolute" style={{ left: '50%', top: '72%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
-              <div className="absolute" style={{ left: '60%', top: '18%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
-              <div className="absolute" style={{ left: '70%', top: '42%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
-              <div className="absolute" style={{ left: '80%', top: '65%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }}></div>
-              <div className="absolute" style={{ left: '90%', top: '12%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.20 }}></div>
-              <div className="absolute" style={{ left: '15%', top: '48%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
-              <div className="absolute" style={{ left: '25%', top: '78%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
-              <div className="absolute" style={{ left: '35%', top: '5%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
-              <div className="absolute" style={{ left: '45%', top: '32%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }}></div>
-              <div className="absolute" style={{ left: '55%', top: '58%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.20 }}></div>
-              <div className="absolute" style={{ left: '75%', top: '85%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
-            </div>
-
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6 custom-scrollbar">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} group relative z-10`}
+                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} group`}
               >
                 <div className={`max-w-[90%] sm:max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
                   {message.sender === 'ai' && (
@@ -658,6 +754,10 @@ export const AIChat: React.FC<AIChatProps> = ({
                       <span className="text-xs" style={{ color: currentTheme.colors.textSecondary + '80' }}>
                         {message.timestamp.toLocaleTimeString()}
                       </span>
+                      <div className="flex items-center space-x-1 hidden sm:flex">
+                        <Star className="w-3 h-3" style={{ color: currentTheme.colors.accent }} />
+                        <span className="text-xs" style={{ color: currentTheme.colors.accent }}>Premium</span>
+                      </div>
                     </div>
                   )}
                   
@@ -750,8 +850,8 @@ export const AIChat: React.FC<AIChatProps> = ({
                             )}
                             
                             <div className="flex items-center space-x-1">
-                              <Sparkles className="w-3 h-3" style={{ color: currentTheme.colors.accent }} />
-                              <span className="font-medium text-xs" style={{ color: currentTheme.colors.accent }}>AI Generated</span>
+                              <Sparkles className="w-3 h-3 animate-pulse" style={{ color: currentTheme.colors.accent }} />
+                              <span className="text-xs font-medium" style={{ color: currentTheme.colors.accent }}>AI Generated</span>
                             </div>
                           </div>
                         </div>
@@ -763,14 +863,14 @@ export const AIChat: React.FC<AIChatProps> = ({
             ))}
 
             {isTyping && (
-              <div className="flex justify-start relative z-10">
+              <div className="flex justify-start">
                 <div className="border rounded-xl sm:rounded-2xl p-3 sm:p-5 backdrop-blur-md transition-all duration-300"
                      style={{
                        backgroundColor: currentTheme.colors.surface + '40',
                        borderColor: currentTheme.colors.border
                      }}>
                   <div className="flex items-center space-x-3">
-                    <Brain className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: currentTheme.colors.primary }} />
+                    <Brain className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" style={{ color: currentTheme.colors.primary }} />
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: currentTheme.colors.primary }}></div>
                       <div className="w-2 h-2 rounded-full animate-bounce delay-100" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
@@ -786,7 +886,7 @@ export const AIChat: React.FC<AIChatProps> = ({
           </div>
 
           {/* Enhanced Input */}
-          <div className="p-3 sm:p-6 border-t backdrop-blur-md relative z-10"
+          <div className="p-3 sm:p-6 border-t backdrop-blur-md"
                style={{
                  background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
                  borderColor: currentTheme.colors.border
@@ -919,7 +1019,7 @@ export const AIChat: React.FC<AIChatProps> = ({
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Zap className="w-3 h-3" style={{ color: currentTheme.colors.accent }} />
+                  <Zap className="w-3 h-3 animate-pulse" style={{ color: currentTheme.colors.accent }} />
                   <span className="font-medium text-xs" style={{ color: currentTheme.colors.accent }}>
                     {agentContext ? `${agentContext.name} AI` : 'Sarah AI v3.7.2'}
                   </span>
