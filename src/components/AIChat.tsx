@@ -191,7 +191,12 @@ export const AIChat: React.FC<AIChatProps> = ({
       id: Date.now().toString(),
       content: inputValue,
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
+      reactions: [
+        { type: '👍', count: 0 },
+        { type: '❤️', count: 0 },
+        { type: '🚀', count: 0 }
+      ]
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -225,7 +230,6 @@ export const AIChat: React.FC<AIChatProps> = ({
         content: data.response,  // Use actual response from backend
         sender: 'ai',
         timestamp: new Date(),
-        suggestions: [],  // You can add suggestions if needed
         reactions: [
           { type: '👍', count: 0 },
           { type: '❤️', count: 0 },
@@ -419,6 +423,44 @@ export const AIChat: React.FC<AIChatProps> = ({
           >
             {/* Animated Background */}
             <div className="absolute inset-0 overflow-hidden">
+              {/* Twinkling Stars */}
+              {Array.from({ length: 15 }).map((_, i) => (
+                <div
+                  key={`star-${i}`}
+                  className="absolute animate-pulse"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 3}s`,
+                    animationDuration: `${2 + Math.random() * 2}s`
+                  }}
+                >
+                  <div
+                    className="w-1 h-1 rounded-full"
+                    style={{ backgroundColor: currentTheme.colors.primary + '80' }}
+                  />
+                </div>
+              ))}
+              
+              {/* Glittering Particles */}
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={`glitter-${i}`}
+                  className="absolute animate-bounce"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 4}s`,
+                    animationDuration: `${3 + Math.random() * 2}s`
+                  }}
+                >
+                  <div
+                    className="w-0.5 h-0.5 rounded-full opacity-60"
+                    style={{ backgroundColor: currentTheme.colors.secondary }}
+                  />
+                </div>
+              ))}
+
               <div 
                 className="absolute -top-10 -left-10 w-32 h-32 rounded-full mix-blend-multiply filter blur-2xl animate-pulse opacity-30"
                 style={{ backgroundColor: currentTheme.colors.primary }}
@@ -775,7 +817,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             isMaximized 
               ? 'w-full h-full rounded-none' 
               : 'rounded-xl sm:rounded-2xl hover:scale-[1.01]'
-          }`}
+          className="fixed top-[80px] left-0 w-80 sm:w-96 h-[calc(100vh-80px)] backdrop-blur-xl border-r shadow-2xl z-[9998] overflow-hidden rounded-tr-3xl rounded-br-3xl"
           style={{
             width: isMaximized ? '100%' : '400px',
             height: isMaximized ? '100%' : '600px',
