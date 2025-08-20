@@ -414,7 +414,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         {/* Chat History Sidebar */}
         {isSidebarOpen && (
           <div 
-            className="fixed top-[80px] left-0 w-80 h-[calc(100vh-80px)] z-[10000] backdrop-blur-xl border-r overflow-hidden"
+            className="fixed top-[80px] left-0 w-80 sm:w-96 h-[calc(100vh-80px)] backdrop-blur-xl border-r shadow-2xl z-[9998] overflow-hidden rounded-tr-3xl rounded-br-3xl"
             style={{
               background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
               borderColor: currentTheme.colors.border,
@@ -817,7 +817,7 @@ export const AIChat: React.FC<AIChatProps> = ({
             isMaximized 
               ? 'w-full h-full rounded-none' 
               : 'rounded-xl sm:rounded-2xl hover:scale-[1.01]'
-          className="fixed top-[80px] left-0 w-80 sm:w-96 h-[calc(100vh-80px)] backdrop-blur-xl border-r shadow-2xl z-[9998] overflow-hidden rounded-tr-3xl rounded-br-3xl"
+          }`}
           style={{
             width: isMaximized ? '100%' : '400px',
             height: isMaximized ? '100%' : '600px',
