@@ -124,7 +124,7 @@ export const ThemeSelector: React.FC = () => {
       {/* Theme Selector Dropdown */}
       {isOpen && (
         <div 
-          className="absolute top-full right-0 mt-2 w-96 backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden"
+          className="fixed top-16 right-2 w-80 sm:w-96 backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden max-w-[calc(100vw-1rem)]"
           style={{ 
             backgroundColor: currentTheme.colors.surface + 'f0',
             borderColor: currentTheme.colors.border,

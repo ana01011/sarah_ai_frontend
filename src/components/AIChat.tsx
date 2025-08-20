@@ -720,21 +720,141 @@ export const AIChat: React.FC<AIChatProps> = ({
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
             {/* Static Stars Background - Chat */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '12%', top: '15%', backgroundColor: currentTheme.colors.secondary, opacity: 0.2 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '78%', top: '25%', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '32%', top: '40%', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '88%', top: '50%', backgroundColor: currentTheme.colors.secondary, opacity: 0.3 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '48%', top: '60%', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '68%', top: '70%', backgroundColor: currentTheme.colors.secondary, opacity: 0.2 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '22%', top: '80%', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '82%', top: '85%', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '38%', top: '30%', backgroundColor: currentTheme.colors.secondary, opacity: 0.3 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '58%', top: '45%', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '8%', top: '65%', backgroundColor: currentTheme.colors.secondary, opacity: 0.2 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '92%', top: '35%', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '52%', top: '20%', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '72%', top: '55%', backgroundColor: currentTheme.colors.secondary, opacity: 0.3 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '28%', top: '75%', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }} />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '10%',
+                  top: '5%',
+                  opacity: 0.15
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '20%',
+                  top: '15%',
+                  opacity: 0.20
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '30%',
+                  top: '25%',
+                  opacity: 0.25
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '40%',
+                  top: '35%',
+                  opacity: 0.15
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '50%',
+                  top: '10%',
+                  opacity: 0.30
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '60%',
+                  top: '45%',
+                  opacity: 0.20
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '70%',
+                  top: '20%',
+                  opacity: 0.35
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '80%',
+                  top: '55%',
+                  opacity: 0.25
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '15%',
+                  top: '65%',
+                  opacity: 0.15
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '35%',
+                  top: '75%',
+                  opacity: 0.30
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '55%',
+                  top: '85%',
+                  opacity: 0.20
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '75%',
+                  top: '70%',
+                  opacity: 0.25
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '25%',
+                  top: '50%',
+                  opacity: 0.35
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '65%',
+                  top: '30%',
+                  opacity: 0.15
+                }}
+              />
+              <div
+                className="absolute w-0.5 h-0.5 rounded-full"
+                style={{
+                  backgroundColor: currentTheme.colors.secondary,
+                  left: '85%',
+                  top: '40%',
+                  opacity: 0.25
+                }}
+              />
             </div>
             
             {messages.map((message) => (
