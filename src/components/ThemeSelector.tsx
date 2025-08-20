@@ -101,10 +101,23 @@ export const ThemeSelector: React.FC = () => {
       {/* Theme Selector Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 group min-w-[44px] min-h-[44px] flex items-center justify-center"
+        className="relative p-2 sm:p-3 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 group min-w-[44px] min-h-[44px] flex items-center justify-center"
         style={{ 
           backgroundColor: isOpen ? currentTheme.colors.primary + '20' : 'transparent',
-          borderColor: isOpen ? currentTheme.colors.primary + '50' : 'transparent'
+          borderColor: isOpen ? currentTheme.colors.primary + '50' : 'transparent',
+          backdropFilter: 'blur(8px)'
+        }}
+        onMouseEnter={(e) => {
+          if (!isOpen) {
+            e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`;
+          }
+          e.currentTarget.style.transform = 'scale(1.1)';
+        }}
+        onMouseLeave={(e) => {
+          if (!isOpen) {
+            e.currentTarget.style.background = 'transparent';
+          }
+          e.currentTarget.style.transform = 'scale(1)';
         }}
       >
         <Palette 
