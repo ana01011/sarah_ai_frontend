@@ -493,7 +493,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(themes.find(t => t.id === 'dark') || themes[0]);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(themes.find(t => t.id === 'backend-slate') || themes[0]);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('sarah-theme');
@@ -502,12 +502,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (theme) {
         setCurrentTheme(theme);
       } else {
-        // If saved theme doesn't exist, default to dark
-        setCurrentTheme(themes.find(t => t.id === 'dark') || themes[0]);
+        // If saved theme doesn't exist, default to backend-slate
+        setCurrentTheme(themes.find(t => t.id === 'backend-slate') || themes[0]);
       }
     } else {
-      // If no saved theme, default to dark
-      setCurrentTheme(themes.find(t => t.id === 'dark') || themes[0]);
+      // If no saved theme, default to backend-slate
+      setCurrentTheme(themes.find(t => t.id === 'backend-slate') || themes[0]);
     }
   }, []);
 

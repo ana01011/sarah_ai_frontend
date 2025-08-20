@@ -62,51 +62,86 @@ export const ThemeSelector: React.FC = () => {
     <div className="relative" ref={dropdownRef}>
       {/* First Time User Guide */}
       {showFirstTimeGuide && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
           <div 
-            className="relative max-w-xs sm:max-w-sm w-full mx-4 backdrop-blur-xl border rounded-2xl p-4 sm:p-6 shadow-2xl animate-fade-in"
+            className="relative max-w-xs sm:max-w-md w-full mx-4 backdrop-blur-xl border rounded-2xl p-6 sm:p-8 shadow-2xl"
             style={{ 
               backgroundColor: currentTheme.colors.surface + 'f0',
               borderColor: currentTheme.colors.border,
               boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
             }}
           >
-            {/* Animated sparkles */}
-            <div className="absolute -top-2 -right-2">
-              <Sparkles className="w-6 h-6 animate-pulse" style={{ color: currentTheme.colors.primary }} />
+            {/* Decorative elements */}
+            <div className="absolute -top-3 -right-3">
+              <div className="w-6 h-6 rounded-full" style={{ backgroundColor: currentTheme.colors.primary + '40' }}>
+                <Sparkles className="w-6 h-6 p-1" style={{ color: currentTheme.colors.primary }} />
+              </div>
             </div>
-            <div className="absolute -bottom-2 -left-2">
-              <Sparkles className="w-4 h-4 animate-pulse delay-500" style={{ color: currentTheme.colors.secondary }} />
+            <div className="absolute -bottom-3 -left-3">
+              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: currentTheme.colors.secondary + '40' }}>
+                <Sparkles className="w-4 h-4 p-0.5" style={{ color: currentTheme.colors.secondary }} />
+              </div>
             </div>
             
             <div className="text-center">
               <div className="mb-4">
-                <Palette className="w-8 h-8 sm:w-12 sm:h-12 mx-auto animate-bounce" style={{ color: currentTheme.colors.primary }} />
+                <div className="relative inline-block">
+                  <div 
+                    className="absolute -inset-2 rounded-full blur-lg opacity-30"
+                    style={{ backgroundColor: currentTheme.colors.primary }}
+                  />
+                  <Palette className="w-12 h-12 sm:w-16 sm:h-16 mx-auto relative z-10" style={{ color: currentTheme.colors.primary }} />
+                </div>
               </div>
               
-              <h3 className="text-lg sm:text-xl font-bold mb-3" style={{ color: currentTheme.colors.text }}>
-                🎨 Customize Your Experience!
+              <h3 className="text-xl sm:text-2xl font-bold mb-4" style={{ color: currentTheme.colors.text }}>
+                Welcome to SARAH AI! 🎨
               </h3>
               
-              <p className="text-xs sm:text-sm mb-4 leading-relaxed" style={{ color: currentTheme.colors.textSecondary }}>
-                Welcome to SARAH! You can switch between <span className="font-semibold" style={{ color: currentTheme.colors.primary }}>{themes.length} beautiful themes</span> by clicking the palette icon in the header.
+              <p className="text-sm sm:text-base mb-6 leading-relaxed" style={{ color: currentTheme.colors.textSecondary }}>
+                Customize your experience with <span className="font-bold" style={{ color: currentTheme.colors.primary }}>{themes.length} professional themes</span> designed for different roles and preferences.
               </p>
               
-              <div className="mb-4 sm:mb-6 p-2 sm:p-3 rounded-xl" style={{ backgroundColor: currentTheme.colors.surface + '40' }}>
-                <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
-                  💡 <strong>Pro Tip:</strong> Each theme is designed for different roles - CEO, CTO, Developer, etc.
+              <div className="mb-6 p-4 rounded-xl border" style={{ 
+                backgroundColor: currentTheme.colors.surface + '60',
+                borderColor: currentTheme.colors.border
+              }}>
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: currentTheme.colors.primary + '20' }}>
+                      <Palette className="w-3 h-3" style={{ color: currentTheme.colors.primary }} />
+                    </div>
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-semibold mb-1" style={{ color: currentTheme.colors.text }}>
+                      How to Change Themes:
+                    </p>
+                    <p className="text-xs leading-relaxed" style={{ color: currentTheme.colors.textSecondary }}>
+                      Click the <strong>palette icon</strong> in the top header to browse {themes.length} professional themes including CEO, CTO, Developer, Marketing, and more!
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mb-6 text-xs" style={{ color: currentTheme.colors.textSecondary }}>
+                <p>Currently using: <span className="font-semibold" style={{ color: currentTheme.colors.primary }}>Backend Slate Theme</span></p>
                 </p>
               </div>
               
               <button
                 onClick={handleFirstTimeGuideClose}
-                className="w-full py-2 sm:py-3 px-4 sm:px-6 rounded-xl font-semibold transition-all duration-300 hover:scale-105 active:scale-95 text-sm sm:text-base"
+                className="w-full py-3 sm:py-4 px-6 sm:px-8 rounded-xl font-bold transition-all duration-300 hover:scale-105 active:scale-95 text-sm sm:text-base relative overflow-hidden group"
                 style={{
                   background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                  color: currentTheme.id === 'light' ? '#ffffff' : currentTheme.colors.text
+                  color: '#ffffff',
+                  boxShadow: `0 8px 25px -8px ${currentTheme.shadows.primary}`
                 }}
               >
-                Got it! Let's explore themes
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' }}
+                />
+                <span className="relative z-10">Got it! Start exploring SARAH</span>
               </button>
             </div>
           </div>
