@@ -105,6 +105,21 @@ export const AIChat: React.FC<AIChatProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Generate static star positions
+  const generateStars = (count: number) => {
+    return Array.from({ length: count }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 3,
+      duration: 2 + Math.random() * 2,
+      opacity: 0.3 + Math.random() * 0.4
+    }));
+  };
+
+  const sidebarStars = generateStars(12);
+  const chatStars = generateStars(15);
+
   // Load chat history on component mount
   useEffect(() => {
     const savedHistory = localStorage.getItem('chatHistory');
@@ -409,13 +424,31 @@ export const AIChat: React.FC<AIChatProps> = ({
         {/* Chat History Sidebar */}
         {isSidebarOpen && (
           <div 
-            className="fixed top-[80px] left-0 w-80 h-[calc(100vh-80px)] z-[10000] backdrop-blur-xl border-r overflow-hidden"
+            className="fixed top-[80px] left-0 w-80 sm:w-96 h-[calc(100vh-80px)] backdrop-blur-xl border-r shadow-2xl z-[9998] overflow-hidden rounded-tr-2xl rounded-br-2xl"
             style={{
               background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
               borderColor: currentTheme.colors.border,
               boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
             }}
           >
+            {/* Static Twinkling Stars Background */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {sidebarStars.map((star) => (
+                <div
+                  key={star.id}
+                  className="absolute w-0.5 h-0.5 rounded-full animate-pulse"
+                  style={{
+                    left: `${star.left}%`,
+                    top: `${star.top}%`,
+                    backgroundColor: currentTheme.colors.primary,
+                    opacity: star.opacity,
+                    animationDelay: `${star.delay}s`,
+                    animationDuration: `${star.duration}s`
+                  }}
+                />
+              ))}
+            </div>
+            
             {/* Animated Background */}
             <div className="absolute inset-0 overflow-hidden">
               {/* Twinkling Stars */}
