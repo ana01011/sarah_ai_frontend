@@ -244,22 +244,93 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   if (isIntegrated) {
     return (
-      <div className="h-full flex flex-col bg-transparent relative">
-        {/* Static Stars Background for Sidebar */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <div className="absolute" style={{ left: '15%', top: '12%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-          <div className="absolute" style={{ left: '25%', top: '28%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-          <div className="absolute" style={{ left: '35%', top: '45%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
-          <div className="absolute" style={{ left: '45%', top: '62%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
-          <div className="absolute" style={{ left: '55%', top: '78%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
-          <div className="absolute" style={{ left: '65%', top: '15%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-          <div className="absolute" style={{ left: '75%', top: '35%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-          <div className="absolute" style={{ left: '85%', top: '52%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
-          <div className="absolute" style={{ left: '20%', top: '68%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
-          <div className="absolute" style={{ left: '30%', top: '85%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
-          <div className="absolute" style={{ left: '70%', top: '8%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-          <div className="absolute" style={{ left: '80%', top: '25%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
+      <div className="h-full flex bg-transparent relative">
+        {/* Chat History Sidebar */}
+        <div 
+          className="w-64 border-r flex-shrink-0 flex flex-col backdrop-blur-md relative overflow-hidden"
+          style={{ 
+            backgroundColor: currentTheme.colors.surface + '40',
+            borderColor: currentTheme.colors.border
+          }}
+        >
+          {/* Static Stars Background for Sidebar */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+            <div className="absolute" style={{ left: '15%', top: '12%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
+            <div className="absolute" style={{ left: '25%', top: '28%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
+            <div className="absolute" style={{ left: '35%', top: '45%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
+            <div className="absolute" style={{ left: '45%', top: '62%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
+            <div className="absolute" style={{ left: '55%', top: '78%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
+            <div className="absolute" style={{ left: '65%', top: '15%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
+            <div className="absolute" style={{ left: '75%', top: '35%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
+            <div className="absolute" style={{ left: '85%', top: '52%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
+            <div className="absolute" style={{ left: '20%', top: '68%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
+            <div className="absolute" style={{ left: '30%', top: '85%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
+            <div className="absolute" style={{ left: '70%', top: '8%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
+            <div className="absolute" style={{ left: '80%', top: '25%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
+          </div>
+
+          {/* Sidebar Header */}
+          <div className="p-4 border-b relative z-10" style={{ borderColor: currentTheme.colors.border }}>
+            <h3 className="font-semibold text-sm" style={{ color: currentTheme.colors.text }}>
+              Chat History
+            </h3>
+          </div>
+
+          {/* Chat History List */}
+          <div className="flex-1 overflow-y-auto p-2 space-y-2 relative z-10">
+            {[
+              { id: 1, title: "System Performance Analysis", time: "2 hours ago", preview: "Can you analyze the current system performance..." },
+              { id: 2, title: "Code Review Discussion", time: "5 hours ago", preview: "Please review this React component..." },
+              { id: 3, title: "Database Optimization", time: "1 day ago", preview: "How can we optimize our database queries..." },
+              { id: 4, title: "AI Model Training", time: "2 days ago", preview: "What's the best approach for training..." },
+              { id: 5, title: "Security Assessment", time: "3 days ago", preview: "Can you help assess our security..." }
+            ].map((chat) => (
+              <button
+                key={chat.id}
+                className="w-full p-3 rounded-lg text-left transition-all duration-200 hover:scale-[1.02] group"
+                style={{
+                  backgroundColor: currentTheme.colors.surface + '60',
+                  borderColor: currentTheme.colors.border
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '80';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '60';
+                }}
+              >
+                <div className="flex justify-between items-start mb-1">
+                  <h4 className="text-sm font-medium truncate pr-2" style={{ color: currentTheme.colors.text }}>
+                    {chat.title}
+                  </h4>
+                </div>
+                <p className="text-xs truncate mb-1" style={{ color: currentTheme.colors.textSecondary }}>
+                  {chat.preview}
+                </p>
+                <span className="text-xs" style={{ color: currentTheme.colors.textSecondary + '80' }}>
+                  {chat.time}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* New Chat Button */}
+          <div className="p-4 border-t relative z-10" style={{ borderColor: currentTheme.colors.border }}>
+            <button
+              className="w-full py-2 px-4 rounded-lg font-medium transition-all duration-200 hover:scale-[1.02]"
+              style={{
+                background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
+                color: currentTheme.id === 'light' ? '#ffffff' : currentTheme.colors.text
+              }}
+            >
+              + New Chat
+            </button>
+          </div>
         </div>
+
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col bg-transparent relative">
+        {/* Static Stars Background for Sidebar */}
 
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b relative z-10"
@@ -384,6 +455,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               <Send className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </form>
+        </div>
         </div>
       </div>
     );
