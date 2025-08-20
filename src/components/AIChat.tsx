@@ -433,17 +433,28 @@ export const AIChat: React.FC<AIChatProps> = ({
           >
             {/* Static Twinkling Stars Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {sidebarStars.map((star) => (
+              {[
+                { top: '15%', left: '20%', opacity: 0.4 },
+                { top: '25%', left: '80%', opacity: 0.6 },
+                { top: '35%', left: '15%', opacity: 0.3 },
+                { top: '45%', left: '75%', opacity: 0.5 },
+                { top: '55%', left: '25%', opacity: 0.4 },
+                { top: '65%', left: '85%', opacity: 0.7 },
+                { top: '75%', left: '10%', opacity: 0.3 },
+                { top: '85%', left: '70%', opacity: 0.5 },
+                { top: '10%', left: '60%', opacity: 0.4 },
+                { top: '30%', left: '45%', opacity: 0.6 },
+                { top: '70%', left: '40%', opacity: 0.3 },
+                { top: '90%', left: '30%', opacity: 0.5 }
+              ].map((star, i) => (
                 <div
-                  key={star.id}
-                  className="absolute w-0.5 h-0.5 rounded-full animate-pulse"
+                  key={i}
+                  className="absolute w-0.5 h-0.5 rounded-full"
                   style={{
-                    left: `${star.left}%`,
-                    top: `${star.top}%`,
                     backgroundColor: currentTheme.colors.primary,
-                    opacity: star.opacity,
-                    animationDelay: `${star.delay}s`,
-                    animationDuration: `${star.duration}s`
+                    top: star.top,
+                    left: star.left,
+                    opacity: star.opacity
                   }}
                 />
               ))}
@@ -797,7 +808,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               </div>
             )}
             
-            <div ref={messagesEndRef} className="relative z-10" />
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}
@@ -1185,7 +1196,7 @@ export const AIChat: React.FC<AIChatProps> = ({
               </div>
             )}
             
-            <div ref={messagesEndRef} className="relative z-10" />
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Enhanced Input */}
