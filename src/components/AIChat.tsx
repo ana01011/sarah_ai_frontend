@@ -433,18 +433,20 @@ export const AIChat: React.FC<AIChatProps> = ({
           >
             {/* Static Twinkling Stars Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '15%', top: '10%', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '75%', top: '20%', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '25%', top: '35%', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '85%', top: '45%', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '45%', top: '55%', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '65%', top: '65%', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '20%', top: '75%', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '80%', top: '80%', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '35%', top: '25%', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '55%', top: '40%', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '10%', top: '60%', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }} />
-              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '90%', top: '30%', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }} />
+              {sidebarStars.map((star) => (
+                <div
+                  key={star.id}
+                  className="absolute w-0.5 h-0.5 rounded-full animate-pulse"
+                  style={{
+                    left: `${star.left}%`,
+                    top: `${star.top}%`,
+                    backgroundColor: currentTheme.colors.primary,
+                    opacity: star.opacity,
+                    animationDelay: `${star.delay}s`,
+                    animationDuration: `${star.duration}s`
+                  }}
+                />
+              ))}
             </div>
             
             {/* Animated Background */}
@@ -718,34 +720,21 @@ export const AIChat: React.FC<AIChatProps> = ({
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
             {/* Static Stars Background - Chat */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-              {[
-                { top: '12%', left: '18%', opacity: 0.2 },
-                { top: '22%', left: '78%', opacity: 0.3 },
-                { top: '32%', left: '12%', opacity: 0.15 },
-                { top: '42%', left: '72%', opacity: 0.25 },
-                { top: '52%', left: '22%', opacity: 0.2 },
-                { top: '62%', left: '82%', opacity: 0.35 },
-                { top: '72%', left: '8%', opacity: 0.15 },
-                { top: '82%', left: '68%', opacity: 0.25 },
-                { top: '8%', left: '58%', opacity: 0.2 },
-                { top: '28%', left: '42%', opacity: 0.3 },
-                { top: '68%', left: '38%', opacity: 0.15 },
-                { top: '88%', left: '28%', opacity: 0.25 },
-                { top: '18%', left: '88%', opacity: 0.2 },
-                { top: '48%', left: '48%', opacity: 0.3 },
-                { top: '78%', left: '58%', opacity: 0.15 }
-              ].map((star, i) => (
-                <div
-                  key={i}
-                  className="absolute w-0.5 h-0.5 rounded-full"
-                  style={{
-                    backgroundColor: currentTheme.colors.secondary,
-                    top: star.top,
-                    left: star.left,
-                    opacity: star.opacity
-                  }}
-                />
-              ))}
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '12%', top: '15%', backgroundColor: currentTheme.colors.secondary, opacity: 0.2 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '78%', top: '25%', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '32%', top: '40%', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '88%', top: '50%', backgroundColor: currentTheme.colors.secondary, opacity: 0.3 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '48%', top: '60%', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '68%', top: '70%', backgroundColor: currentTheme.colors.secondary, opacity: 0.2 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '22%', top: '80%', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '82%', top: '85%', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '38%', top: '30%', backgroundColor: currentTheme.colors.secondary, opacity: 0.3 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '58%', top: '45%', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '8%', top: '65%', backgroundColor: currentTheme.colors.secondary, opacity: 0.2 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '92%', top: '35%', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '52%', top: '20%', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '72%', top: '55%', backgroundColor: currentTheme.colors.secondary, opacity: 0.3 }} />
+              <div className="absolute w-0.5 h-0.5 rounded-full" style={{ left: '28%', top: '75%', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }} />
             </div>
             
             {messages.map((message) => (

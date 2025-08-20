@@ -151,7 +151,7 @@ export const ThemeSelector: React.FC = () => {
           {/* Scrollable Theme List */}
           <div className="relative">
             {/* Theme List Container */}
-            <div className="p-3 sm:p-4 max-h-80 overflow-y-auto theme-scrollbar">
+            <div className="p-3 sm:p-4 max-h-60 sm:max-h-80 overflow-y-auto theme-scrollbar">
               <div className="space-y-2 sm:space-y-3 pr-2">
                 {themes.map((theme) => {
                   const Icon = themeIcons[theme.id as keyof typeof themeIcons];
