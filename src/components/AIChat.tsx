@@ -511,27 +511,10 @@ export const AIChat: React.FC<AIChatProps> = ({
 
               {/* Search Bar */}
               <div className="relative">
-          {/* Twinkling Stars Background for Chat */}
-          <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-0.5 h-0.5 bg-white rounded-full animate-pulse"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 4}s`,
-                  animationDuration: `${1.5 + Math.random() * 2.5}s`,
-                  opacity: 0.1 + Math.random() * 0.4
-                }}
-              />
-            ))}
-          </div>
-          
                 <Search 
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" 
                   style={{ color: currentTheme.colors.textSecondary }}
-              className={`relative z-10 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                />
                 <input
                   type="text"
                   placeholder="Search chats..."
@@ -548,12 +531,31 @@ export const AIChat: React.FC<AIChatProps> = ({
                     e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';
                     e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '80';
                     e.currentTarget.style.boxShadow = `0 0 0 3px ${currentTheme.colors.primary}20`;
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = currentTheme.colors.border;
+                    e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '60';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Chat List */}
+            <div className="relative z-10 flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+              {filteredChatHistory.length === 0 ? (
+                <div className="text-center py-8">
+                  <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" 
+                                style={{ color: currentTheme.colors.textSecondary }} />
+                  <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+                    {searchTerm ? 'No chats found' : 'No chat history yet'}
+                  </p>
                 </div>
               ) : (
                 filteredChatHistory.map((chat, index) => (
                   <div
                     key={chat.id}
-            <div className="relative z-10 flex justify-start">
+                    onClick={() => loadChat(chat)}
                     className="group relative p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] cursor-pointer backdrop-blur-sm"
                     style={{
                       backgroundColor: currentTheme.colors.surface + '40',
@@ -1086,37 +1088,6 @@ export const AIChat: React.FC<AIChatProps> = ({
                       )}
                     </div>
                   </div>
-
-                  {message.suggestions && (
-                    <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
-                      {message.suggestions.map((suggestion, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleSuggestionClick(suggestion)}
-                          className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm border rounded-full 
-                                   transition-all duration-200 hover:scale-105 active:scale-95 backdrop-blur-sm min-h-[32px]"
-                          style={{
-                            background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
-                            borderColor: currentTheme.colors.border,
-                            color: currentTheme.colors.textSecondary,
-                            boxShadow: `0 4px 12px -4px ${currentTheme.shadows.primary}`
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.surface}60, ${currentTheme.colors.surface}40)`;
-                            e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';
-                            e.currentTarget.style.color = currentTheme.colors.text;
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`;
-                            e.currentTarget.style.borderColor = currentTheme.colors.border;
-                            e.currentTarget.style.color = currentTheme.colors.textSecondary;
-                          }}
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
