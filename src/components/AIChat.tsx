@@ -433,28 +433,17 @@ export const AIChat: React.FC<AIChatProps> = ({
           >
             {/* Static Twinkling Stars Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {[
-                { top: '15%', left: '20%', opacity: 0.4 },
-                { top: '25%', left: '80%', opacity: 0.6 },
-                { top: '35%', left: '15%', opacity: 0.3 },
-                { top: '45%', left: '75%', opacity: 0.5 },
-                { top: '55%', left: '25%', opacity: 0.4 },
-                { top: '65%', left: '85%', opacity: 0.7 },
-                { top: '75%', left: '10%', opacity: 0.3 },
-                { top: '85%', left: '70%', opacity: 0.5 },
-                { top: '10%', left: '60%', opacity: 0.4 },
-                { top: '30%', left: '45%', opacity: 0.6 },
-                { top: '70%', left: '40%', opacity: 0.3 },
-                { top: '90%', left: '30%', opacity: 0.5 }
-              ].map((star, i) => (
+              {sidebarStars.map((star) => (
                 <div
-                  key={i}
-                  className="absolute w-0.5 h-0.5 rounded-full"
+                  key={star.id}
+                  className="absolute w-0.5 h-0.5 rounded-full animate-pulse"
                   style={{
+                    left: `${star.left}%`,
+                    top: `${star.top}%`,
                     backgroundColor: currentTheme.colors.primary,
-                    top: star.top,
-                    left: star.left,
-                    opacity: star.opacity
+                    opacity: star.opacity,
+                    animationDelay: `${star.delay}s`,
+                    animationDuration: `${star.duration}s`
                   }}
                 />
               ))}
@@ -729,18 +718,33 @@ export const AIChat: React.FC<AIChatProps> = ({
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
-            {/* Twinkling Stars Background for Chat */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-              {Array.from({ length: 20 }).map((_, i) => (
+            {/* Static Stars Background - Chat */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+              {[
+                { top: '12%', left: '18%', opacity: 0.2 },
+                { top: '22%', left: '78%', opacity: 0.3 },
+                { top: '32%', left: '12%', opacity: 0.15 },
+                { top: '42%', left: '72%', opacity: 0.25 },
+                { top: '52%', left: '22%', opacity: 0.2 },
+                { top: '62%', left: '82%', opacity: 0.35 },
+                { top: '72%', left: '8%', opacity: 0.15 },
+                { top: '82%', left: '68%', opacity: 0.25 },
+                { top: '8%', left: '58%', opacity: 0.2 },
+                { top: '28%', left: '42%', opacity: 0.3 },
+                { top: '68%', left: '38%', opacity: 0.15 },
+                { top: '88%', left: '28%', opacity: 0.25 },
+                { top: '18%', left: '88%', opacity: 0.2 },
+                { top: '48%', left: '48%', opacity: 0.3 },
+                { top: '78%', left: '58%', opacity: 0.15 }
+              ].map((star, i) => (
                 <div
                   key={i}
-                  className="absolute w-0.5 h-0.5 bg-white rounded-full animate-pulse"
+                  className="absolute w-0.5 h-0.5 rounded-full"
                   style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 4}s`,
-                    animationDuration: `${1.5 + Math.random() * 2.5}s`,
-                    opacity: 0.1 + Math.random() * 0.4
+                    backgroundColor: currentTheme.colors.secondary,
+                    top: star.top,
+                    left: star.left,
+                    opacity: star.opacity
                   }}
                 />
               ))}

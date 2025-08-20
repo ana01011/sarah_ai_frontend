@@ -101,23 +101,10 @@ export const ThemeSelector: React.FC = () => {
       {/* Theme Selector Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 sm:p-3 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 group min-w-[44px] min-h-[44px] flex items-center justify-center"
+        className="relative p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 group min-w-[44px] min-h-[44px] flex items-center justify-center"
         style={{ 
           backgroundColor: isOpen ? currentTheme.colors.primary + '20' : 'transparent',
-          borderColor: isOpen ? currentTheme.colors.primary + '50' : 'transparent',
-          backdropFilter: 'blur(8px)'
-        }}
-        onMouseEnter={(e) => {
-          if (!isOpen) {
-            e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`;
-          }
-          e.currentTarget.style.transform = 'scale(1.1)';
-        }}
-        onMouseLeave={(e) => {
-          if (!isOpen) {
-            e.currentTarget.style.background = 'transparent';
-          }
-          e.currentTarget.style.transform = 'scale(1)';
+          borderColor: isOpen ? currentTheme.colors.primary + '50' : 'transparent'
         }}
       >
         <Palette 
@@ -136,146 +123,136 @@ export const ThemeSelector: React.FC = () => {
 
       {/* Theme Selector Dropdown */}
       {isOpen && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 z-[9998]"
-            onClick={() => setIsOpen(false)}
-          />
-          
-          {/* Dropdown */}
-          <div 
-            className="fixed sm:absolute inset-x-2 sm:inset-x-auto top-16 sm:top-full right-0 sm:right-0 mt-2 w-auto sm:w-96 backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden"
-            style={{ 
-              backgroundColor: currentTheme.colors.surface + 'f0',
-              borderColor: currentTheme.colors.border,
-              boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`,
-              maxWidth: 'calc(100vw - 1rem)'
-            }}
-          >
-            {/* Header */}
-            <div className="p-4 sm:p-6 border-b" style={{ borderColor: currentTheme.colors.border }}>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-base sm:text-lg font-semibold" style={{ color: currentTheme.colors.text }}>
-                  Choose Theme
-                </h3>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: currentTheme.colors.primary }}></div>
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: currentTheme.colors.accent }}></div>
-                </div>
+        <div 
+          className="absolute top-full right-0 mt-2 w-96 backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden"
+          style={{ 
+            backgroundColor: currentTheme.colors.surface + 'f0',
+            borderColor: currentTheme.colors.border,
+            boxShadow: `0 25px 50px -12px ${currentTheme.shadows.primary}`
+          }}
+        >
+          {/* Header */}
+          <div className="p-4 sm:p-6 border-b" style={{ borderColor: currentTheme.colors.border }}>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base sm:text-lg font-semibold" style={{ color: currentTheme.colors.text }}>
+                Choose Theme
+              </h3>
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: currentTheme.colors.primary }}></div>
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: currentTheme.colors.secondary }}></div>
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: currentTheme.colors.accent }}></div>
               </div>
-              <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
-                {themes.length} professional themes • Scroll to see more
-              </p>
             </div>
+            <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+              {themes.length} professional themes • Scroll to see more
+            </p>
+          </div>
 
-            {/* Scrollable Theme List */}
-            <div className="relative">
-              {/* Theme List Container */}
-              <div className="p-3 sm:p-4 max-h-80 overflow-y-auto theme-scrollbar">
-                <div className="space-y-2 sm:space-y-3 pr-2">
-                  {themes.map((theme) => {
-                    const Icon = themeIcons[theme.id as keyof typeof themeIcons];
-                    const isSelected = currentTheme.id === theme.id;
-                    
-                    return (
-                      <button
-                        key={theme.id}
-                        onClick={() => {
-                          setTheme(theme.id);
-                          setIsOpen(false);
-                        }}
-                        className="w-full p-3 sm:p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] active:scale-95 group relative overflow-hidden"
+          {/* Scrollable Theme List */}
+          <div className="relative">
+            {/* Theme List Container */}
+            <div className="p-3 sm:p-4 max-h-80 overflow-y-auto theme-scrollbar">
+              <div className="space-y-2 sm:space-y-3 pr-2">
+                {themes.map((theme) => {
+                  const Icon = themeIcons[theme.id as keyof typeof themeIcons];
+                  const isSelected = currentTheme.id === theme.id;
+                  
+                  return (
+                    <button
+                      key={theme.id}
+                      onClick={() => {
+                        setTheme(theme.id);
+                        setIsOpen(false);
+                      }}
+                      className="w-full p-3 sm:p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] active:scale-95 group relative overflow-hidden"
+                      style={{
+                        backgroundColor: isSelected 
+                          ? theme.colors.primary + '20' 
+                          : theme.colors.surface + '60',
+                        borderColor: isSelected 
+                          ? theme.colors.primary + '50' 
+                          : theme.colors.border,
+                        boxShadow: isSelected 
+                          ? `0 8px 25px -8px ${theme.shadows.primary}` 
+                          : 'none'
+                      }}
+                    >
+                      {/* Animated background effect */}
+                      <div 
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         style={{
-                          backgroundColor: isSelected 
-                            ? theme.colors.primary + '20' 
-                            : theme.colors.surface + '60',
-                          borderColor: isSelected 
-                            ? theme.colors.primary + '50' 
-                            : theme.colors.border,
-                          boxShadow: isSelected 
-                            ? `0 8px 25px -8px ${theme.shadows.primary}` 
-                            : 'none'
+                          background: `linear-gradient(135deg, ${theme.colors.primary}10, ${theme.colors.secondary}10)`
                         }}
-                      >
-                        {/* Animated background effect */}
-                        <div 
-                          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                          style={{
-                            background: `linear-gradient(135deg, ${theme.colors.primary}10, ${theme.colors.secondary}10)`
-                          }}
-                        />
-                        
-                        <div className="relative z-10 flex items-center space-x-3 sm:space-x-4">
-                          <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
-                            <div 
-                              className="p-2 rounded-lg flex-shrink-0"
-                              style={{ backgroundColor: theme.colors.primary + '20' }}
-                            >
-                              <Icon 
-                                className="w-4 h-4 sm:w-5 sm:h-5" 
-                                style={{ color: theme.colors.primary }}
-                              />
-                            </div>
-                            
-                            <div className="text-left min-w-0 flex-1">
-                              <h4 
-                                className="font-semibold text-sm sm:text-base truncate"
-                                style={{ color: theme.colors.text }}
-                              >
-                                {theme.name}
-                              </h4>
-                              <p 
-                                className="text-xs hidden sm:block truncate"
-                                style={{ color: theme.colors.textSecondary }}
-                              >
-                                {theme.description}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Color preview */}
-                          <div className="flex space-x-1 flex-shrink-0">
-                            <div 
-                              className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
-                              style={{ backgroundColor: theme.colors.primary }}
-                            />
-                            <div 
-                              className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
-                              style={{ backgroundColor: theme.colors.secondary }}
-                            />
-                            <div 
-                              className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
-                              style={{ backgroundColor: theme.colors.accent }}
+                      />
+                      
+                      <div className="relative z-10 flex items-center space-x-3 sm:space-x-4">
+                        <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                          <div 
+                            className="p-2 rounded-lg flex-shrink-0"
+                            style={{ backgroundColor: theme.colors.primary + '20' }}
+                          >
+                            <Icon 
+                              className="w-4 h-4 sm:w-5 sm:h-5" 
+                              style={{ color: theme.colors.primary }}
                             />
                           </div>
-
-                          {/* Selection indicator */}
-                          {isSelected && (
-                            <div 
-                              className="p-1 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: theme.colors.primary }}
+                          
+                          <div className="text-left min-w-0 flex-1">
+                            <h4 
+                              className="font-semibold text-sm sm:text-base truncate"
+                              style={{ color: theme.colors.text }}
                             >
-                              <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
-                            </div>
-                          )}
+                              {theme.name}
+                            </h4>
+                            <p 
+                              className="text-xs hidden sm:block truncate"
+                              style={{ color: theme.colors.textSecondary }}
+                            >
+                              {theme.description}
+                            </p>
+                          </div>
                         </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
 
-            {/* Footer */}
-            <div className="p-3 sm:p-4 border-t text-center" style={{ borderColor: currentTheme.colors.border }}>
-              <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
-                Theme preferences are saved automatically
-              </p>
+                        {/* Color preview */}
+                        <div className="flex space-x-1 flex-shrink-0">
+                          <div 
+                            className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
+                            style={{ backgroundColor: theme.colors.primary }}
+                          />
+                          <div 
+                            className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
+                            style={{ backgroundColor: theme.colors.secondary }}
+                          />
+                          <div 
+                            className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
+                            style={{ backgroundColor: theme.colors.accent }}
+                          />
+                        </div>
+
+                        {/* Selection indicator */}
+                        {isSelected && (
+                          <div 
+                            className="p-1 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: theme.colors.primary }}
+                          >
+                            <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </>
+
+          {/* Footer */}
+          <div className="p-3 sm:p-4 border-t text-center" style={{ borderColor: currentTheme.colors.border }}>
+            <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
+              Theme preferences are saved automatically
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
