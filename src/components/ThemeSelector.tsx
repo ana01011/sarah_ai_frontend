@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Palette, Check, Sun, Moon, Zap, Waves, Circle, Lightbulb, Code, DollarSign, Megaphone, Users, Briefcase, Brain, Smartphone, Database, BarChart3, Sparkles } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -26,6 +26,7 @@ export const ThemeSelector: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showFirstTimeGuide, setShowFirstTimeGuide] = useState(false);
   const [hasSeenGuide, setHasSeenGuide] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Check if user has seen the theme guide before
@@ -37,6 +38,20 @@ export const ThemeSelector: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
   const handleFirstTimeGuideClose = () => {
     setShowFirstTimeGuide(false);
     setHasSeenGuide(true);
@@ -44,7 +59,7 @@ export const ThemeSelector: React.FC = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       {/* First Time User Guide */}
       {showFirstTimeGuide && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
@@ -124,7 +139,7 @@ export const ThemeSelector: React.FC = () => {
       {/* Theme Selector Dropdown */}
       {isOpen && (
         <div 
-          className="fixed top-16 right-2 w-80 sm:w-96 backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden max-w-[calc(100vw-1rem)]"
+          className="fixed top-16 left-1/2 transform -translate-x-1/2 w-80 sm:w-96 backdrop-blur-md border rounded-2xl shadow-2xl z-[9999] animate-fade-in overflow-hidden max-w-[calc(100vw-1rem)]"
           style={{ 
             backgroundColor: currentTheme.colors.surface + 'f0',
             borderColor: currentTheme.colors.border,
