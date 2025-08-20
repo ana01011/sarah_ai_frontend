@@ -229,12 +229,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         id: (Date.now() + 1).toString(),
         content: data.response,  // Use actual response from backend
         sender: 'ai',
-        timestamp: new Date(),
-        reactions: [
-          { type: '👍', count: 0 },
-          { type: '❤️', count: 0 },
-          { type: '🚀', count: 0 }
-        ]
+        timestamp: new Date()
       };
 
       setMessages(prev => [...prev, aiMessage]);
@@ -428,13 +423,11 @@ export const AIChat: React.FC<AIChatProps> = ({
                 <div
                   key={`star-${i}`}
                   className="absolute animate-pulse"
-                  className="absolute w-0.5 h-0.5 bg-white rounded-full animate-pulse"
                   style={{
                     left: `${Math.random() * 100}%`,
                     top: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 4}s`,
-                    animationDuration: `${1 + Math.random() * 3}s`,
-                    opacity: 0.2 + Math.random() * 0.6
+                    animationDelay: `${Math.random() * 3}s`,
+                    animationDuration: `${2 + Math.random() * 2}s`
                   }}
                 >
                   <div
@@ -546,12 +539,9 @@ export const AIChat: React.FC<AIChatProps> = ({
             {/* Chat List */}
             <div className="relative z-10 flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
               {filteredChatHistory.length === 0 ? (
-                <div className="text-center py-8">
-                  <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" 
-                                style={{ color: currentTheme.colors.textSecondary }} />
-                  <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
-                    {searchTerm ? 'No chats found' : 'No chat history yet'}
-                  </p>
+                <div className="text-center py-8" style={{ color: currentTheme.colors.textSecondary }}>
+                  <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>No chats found</p>
                 </div>
               ) : (
                 filteredChatHistory.map((chat, index) => (
@@ -695,10 +685,27 @@ export const AIChat: React.FC<AIChatProps> = ({
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
+            {/* Twinkling Stars Background for Chat */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-0.5 h-0.5 bg-white rounded-full animate-pulse"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 4}s`,
+                    animationDuration: `${1.5 + Math.random() * 2.5}s`,
+                    opacity: 0.1 + Math.random() * 0.4
+                  }}
+                />
+              ))}
+            </div>
+            
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`relative z-10 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`max-w-[85%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
                   <div
@@ -715,12 +722,31 @@ export const AIChat: React.FC<AIChatProps> = ({
                   >
                     <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
                   </div>
+                  
+                  {message.suggestions && (
+                    <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
+                      {message.suggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs border rounded-full transition-all duration-200 hover:scale-105 min-h-[32px]"
+                          style={{
+                            background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
+                            borderColor: currentTheme.colors.border,
+                            color: currentTheme.colors.textSecondary
+                          }}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
             
             {isTyping && (
-              <div className="flex justify-start">
+              <div className="relative z-10 flex justify-start">
                 <div className="border rounded-xl p-4 backdrop-blur-md"
                      style={{
                        backgroundColor: currentTheme.colors.surface + '40',
