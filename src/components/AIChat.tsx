@@ -414,7 +414,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         {/* Chat History Sidebar */}
         {isSidebarOpen && (
           <div 
-            className="fixed top-[80px] left-0 w-80 sm:w-96 h-[calc(100vh-80px)] backdrop-blur-xl border-r shadow-2xl z-[9998] overflow-hidden rounded-tr-3xl rounded-br-3xl"
+            className="fixed top-[80px] left-0 w-80 h-[calc(100vh-80px)] z-[10000] backdrop-blur-xl border-r overflow-hidden"
             style={{
               background: `linear-gradient(135deg, ${currentTheme.colors.surface}f0, ${currentTheme.colors.background}f0)`,
               borderColor: currentTheme.colors.border,

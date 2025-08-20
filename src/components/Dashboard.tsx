@@ -145,15 +145,24 @@ export const Dashboard: React.FC = () => {
 
               <button
                 onClick={handleNotificationClick}
-                className="relative p-1.5 sm:p-2 lg:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="relative p-1.5 sm:p-2 lg:p-3 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center group overflow-hidden"
+                style={{
+                  background: notifications > 0 ? `linear-gradient(135deg, ${currentTheme.colors.error}20, ${currentTheme.colors.error}10)` : 'transparent'
+                }}
               >
+                {/* Animated background glow */}
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-sm"
+                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}30, ${currentTheme.colors.secondary}30)` }}
+                />
+                
                 <Bell 
-                  className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
+                  className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 hover:text-white transition-all duration-300 group-hover:animate-pulse relative z-10" 
                   style={{ color: currentTheme.colors.textSecondary }}
                 />
                 {notifications > 0 && (
                   <div 
-                    className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white text-xs rounded-full flex items-center justify-center animate-pulse"
+                    className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white text-xs rounded-full flex items-center justify-center animate-bounce shadow-lg"
                     style={{ backgroundColor: currentTheme.colors.error, fontSize: '10px' }}
                   >
                     {notifications}
@@ -183,15 +192,21 @@ export const Dashboard: React.FC = () => {
 
               <button 
                 onClick={handleAgentsClick}
-                className="relative p-1.5 sm:p-2 lg:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="relative p-1.5 sm:p-2 lg:p-3 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center group overflow-hidden"
               >
+                {/* Animated background glow */}
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-sm"
+                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}30, ${currentTheme.colors.secondary}30)` }}
+                />
+                
                 <div className="flex items-center space-x-1 sm:space-x-2">
                   <Users 
-                    className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
+                    className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 hover:text-white transition-all duration-300 group-hover:animate-pulse relative z-10" 
                     style={{ color: currentTheme.colors.textSecondary }}
                   />
                   <span
-                    className="text-xs sm:text-sm font-semibold transition-colors relative z-10 hidden sm:inline"
+                    className="text-xs sm:text-sm font-semibold transition-all duration-300 relative z-10 hidden sm:inline group-hover:text-white"
                     style={{ color: currentTheme.colors.text }}
                   >
                     <span className="hidden lg:inline">AI Agents</span>
@@ -209,10 +224,16 @@ export const Dashboard: React.FC = () => {
 
               <button
                 onClick={logout}
-                className="p-1.5 sm:p-2 lg:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="p-1.5 sm:p-2 lg:p-3 hover:bg-white/10 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center group overflow-hidden"
               >
+                {/* Animated background glow */}
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-sm"
+                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.error}30, ${currentTheme.colors.warning}30)` }}
+                />
+                
                 <LogOut 
-                  className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 hover:text-white transition-colors" 
+                  className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 hover:text-white transition-all duration-300 group-hover:animate-pulse relative z-10" 
                   style={{ color: currentTheme.colors.textSecondary }}
                 />
               </button>
