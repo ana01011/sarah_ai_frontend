@@ -67,12 +67,6 @@ export const LoginPage: React.FC<{
       setValidationErrors({ email: 'Please enter your email first' });
     }
   };
-      
-    } catch (error) {
-      console.error('Google login error:', error);
-      alert('Google login failed. Please try again.');
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -347,7 +341,7 @@ export const LoginPage: React.FC<{
           </div>
 
           {/* Google Login Button */}
-          <div
+          <button
             id="google-signin-button"
             type="button"
             onClick={handleGoogleLogin}
@@ -396,7 +390,7 @@ export const LoginPage: React.FC<{
             </svg>
             
             <span className="text-sm relative z-10">Continue with Google</span>
-          </div>
+          </button>
 
           {/* Register Link */}
           <div className="text-center mt-4">
@@ -410,7 +404,7 @@ export const LoginPage: React.FC<{
                 Sign Up
               </button>
             </p>
-          </p>
+          </div>
         </div>
       </div>
     </div>
