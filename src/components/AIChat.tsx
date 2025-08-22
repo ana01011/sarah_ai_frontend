@@ -182,18 +182,20 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     try {
       // Call your actual backend API
-      const response = await fetch('http://147.93.102.165:8000/api/chat', {
+      const response = await fetch('http://147.93.102.165:8000/api/v1/chat/message', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           message: inputValue,
-          agent_role: 'general',
-          max_tokens: 200,
+          personality: 'sarah',
+          max_tokens: 500,
           temperature: 0.7
         })
       });
+      
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

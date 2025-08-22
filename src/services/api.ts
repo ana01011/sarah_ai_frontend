@@ -1,4 +1,4 @@
-// API Service for Amesie AI Backend
+// API Service for Sarah AI Backend
 const API_BASE_URL = 'http://147.93.102.165:8000';
 
 export interface AgentChatRequest {
@@ -20,37 +20,45 @@ export const apiService = {
       return agents.map((agent: any) => agent.role);
     } catch (error) {
       console.error('Error fetching agent roles:', error);
-      return ['general', 'software_engineer', 'data_analyst'];
+      return ['sarah', 'xhash', 'neutral'];
     }
   },
 
   async sendAgentChat(request: AgentChatRequest): Promise<AgentChatResponse> {
     try {
-      console.log('Sending to backend:', `${API_BASE_URL}/api/chat`);
+      const token = localStorage.getItem('token');
       
-      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+      if (!token) {
+        throw new Error('Please login to continue');
+      }
+
+      console.log('Sending to backend:', `${API_BASE_URL}/api/v1/chat/message`);
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat/message`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           message: request.message,
-          agent_role: request.role || 'general',
-          max_tokens: 200,
+          personality: request.role || 'sarah',
+          max_tokens: 500,
           temperature: 0.7
         })
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const error = await response.json();
+        throw new Error(error.detail || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
       console.log('Received from backend:', data);
-      
+
       return {
         response: data.response,
-        role: data.role
+        role: data.personality || request.role || 'sarah'
       };
     } catch (error) {
       console.error('Error sending chat message:', error);
@@ -60,7 +68,7 @@ export const apiService = {
 
   async checkHealth(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/health`, {
+      const response = await fetch(`${API_BASE_URL}/health`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
