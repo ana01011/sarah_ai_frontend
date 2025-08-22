@@ -1,23 +1,39 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Brain, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Brain, Sparkles, Shield } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 
-// Declare global google object
-declare global {
-  interface Window {
-    google: any;
-  }
-}
-
-export const LoginPage: React.FC = () => {
+export const LoginPage: React.FC<{ 
+  onSwitchToRegister: () => void; 
+  onSwitchToForgotPassword: () => void;
+  onSwitchTo2FA: () => void;
+}> = ({ onSwitchToRegister, onSwitchToForgotPassword, onSwitchTo2FA }) => {
   const { currentTheme } = useTheme();
-  const { login, error, isLoading, clearError } = useAuth();
+  const { login, googleLogin, error, isLoading, clearError } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.email) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleGoogleLogin = () => {
     if (window.google) {
@@ -29,7 +45,7 @@ export const LoginPage: React.FC = () => {
       });
 
       // Trigger the Google One Tap prompt
-      window.google.accounts.id.prompt();
+      window.google.accounts.id.renderButton(document.getElementById('google-signin-button'), { theme: 'outline', size: 'large' });
     } else {
       console.error('Google Identity Services not loaded');
       alert('Google login is temporarily unavailable. Please try again later.');
@@ -38,24 +54,19 @@ export const LoginPage: React.FC = () => {
 
   const handleGoogleResponse = async (response: any) => {
     try {
-      // Decode the JWT token to get user info
-      const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      
-      const googleUser = {
-        id: payload.sub,
-        email: payload.email,
-        name: payload.name,
-        picture: payload.picture,
-        given_name: payload.given_name,
-        family_name: payload.family_name,
-      };
+      await googleLogin(response.credential);
+    } catch (error) {
+      console.error('Google login error:', error);
+    }
+  };
 
-      // Store user data and token
-      localStorage.setItem('user', JSON.stringify(googleUser));
-      localStorage.setItem('token', response.credential);
-      
-      // Trigger auth context update
-      window.location.reload();
+  const handleForgotPassword = () => {
+    if (formData.email) {
+      onSwitchToForgotPassword();
+    } else {
+      setValidationErrors({ email: 'Please enter your email first' });
+    }
+  };
       
     } catch (error) {
       console.error('Google login error:', error);
@@ -67,19 +78,31 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     clearError();
     
+    if (!validateForm()) {
+      return;
+    }
+
     try {
-      await login(formData.email, formData.password);
+      const result = await login(formData.email, formData.password, formData.rememberMe);
+      if (result.requires2FA) {
+        onSwitchTo2FA();
+      }
     } catch (error) {
       // Error is handled by context
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Clear validation error when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   return (
@@ -116,16 +139,16 @@ export const LoginPage: React.FC = () => {
               backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
             }}
           >
-            SARAH
+            Welcome Back
           </h1>
           
           <p className="text-xs sm:text-sm font-light mb-1 sm:mb-2" style={{ color: currentTheme.colors.textSecondary }}>
-            Advanced AI Operations Platform
+            Sign in to your SARAH AI account
           </p>
           
           <div className="flex items-center justify-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.secondary }}>
             <Sparkles className="w-3 h-3 animate-spin" />
-            <span className="text-xs sm:text-sm font-mono">Secure Access Portal</span>
+            <span className="text-xs sm:text-sm font-mono">Secure Login Portal</span>
             <Sparkles className="w-3 h-3 animate-spin" />
           </div>
         </div>
@@ -171,7 +194,7 @@ export const LoginPage: React.FC = () => {
                   className="w-full pl-10 pr-4 py-2 rounded-xl border transition-all duration-200 focus:outline-none"
                   style={{
                     backgroundColor: currentTheme.colors.surface + '60',
-                    borderColor: currentTheme.colors.border,
+                    borderColor: validationErrors.email ? currentTheme.colors.error : currentTheme.colors.border,
                     color: currentTheme.colors.text,
                     fontSize: '16px'
                   }}
@@ -186,6 +209,11 @@ export const LoginPage: React.FC = () => {
                   placeholder="Enter your email"
                 />
               </div>
+              {validationErrors.email && (
+                <p className="text-xs mt-1" style={{ color: currentTheme.colors.error }}>
+                  {validationErrors.email}
+                </p>
+              )}
             </div>
 
             {/* Password Input */}
@@ -207,7 +235,7 @@ export const LoginPage: React.FC = () => {
                   className="w-full pl-10 pr-10 py-2 rounded-xl border transition-all duration-200 focus:outline-none"
                   style={{
                     backgroundColor: currentTheme.colors.surface + '60',
-                    borderColor: currentTheme.colors.border,
+                    borderColor: validationErrors.password ? currentTheme.colors.error : currentTheme.colors.border,
                     color: currentTheme.colors.text,
                     fontSize: '16px'
                   }}
@@ -230,6 +258,32 @@ export const LoginPage: React.FC = () => {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              {validationErrors.password && (
+                <p className="text-xs mt-1" style={{ color: currentTheme.colors.error }}>
+                  {validationErrors.password}
+                </p>
+              )}
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  name="rememberMe"
+                  checked={formData.rememberMe}
+                  onChange={handleInputChange}
+                  className="w-4 h-4 rounded border focus:outline-none"
+                  style={{ accentColor: currentTheme.colors.primary }}
+                />
+                <label htmlFor="rememberMe" className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
+                  Remember me
+                </label>
+              </div>
+              <button type="button" onClick={handleForgotPassword} className="text-xs hover:underline" style={{ color: currentTheme.colors.primary }}>
+                Forgot Password?
+              </button>
             </div>
 
             {/* Sign In Button */}
@@ -260,6 +314,18 @@ export const LoginPage: React.FC = () => {
                 </>
               )}
             </button>
+
+            {/* Enable 2FA Option */}
+            <div className="text-center">
+              <button
+                type="button"
+                className="inline-flex items-center space-x-2 text-xs hover:underline transition-colors"
+                style={{ color: currentTheme.colors.info }}
+              >
+                <Shield className="w-3 h-3" />
+                <span>Enable Two-Factor Authentication</span>
+              </button>
+            </div>
           </form>
 
           {/* Divider */}
@@ -281,7 +347,7 @@ export const LoginPage: React.FC = () => {
           </div>
 
           {/* Google Login Button */}
-          <button
+          <div
             id="google-signin-button"
             type="button"
             onClick={handleGoogleLogin}
@@ -330,11 +396,20 @@ export const LoginPage: React.FC = () => {
             </svg>
             
             <span className="text-sm relative z-10">Continue with Google</span>
-          </button>
+          </div>
 
-          {/* Footer Note */}
-          <p className="mt-2 text-center text-xs" style={{ color: currentTheme.colors.textSecondary }}>
-            By signing in, you agree to our Terms of Service and Privacy Policy
+          {/* Register Link */}
+          <div className="text-center mt-4">
+            <p className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
+              Don't have an account?{' '}
+              <button
+                onClick={onSwitchToRegister}
+                className="font-semibold hover:underline transition-colors"
+                style={{ color: currentTheme.colors.primary }}
+              >
+                Sign Up
+              </button>
+            </p>
           </p>
         </div>
       </div>

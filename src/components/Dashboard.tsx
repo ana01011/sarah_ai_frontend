@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, Bell, Search, Download, Share, Users, LogOut, Settings } from 'lucide-react';
+import { Brain, Bell, Search, Download, Share, Users, LogOut, Settings, User } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useAgent } from '../contexts/AgentContext';
 import { ThemeSelector } from './ThemeSelector';
 import { AIChat } from './AIChat';
+import { UserProfilePage } from './auth/UserProfilePage';
 
 export const Dashboard: React.FC = () => {
   const { currentTheme } = useTheme();
   const { setCurrentView } = useAgent();
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [notifications, setNotifications] = useState(3);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -33,6 +35,10 @@ export const Dashboard: React.FC = () => {
 
   const handleAgentsClick = () => {
     setCurrentView('selector');
+  };
+
+  const handleUserProfileClick = () => {
+    setShowUserProfile(true);
   };
 
   return (
@@ -222,12 +228,12 @@ export const Dashboard: React.FC = () => {
                 />
               </button>
 
-              <button
-                onClick={logout}
+              <button 
+                onClick={handleUserProfileClick}
                 className="p-1.5 sm:p-2 lg:p-3 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center group overflow-hidden"
                 style={{ backdropFilter: 'blur(8px)' }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.error}30, ${currentTheme.colors.warning}30)`;
+                  e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.primary}30, ${currentTheme.colors.secondary}30)`;
                   e.currentTarget.style.transform = 'scale(1.1)';
                 }}
                 onMouseLeave={(e) => {
@@ -238,10 +244,10 @@ export const Dashboard: React.FC = () => {
                 {/* Animated background glow */}
                 <div 
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-sm"
-                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.error}30, ${currentTheme.colors.warning}30)` }}
+                  style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}30, ${currentTheme.colors.secondary}30)` }}
                 />
                 
-                <LogOut 
+                <User 
                   className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 hover:text-white transition-all duration-300 group-hover:animate-pulse relative z-10" 
                   style={{ color: currentTheme.colors.textSecondary }}
                 />
@@ -273,6 +279,11 @@ export const Dashboard: React.FC = () => {
           isIntegrated={true}
         />
       </div>
+
+      {/* User Profile Modal */}
+      {showUserProfile && (
+        <UserProfilePage onClose={() => setShowUserProfile(false)} />
+      )}
     </div>
   );
 };
