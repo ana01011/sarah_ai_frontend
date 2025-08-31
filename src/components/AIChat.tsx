@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { apiService } from '../services/api';
+import { ChatHistory, ChatMessage } from '../types/User';
 import { 
   MessageCircle, 
   Send, 
@@ -31,10 +34,9 @@ import {
   Shield,
   Star,
   Plus,
-  Menu,
-  Edit3,
   Trash2,
-  Clock
+  Clock,
+  MessageSquare
 } from 'lucide-react';
 
 interface Message {
@@ -43,16 +45,9 @@ interface Message {
   sender: 'user' | 'ai';
   timestamp: Date;
   typing?: boolean;
+  suggestions?: string[];
   attachments?: string[];
   reactions?: { type: string; count: number }[];
-}
-
-interface ChatHistory {
-  id: string;
-  title: string;
-  preview: string;
-  timestamp: Date;
-  messages: Message[];
 }
 
 interface AIChatProps {
@@ -75,57 +70,35 @@ export const AIChat: React.FC<AIChatProps> = ({
         ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. I specialize in ${agentContext.specialties.join(', ')}. How can I assist you with ${agentContext.department.toLowerCase()} matters today?`
         : "Hello! I'm Sarah, your advanced AI assistant. I can help you with system monitoring, data analysis, model optimization, code generation, and much more. What would you like to explore today?",
       sender: 'ai',
-      timestamp: new Date()
+      timestamp: new Date(),
+      suggestions: [
+        ...(agentContext ? [
+          `📊 Show ${agentContext.department.toLowerCase()} metrics`,
+          `💡 ${agentContext.specialties[0]} insights`,
+          `🎯 ${agentContext.role} recommendations`,
+          `📈 Department performance`
+        ] : [
+          "🚀 Show me system performance",
+          "📊 Analyze model accuracy trends", 
+          "⚡ Check GPU utilization",
+          "🔧 Optimize training pipeline",
+          "💡 Generate code snippets",
+          "📈 Create performance reports"
+        ])
+      ]
     }
   ]);
-  
-  const [chatHistories, setChatHistories] = useState<ChatHistory[]>([
-    {
-      id: '1',
-      title: 'System Performance Analysis',
-      preview: 'Analyzed GPU utilization and model accuracy...',
-      timestamp: new Date(Date.now() - 1000 * 60 * 30),
-      messages: []
-    },
-    {
-      id: '2', 
-      title: 'Code Generation Request',
-      preview: 'Generated Python scripts for data processing...',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-      messages: []
-    },
-    {
-      id: '3',
-      title: 'Model Optimization',
-      preview: 'Optimized neural network parameters...',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-      messages: []
-    },
-    {
-      id: '4',
-      title: 'Data Pipeline Setup',
-      preview: 'Configured automated data processing...',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48),
-      messages: []
-    },
-    {
-      id: '5',
-      title: 'Security Audit',
-      preview: 'Reviewed system security protocols...',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72),
-      messages: []
-    }
-  ]);
-
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<ChatHistory[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  
+  const [showChatHistory, setShowChatHistory] = useState(false);
   const { currentTheme } = useTheme();
+  const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -154,6 +127,108 @@ export const AIChat: React.FC<AIChatProps> = ({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (user) {
+      loadConversations();
+    }
+  }, [user]);
+
+  const loadConversations = async () => {
+    try {
+      const data = await apiService.getConversations();
+      
+      const histories: ChatHistory[] = data.map(conv => ({
+        id: conv.id,
+        title: conv.title || 'Untitled Chat',
+        preview: `${conv.message_count} messages`,
+        timestamp: new Date(conv.last_message_at),
+        messages: [],
+        message_count: conv.message_count,
+        started_at: conv.started_at,
+        last_message_at: conv.last_message_at
+      }));
+      
+      setConversations(histories);
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+    }
+  };
+
+  const loadConversation = async (conversationId: string) => {
+    try {
+      const data = await apiService.getConversationMessages(conversationId);
+      
+      const messages: Message[] = data.map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        sender: msg.role === 'user' ? 'user' : 'ai',
+        timestamp: new Date(msg.created_at)
+      }));
+      
+      setMessages(messages);
+      setConversationId(conversationId);
+      setCurrentChatId(conversationId);
+      setShowChatHistory(false);
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+    }
+  };
+
+  const deleteConversation = async (conversationId: string) => {
+    try {
+      await apiService.deleteConversation(conversationId);
+      
+      // Reload conversations list
+      await loadConversations();
+      
+      // If deleting current chat, start new
+      if (conversationId === currentChatId) {
+        handleNewChat();
+      }
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+    }
+  };
+
+  const handleNewChat = () => {
+    setConversationId(null);
+    setCurrentChatId(null);
+    setMessages([
+      {
+        id: '1',
+        content: agentContext 
+          ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. How can I assist you today?`
+          : "Hello! I'm Sarah, your advanced AI assistant. How can I help you today?",
+        sender: 'ai',
+        timestamp: new Date(),
+        suggestions: [
+          ...(agentContext ? [
+            `📊 Show ${agentContext.department.toLowerCase()} metrics`,
+            `💡 ${agentContext.specialties[0]} insights`,
+            `🎯 ${agentContext.role} recommendations`,
+            `📈 Department performance`
+          ] : [
+            "🚀 Show me system performance",
+            "📊 Analyze model accuracy trends", 
+            "⚡ Check GPU utilization",
+            "🔧 Optimize training pipeline",
+            "💡 Generate code snippets",
+            "📈 Create performance reports"
+          ])
+        ]
+      }
+    ]);
+    setShowChatHistory(false);
+  };
+
+  const updateChatHistory = async (conversationId: string, lastMessage: string) => {
+    try {
+      await loadConversations();
+    } catch (error) {
+      console.error('Error updating chat history:', error);
+    }
+  };
+
   const playSound = (type: 'send' | 'receive' | 'notification') => {
     if (!soundEnabled) return;
     console.log(`Playing ${type} sound`);
@@ -177,38 +252,39 @@ export const AIChat: React.FC<AIChatProps> = ({
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const messageToSend = inputValue;
     setInputValue('');
     setIsTyping(true);
 
     try {
-      // Call your actual backend API
-      const response = await fetch('http://147.93.102.165:8000/api/v1/chat/message', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          message: inputValue,
-          personality: 'sarah',
-          max_tokens: 500,
-          temperature: 0.7
-        })
-      });
-      
+      const requestBody: any = {
+        message: messageToSend,
+        role: user?.personality || 'sarah',
+        max_tokens: 500,
+        temperature: 0.7
+      };
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Include conversation_id if continuing existing chat
+      if (conversationId) {
+        requestBody.conversation_id = conversationId;
       }
 
-      const data = await response.json();
-      console.log('Backend response:', data);
+      const data = await apiService.sendChatMessage(requestBody);
+
+      // CRITICAL: Store conversation_id from response
+      if (!conversationId && data.conversation_id) {
+        setConversationId(data.conversation_id);
+        setCurrentChatId(data.conversation_id);
+        // Update chat history
+        await updateChatHistory(data.conversation_id, messageToSend);
+      }
 
       const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: data.message_id || (Date.now() + 1).toString(),
         content: data.response,
         sender: 'ai',
         timestamp: new Date(),
+        suggestions: [],
         reactions: [
           { type: '👍', count: 0 },
           { type: '❤️', count: 0 },
@@ -234,6 +310,12 @@ export const AIChat: React.FC<AIChatProps> = ({
       setMessages(prev => [...prev, errorMessage]);
       playSound('receive');
     }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    const cleanSuggestion = suggestion.replace(/^[^\w\s]+\s*/, '');
+    setInputValue(cleanSuggestion);
+    inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -297,197 +379,126 @@ export const AIChat: React.FC<AIChatProps> = ({
     playSound('notification');
   };
 
-  const handleNewChat = () => {
-    setMessages([
-      {
-        id: '1',
-        content: agentContext 
-          ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. How can I assist you today?`
-          : "Hello! I'm Sarah, your advanced AI assistant. What would you like to explore today?",
-        sender: 'ai',
-        timestamp: new Date()
-      }
-    ]);
-    setCurrentChatId(null);
-  };
-
-  const handleChatSelect = (chatId: string) => {
-    const selectedChat = chatHistories.find(chat => chat.id === chatId);
-    if (selectedChat) {
-      setCurrentChatId(chatId);
-      // In a real app, you would load the actual messages from the selected chat
-      setMessages([
-        {
-          id: '1',
-          content: `Resuming conversation: ${selectedChat.title}`,
-          sender: 'ai',
-          timestamp: new Date()
-        }
-      ]);
-    }
-  };
-
-  const handleDeleteChat = (chatId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setChatHistories(prev => prev.filter(chat => chat.id !== chatId));
-    if (currentChatId === chatId) {
-      handleNewChat();
-    }
-  };
-
-  const formatTime = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    return `${days}d ago`;
-  };
-
   if (!isOpen) return null;
 
   if (isIntegrated) {
     return (
       <div className="h-full flex bg-transparent">
-        {/* Sidebar */}
-        <div 
-          className={`${isSidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 relative`}
-        >
+        {/* Chat History Sidebar */}
+        {showChatHistory && (
           <div 
-            className="h-full backdrop-blur-md border-r rounded-tr-2xl rounded-br-2xl relative overflow-hidden"
+            className="w-80 border-r backdrop-blur-md flex-shrink-0"
             style={{ 
               backgroundColor: currentTheme.colors.surface + '80',
               borderColor: currentTheme.colors.border
             }}
           >
-            {/* Static Stars Background */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute" style={{ left: '15%', top: '8%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-              <div className="absolute" style={{ left: '75%', top: '15%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-              <div className="absolute" style={{ left: '25%', top: '25%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
-              <div className="absolute" style={{ left: '85%', top: '35%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
-              <div className="absolute" style={{ left: '45%', top: '45%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
-              <div className="absolute" style={{ left: '65%', top: '55%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-              <div className="absolute" style={{ left: '20%', top: '65%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-              <div className="absolute" style={{ left: '80%', top: '75%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.7 }}></div>
-              <div className="absolute" style={{ left: '35%', top: '85%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.3 }}></div>
-              <div className="absolute" style={{ left: '55%', top: '12%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.5 }}></div>
-              <div className="absolute" style={{ left: '10%', top: '40%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.6 }}></div>
-              <div className="absolute" style={{ left: '90%', top: '60%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.primary, opacity: 0.4 }}></div>
-            </div>
-
-            {/* Sidebar Header */}
-            <div className="p-4 border-b relative z-10" style={{ borderColor: currentTheme.colors.border }}>
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-sm" style={{ color: currentTheme.colors.text }}>
+            <div className="p-4 border-b" style={{ borderColor: currentTheme.colors.border }}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold" style={{ color: currentTheme.colors.text }}>
                   Chat History
                 </h3>
                 <button
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="p-1 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                  onClick={() => setShowChatHistory(false)}
+                  className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                  style={{ color: currentTheme.colors.textSecondary }}
                 >
-                  <X className="w-4 h-4" style={{ color: currentTheme.colors.textSecondary }} />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </div>
-
-            {/* New Chat Button */}
-            <div className="p-4 relative z-10">
+              
               <button
                 onClick={handleNewChat}
-                className="w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-95"
+                className="w-full flex items-center space-x-2 p-3 rounded-lg border transition-all duration-200 hover:scale-[1.02]"
                 style={{
-                  background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`,
-                  color: currentTheme.id === 'light' ? '#ffffff' : currentTheme.colors.text
+                  background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
+                  borderColor: currentTheme.colors.primary + '40',
+                  color: currentTheme.colors.text
                 }}
               >
                 <Plus className="w-4 h-4" />
-                <span className="text-sm font-medium">New Chat</span>
+                <span className="font-medium">New Chat</span>
               </button>
             </div>
-
-            {/* Chat History List */}
-            <div className="flex-1 overflow-y-auto px-4 pb-4 relative z-10 custom-scrollbar">
-              <div className="space-y-2">
-                {chatHistories.map((chat) => (
-                  <div
-                    key={chat.id}
-                    onClick={() => handleChatSelect(chat.id)}
-                    className={`group p-3 rounded-xl cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95 relative ${
-                      currentChatId === chat.id ? 'ring-1' : ''
-                    }`}
-                    style={{
-                      backgroundColor: currentChatId === chat.id 
-                        ? currentTheme.colors.primary + '20' 
-                        : currentTheme.colors.surface + '40',
-                      ringColor: currentChatId === chat.id ? currentTheme.colors.primary + '50' : 'transparent'
-                    }}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium truncate mb-1" style={{ color: currentTheme.colors.text }}>
-                          {chat.title}
-                        </h4>
-                        <p className="text-xs truncate mb-2" style={{ color: currentTheme.colors.textSecondary }}>
-                          {chat.preview}
-                        </p>
-                        <div className="flex items-center space-x-1">
-                          <Clock className="w-3 h-3" style={{ color: currentTheme.colors.textSecondary }} />
-                          <span className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
-                            {formatTime(chat.timestamp)}
-                          </span>
-                        </div>
+            
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2">
+              {conversations.map((chat) => (
+                <div
+                  key={chat.id}
+                  onClick={() => loadConversation(chat.id)}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:scale-[1.02] group ${
+                    currentChatId === chat.id ? 'ring-2' : ''
+                  }`}
+                  style={{
+                    backgroundColor: currentChatId === chat.id 
+                      ? currentTheme.colors.primary + '20' 
+                      : currentTheme.colors.surface + '40',
+                    borderColor: currentChatId === chat.id 
+                      ? currentTheme.colors.primary + '50' 
+                      : currentTheme.colors.border,
+                    ringColor: currentTheme.colors.primary + '50'
+                  }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-sm truncate" style={{ color: currentTheme.colors.text }}>
+                        {chat.title}
+                      </h4>
+                      <p className="text-xs mt-1 truncate" style={{ color: currentTheme.colors.textSecondary }}>
+                        {chat.preview}
+                      </p>
+                      <div className="flex items-center space-x-2 mt-2">
+                        <Clock className="w-3 h-3" style={{ color: currentTheme.colors.textSecondary }} />
+                        <span className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
+                          {chat.timestamp.toLocaleDateString()}
+                        </span>
                       </div>
-                      <button
-                        onClick={(e) => handleDeleteChat(chat.id, e)}
-                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-                      >
-                        <Trash2 className="w-3 h-3" style={{ color: currentTheme.colors.error }} />
-                      </button>
                     </div>
+                    
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteConversation(chat.id);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded transition-all"
+                      style={{ color: currentTheme.colors.error }}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+              
+              {conversations.length === 0 && (
+                <div className="text-center py-8">
+                  <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" 
+                                 style={{ color: currentTheme.colors.textSecondary }} />
+                  <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+                    No conversations yet
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
+                    Start chatting to see your history
+                  </p>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        )}
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col relative">
-          {/* Static Stars Background */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute" style={{ left: '12%', top: '10%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
-            <div className="absolute" style={{ left: '78%', top: '18%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
-            <div className="absolute" style={{ left: '28%', top: '28%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }}></div>
-            <div className="absolute" style={{ left: '88%', top: '38%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
-            <div className="absolute" style={{ left: '48%', top: '48%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
-            <div className="absolute" style={{ left: '68%', top: '58%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
-            <div className="absolute" style={{ left: '18%', top: '68%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.20 }}></div>
-            <div className="absolute" style={{ left: '82%', top: '78%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.35 }}></div>
-            <div className="absolute" style={{ left: '38%', top: '88%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
-            <div className="absolute" style={{ left: '58%', top: '15%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
-            <div className="absolute" style={{ left: '8%', top: '45%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
-            <div className="absolute" style={{ left: '92%', top: '65%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.20 }}></div>
-            <div className="absolute" style={{ left: '32%', top: '5%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.25 }}></div>
-            <div className="absolute" style={{ left: '72%', top: '95%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.15 }}></div>
-            <div className="absolute" style={{ left: '52%', top: '75%', width: '2px', height: '2px', backgroundColor: currentTheme.colors.secondary, opacity: 0.30 }}></div>
-          </div>
-
+        <div className="flex-1 flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 sm:p-6 border-b relative z-10"
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b"
                style={{ borderColor: currentTheme.colors.border }}>
             <div className="flex items-center space-x-3">
-              {!isSidebarOpen && (
-                <button
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="p-2 hover:bg-white/10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-                >
-                  <Menu className="w-5 h-5" style={{ color: currentTheme.colors.textSecondary }} />
-                </button>
-              )}
+              <button
+                onClick={() => setShowChatHistory(!showChatHistory)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                style={{ color: currentTheme.colors.textSecondary }}
+              >
+                <MessageCircle className="w-5 h-5" />
+              </button>
+              
               <div className="relative">
                 <Brain className="w-6 h-6 animate-pulse" 
                        style={{ color: currentTheme.colors.primary }} />
@@ -507,10 +518,25 @@ export const AIChat: React.FC<AIChatProps> = ({
                 </div>
               </div>
             </div>
+            
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleNewChat}
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg border transition-all duration-200 hover:scale-105"
+                style={{
+                  background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
+                  borderColor: currentTheme.colors.primary + '40',
+                  color: currentTheme.colors.text
+                }}
+              >
+                <Plus className="w-4 h-4" />
+                <span className="text-sm font-medium hidden sm:inline">New Chat</span>
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar relative z-10">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -531,6 +557,25 @@ export const AIChat: React.FC<AIChatProps> = ({
                   >
                     <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
                   </div>
+                  
+                  {message.suggestions && (
+                    <div className="mt-2 sm:mt-3 flex flex-wrap gap-2">
+                      {message.suggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs border rounded-full transition-all duration-200 hover:scale-105"
+                          style={{
+                            background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
+                            borderColor: currentTheme.colors.border,
+                            color: currentTheme.colors.textSecondary
+                          }}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -558,7 +603,7 @@ export const AIChat: React.FC<AIChatProps> = ({
           </div>
 
           {/* Input */}
-          <div className="p-4 sm:p-6 border-t relative z-10" style={{ borderColor: currentTheme.colors.border }}>
+          <div className="p-4 sm:p-6 border-t" style={{ borderColor: currentTheme.colors.border }}>
             <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-3">
               <input
                 ref={inputRef}
@@ -571,7 +616,8 @@ export const AIChat: React.FC<AIChatProps> = ({
                 style={{
                   backgroundColor: currentTheme.colors.surface + '40',
                   borderColor: currentTheme.colors.border,
-                  color: currentTheme.colors.text
+                  color: currentTheme.colors.text,
+                  fontSize: '16px'
                 }}
               />
               <button
@@ -860,6 +906,37 @@ export const AIChat: React.FC<AIChatProps> = ({
                       )}
                     </div>
                   </div>
+
+                  {message.suggestions && (
+                    <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
+                      {message.suggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm border rounded-full 
+                                   transition-all duration-200 hover:scale-105 active:scale-95 backdrop-blur-sm"
+                          style={{
+                            background: `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`,
+                            borderColor: currentTheme.colors.border,
+                            color: currentTheme.colors.textSecondary,
+                            boxShadow: `0 4px 12px -4px ${currentTheme.shadows.primary}`
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.surface}60, ${currentTheme.colors.surface}40)`;
+                            e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';
+                            e.currentTarget.style.color = currentTheme.colors.text;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = `linear-gradient(135deg, ${currentTheme.colors.surface}40, ${currentTheme.colors.surface}20)`;
+                            e.currentTarget.style.borderColor = currentTheme.colors.border;
+                            e.currentTarget.style.color = currentTheme.colors.textSecondary;
+                          }}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -908,7 +985,8 @@ export const AIChat: React.FC<AIChatProps> = ({
                     backgroundColor: currentTheme.colors.surface + '40',
                     borderColor: currentTheme.colors.border,
                     color: currentTheme.colors.text,
-                    boxShadow: `0 4px 12px -4px ${currentTheme.shadows.primary}`
+                    boxShadow: `0 4px 12px -4px ${currentTheme.shadows.primary}`,
+                    fontSize: '16px'
                   }}
                   onFocus={(e) => {
                     e.currentTarget.style.borderColor = currentTheme.colors.primary + '50';

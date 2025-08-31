@@ -4,11 +4,35 @@ const API_BASE_URL = 'http://147.93.102.165:8000';
 export interface AgentChatRequest {
   role?: string;
   message: string;
+  conversation_id?: string;
+  max_tokens?: number;
+  temperature?: number;
 }
 
 export interface AgentChatResponse {
   response: string;
-  role: string;
+  conversation_id: string;
+  message_id: string;
+  personality: string;
+  tokens_used: number;
+  processing_time: number;
+  user_context: object;
+}
+
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  last_message_at: string;
+  message_count: number;
+  started_at: string;
+}
+
+export interface ConversationMessage {
+  id: string;
+  conversation_id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  created_at: string;
 }
 
 export const apiService = {
@@ -24,7 +48,7 @@ export const apiService = {
     }
   },
 
-  async sendAgentChat(request: AgentChatRequest): Promise<AgentChatResponse> {
+  async sendChatMessage(request: AgentChatRequest): Promise<AgentChatResponse> {
     try {
       const token = localStorage.getItem('token');
       
@@ -32,7 +56,16 @@ export const apiService = {
         throw new Error('Please login to continue');
       }
 
-      console.log('Sending to backend:', `${API_BASE_URL}/api/v1/chat/message`);
+      const requestBody: any = {
+        message: request.message,
+        personality: request.role || 'sarah',
+        max_tokens: request.max_tokens || 500,
+        temperature: request.temperature || 0.7
+      };
+
+      if (request.conversation_id) {
+        requestBody.conversation_id = request.conversation_id;
+      }
 
       const response = await fetch(`${API_BASE_URL}/api/v1/chat/message`, {
         method: 'POST',
@@ -40,12 +73,7 @@ export const apiService = {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          message: request.message,
-          personality: request.role || 'sarah',
-          max_tokens: 500,
-          temperature: 0.7
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
@@ -54,14 +82,99 @@ export const apiService = {
       }
 
       const data = await response.json();
-      console.log('Received from backend:', data);
 
       return {
         response: data.response,
-        role: data.personality || request.role || 'sarah'
+        conversation_id: data.conversation_id,
+        message_id: data.message_id,
+        personality: data.personality,
+        tokens_used: data.tokens_used,
+        processing_time: data.processing_time,
+        user_context: data.user_context
       };
     } catch (error) {
       console.error('Error sending chat message:', error);
+      throw error;
+    }
+  },
+
+  async getConversations(): Promise<ConversationSummary[]> {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('Please login to continue');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat/conversations`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      throw error;
+    }
+  },
+
+  async getConversationMessages(conversationId: string): Promise<ConversationMessage[]> {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('Please login to continue');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat/conversations/${conversationId}/messages`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching conversation messages:', error);
+      throw error;
+    }
+  },
+
+  async deleteConversation(conversationId: string): Promise<void> {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('Please login to continue');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat/conversations/${conversationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
       throw error;
     }
   },

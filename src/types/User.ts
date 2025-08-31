@@ -17,6 +17,10 @@ export interface ChatMessage {
 export interface ChatHistory {
   id: string;
   title: string;
+  preview?: string;
   messages: ChatMessage[];
-  timestamp: string;
+  timestamp: Date;
+  message_count?: number;
+  started_at?: string;
+  last_message_at?: string;
 }
