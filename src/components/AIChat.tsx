@@ -205,7 +205,6 @@ export const AIChat: React.FC<AIChatProps> = ({
   const renameConversation = async (conversationId: string, newTitle: string) => {
     try {
       await apiService.renameConversation(conversationId, newTitle);
-
       // Reload conversations to reflect the change
       await loadConversations();
       setEditingChatId(null);
@@ -216,8 +215,8 @@ export const AIChat: React.FC<AIChatProps> = ({
   };
 
   const handleNewChat = async () => {
+    setConversationId(null);
     try {
-      setConversationId(null);
       // Create new conversation via API
       const result = await apiService.createNewConversation();
       
@@ -255,7 +254,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       
       console.log('New conversation created:', result.conversation_id);
     } catch (error) {
-      console.error('Error creating new chat:', error);
+      console.error('Error creating new conversation:', error);
     }
   };
 
