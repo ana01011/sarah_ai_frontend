@@ -223,7 +223,12 @@ class AuthService {
     if (!response.ok) {
       throw new Error(result.detail || 'Failed to get user');
     }
-    return result;
+    
+    // Return in expected format
+    return {
+      success: true,
+      data: result
+    };
   }
 
   async logout(): Promise<any> {

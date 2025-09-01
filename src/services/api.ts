@@ -98,6 +98,62 @@ export const apiService = {
     }
   },
 
+  async createNewConversation(): Promise<{ conversation_id: string }> {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('Please login to continue');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat/conversations/new`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error creating new conversation:', error);
+      throw error;
+    }
+  },
+
+  async renameConversation(conversationId: string, newTitle: string): Promise<void> {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('Please login to continue');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/chat/conversations/${conversationId}/rename`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ title: newTitle })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || `HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error renaming conversation:', error);
+      throw error;
+    }
+  },
+
   async getConversations(): Promise<ConversationSummary[]> {
     try {
       const token = localStorage.getItem('token');

@@ -204,8 +204,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   const renameConversation = async (conversationId: string, newTitle: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://147.93.102.165:8000/api/v1/chat/conversations/${conversationId}/rename`, {
+      await apiService.renameConversation(conversationId, newTitle);
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -229,9 +228,15 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   const handleNewChat = () => {
     setConversationId(null);
-    setCurrentChatId(null);
-    setMessages([
-      {
+      // Create new conversation via API
+      const result = await apiService.createNewConversation();
+      
+      // Set the new conversation ID
+      setConversationId(result.conversation_id);
+      setCurrentChatId(result.conversation_id);
+      
+      // Clear messages and show initial AI message
+      setMessages([{
         id: '1',
         content: agentContext 
           ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. I specialize in ${agentContext.specialties.join(', ')}. How can I assist you with ${agentContext.department.toLowerCase()} matters today?`
@@ -253,11 +258,12 @@ export const AIChat: React.FC<AIChatProps> = ({
             "📈 Create performance reports"
           ])
         ]
-      }
-    ]);
-    console.log('Starting new conversation');
-  };
-
+      }]);
+      
+      // Refresh conversations list to show new chat
+      await loadConversations();
+      
+      console.log('New conversation created:', result.conversation_id);
   const playSound = (type: 'send' | 'receive' | 'notification') => {
     if (!soundEnabled) return;
     console.log(`Playing ${type} sound`);
@@ -327,6 +333,15 @@ export const AIChat: React.FC<AIChatProps> = ({
 
     } catch (error) {
       console.error('Failed to get response:', error);
+      // Fallback to local new chat if API fails
+      setConversationId(null);
+      setCurrentChatId(null);
+      setMessages([{
+        id: '1',
+        content: "Hello! I'm Sarah, your advanced AI assistant. How can I help you today?",
+        sender: 'ai',
+        timestamp: new Date()
+      }]);
       setIsTyping(false);
       
       const errorMessage: Message = {

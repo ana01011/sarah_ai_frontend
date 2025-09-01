@@ -146,6 +146,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           isLoading: false,
           verificationEmail: null
         }));
+      } else if (response.access_token) {
+        // Handle direct token response from backend
+        authService.setToken(response.access_token);
+        
+        // Get user info
+        try {
+          const userResponse = await authService.getCurrentUser();
+          authService.setUser(userResponse);
+          
+          setState(prev => ({
+            ...prev,
+            user: userResponse,
+            token: response.access_token,
+            isAuthenticated: true,
+            isLoading: false,
+            verificationEmail: null
+          }));
+        } catch (userError) {
+          console.error('Error getting user after OTP verification:', userError);
+          setState(prev => ({
+            ...prev,
+            error: 'Failed to get user information',
+            isLoading: false
+          }));
+          throw userError;
+        }
       }
     } catch (error: any) {
       setState(prev => ({
