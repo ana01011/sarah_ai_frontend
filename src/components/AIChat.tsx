@@ -204,7 +204,20 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   const renameConversation = async (conversationId: string, newTitle: string) => {
     try {
-      await apiService.renameConversation(conversationId, newTitle);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://147.93.102.165:8000/api/v1/chat/conversations/${conversationId}/rename`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ title: newTitle })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to rename conversation');
+      }
+
       // Reload conversations to reflect the change
       await loadConversations();
       setEditingChatId(null);
@@ -214,8 +227,9 @@ export const AIChat: React.FC<AIChatProps> = ({
     }
   };
 
-  const handleNewChat = () => {
-    setConversationId(null);
+  const handleNewChat = async () => {
+    try {
+      setConversationId(null);
       // Create new conversation via API
       const result = await apiService.createNewConversation();
       
@@ -252,6 +266,11 @@ export const AIChat: React.FC<AIChatProps> = ({
       await loadConversations();
       
       console.log('New conversation created:', result.conversation_id);
+    } catch (error) {
+      console.error('Error creating new chat:', error);
+    }
+  };
+
   const playSound = (type: 'send' | 'receive' | 'notification') => {
     if (!soundEnabled) return;
     console.log(`Playing ${type} sound`);
