@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/api';
-import { ChatHistory, ChatMessage } from '../types/User';
 import { 
   MessageCircle, 
   Send, 
@@ -35,8 +34,9 @@ import {
   Star,
   Plus,
   Trash2,
-  Clock,
-  MessageSquare
+  Edit3,
+  Check,
+  Menu
 } from 'lucide-react';
 
 interface Message {
@@ -48,6 +48,17 @@ interface Message {
   suggestions?: string[];
   attachments?: string[];
   reactions?: { type: string; count: number }[];
+}
+
+interface ChatHistory {
+  id: string;
+  title: string;
+  preview?: string;
+  messages: Message[];
+  timestamp: Date;
+  message_count?: number;
+  started_at?: string;
+  last_message_at?: string;
 }
 
 interface AIChatProps {
@@ -93,10 +104,12 @@ export const AIChat: React.FC<AIChatProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showChatHistory, setShowChatHistory] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<ChatHistory[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  const [showChatHistory, setShowChatHistory] = useState(false);
+  const [editingChatId, setEditingChatId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
   const { currentTheme } = useTheme();
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -168,7 +181,6 @@ export const AIChat: React.FC<AIChatProps> = ({
       setMessages(messages);
       setConversationId(conversationId);
       setCurrentChatId(conversationId);
-      setShowChatHistory(false);
     } catch (error) {
       console.error('Error loading conversation:', error);
     }
@@ -190,6 +202,31 @@ export const AIChat: React.FC<AIChatProps> = ({
     }
   };
 
+  const renameConversation = async (conversationId: string, newTitle: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://147.93.102.165:8000/api/v1/chat/conversations/${conversationId}/rename`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ title: newTitle })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to rename conversation');
+      }
+
+      // Reload conversations to reflect the change
+      await loadConversations();
+      setEditingChatId(null);
+      setEditingTitle('');
+    } catch (error) {
+      console.error('Error renaming conversation:', error);
+    }
+  };
+
   const handleNewChat = () => {
     setConversationId(null);
     setCurrentChatId(null);
@@ -197,8 +234,8 @@ export const AIChat: React.FC<AIChatProps> = ({
       {
         id: '1',
         content: agentContext 
-          ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. How can I assist you today?`
-          : "Hello! I'm Sarah, your advanced AI assistant. How can I help you today?",
+          ? `Hello! I'm ${agentContext.name}, your ${agentContext.role}. I specialize in ${agentContext.specialties.join(', ')}. How can I assist you with ${agentContext.department.toLowerCase()} matters today?`
+          : "Hello! I'm Sarah, your advanced AI assistant. I can help you with system monitoring, data analysis, model optimization, code generation, and much more. What would you like to explore today?",
         sender: 'ai',
         timestamp: new Date(),
         suggestions: [
@@ -218,15 +255,7 @@ export const AIChat: React.FC<AIChatProps> = ({
         ]
       }
     ]);
-    setShowChatHistory(false);
-  };
-
-  const updateChatHistory = async (conversationId: string, lastMessage: string) => {
-    try {
-      await loadConversations();
-    } catch (error) {
-      console.error('Error updating chat history:', error);
-    }
+    console.log('Starting new conversation');
   };
 
   const playSound = (type: 'send' | 'receive' | 'notification') => {
@@ -252,14 +281,14 @@ export const AIChat: React.FC<AIChatProps> = ({
     };
 
     setMessages(prev => [...prev, userMessage]);
-    const messageToSend = inputValue;
+    const messageContent = inputValue;
     setInputValue('');
     setIsTyping(true);
 
     try {
       const requestBody: any = {
-        message: messageToSend,
-        role: user?.personality || 'sarah',
+        message: messageContent,
+        personality: agentContext?.personality || user?.personality || 'sarah',
         max_tokens: 500,
         temperature: 0.7
       };
@@ -275,8 +304,8 @@ export const AIChat: React.FC<AIChatProps> = ({
       if (!conversationId && data.conversation_id) {
         setConversationId(data.conversation_id);
         setCurrentChatId(data.conversation_id);
-        // Update chat history
-        await updateChatHistory(data.conversation_id, messageToSend);
+        // Refresh conversations list to show new chat
+        await loadConversations();
       }
 
       const aiMessage: Message = {
@@ -379,28 +408,45 @@ export const AIChat: React.FC<AIChatProps> = ({
     playSound('notification');
   };
 
+  const handleEditTitle = (chatId: string, currentTitle: string) => {
+    setEditingChatId(chatId);
+    setEditingTitle(currentTitle);
+  };
+
+  const handleSaveTitle = async () => {
+    if (editingChatId && editingTitle.trim()) {
+      await renameConversation(editingChatId, editingTitle.trim());
+    } else {
+      setEditingChatId(null);
+      setEditingTitle('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingChatId(null);
+    setEditingTitle('');
+  };
+
   if (!isOpen) return null;
 
   if (isIntegrated) {
     return (
       <div className="h-full flex bg-transparent">
         {/* Chat History Sidebar */}
-        {showChatHistory && (
-          <div 
-            className="w-80 border-r backdrop-blur-md flex-shrink-0"
-            style={{ 
-              backgroundColor: currentTheme.colors.surface + '80',
-              borderColor: currentTheme.colors.border
-            }}
-          >
-            <div className="p-4 border-b" style={{ borderColor: currentTheme.colors.border }}>
+        <div 
+          className={`${showChatHistory ? 'w-80' : 'w-0'} transition-all duration-300 border-r flex-shrink-0 overflow-hidden`}
+          style={{ borderColor: currentTheme.colors.border }}
+        >
+          <div className="h-full flex flex-col" style={{ backgroundColor: currentTheme.colors.surface + '40' }}>
+            {/* Sidebar Header - Fixed */}
+            <div className="p-4 border-b flex-shrink-0" style={{ borderColor: currentTheme.colors.border }}>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold" style={{ color: currentTheme.colors.text }}>
+                <h3 className="font-semibold" style={{ color: currentTheme.colors.text }}>
                   Chat History
                 </h3>
                 <button
                   onClick={() => setShowChatHistory(false)}
-                  className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                  className="p-1 hover:bg-white/10 rounded-lg transition-colors lg:hidden"
                   style={{ color: currentTheme.colors.textSecondary }}
                 >
                   <X className="w-4 h-4" />
@@ -409,94 +455,173 @@ export const AIChat: React.FC<AIChatProps> = ({
               
               <button
                 onClick={handleNewChat}
-                className="w-full flex items-center space-x-2 p-3 rounded-lg border transition-all duration-200 hover:scale-[1.02]"
+                className="w-full flex items-center justify-center space-x-2 p-3 rounded-lg border transition-all duration-200 hover:scale-[1.02]"
                 style={{
                   background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
                   borderColor: currentTheme.colors.primary + '40',
-                  color: currentTheme.colors.text
+                  color: currentTheme.colors.primary
                 }}
               >
                 <Plus className="w-4 h-4" />
                 <span className="font-medium">New Chat</span>
               </button>
             </div>
-            
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2">
-              {conversations.map((chat) => (
-                <div
-                  key={chat.id}
-                  onClick={() => loadConversation(chat.id)}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:scale-[1.02] group ${
-                    currentChatId === chat.id ? 'ring-2' : ''
-                  }`}
-                  style={{
-                    backgroundColor: currentChatId === chat.id 
-                      ? currentTheme.colors.primary + '20' 
-                      : currentTheme.colors.surface + '40',
-                    borderColor: currentChatId === chat.id 
-                      ? currentTheme.colors.primary + '50' 
-                      : currentTheme.colors.border,
-                    ringColor: currentTheme.colors.primary + '50'
-                  }}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-sm truncate" style={{ color: currentTheme.colors.text }}>
-                        {chat.title}
-                      </h4>
-                      <p className="text-xs mt-1 truncate" style={{ color: currentTheme.colors.textSecondary }}>
-                        {chat.preview}
-                      </p>
-                      <div className="flex items-center space-x-2 mt-2">
-                        <Clock className="w-3 h-3" style={{ color: currentTheme.colors.textSecondary }} />
-                        <span className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
-                          {chat.timestamp.toLocaleDateString()}
-                        </span>
+
+            {/* Scrollable Chat List */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <div className="p-4 space-y-2">
+                {conversations.length === 0 ? (
+                  <div className="text-center py-8">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" 
+                                   style={{ color: currentTheme.colors.textSecondary }} />
+                    <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
+                      No conversations yet
+                    </p>
+                    <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
+                      Start a new chat to begin
+                    </p>
+                  </div>
+                ) : (
+                  conversations.map((chat) => (
+                    <div
+                      key={chat.id}
+                      className={`group p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
+                        currentChatId === chat.id ? 'ring-2' : ''
+                      }`}
+                      style={{
+                        backgroundColor: currentChatId === chat.id 
+                          ? currentTheme.colors.primary + '20' 
+                          : currentTheme.colors.surface + '60',
+                        borderColor: currentChatId === chat.id 
+                          ? currentTheme.colors.primary + '50' 
+                          : currentTheme.colors.border,
+                        ringColor: currentChatId === chat.id ? currentTheme.colors.primary + '50' : 'transparent'
+                      }}
+                      onClick={() => loadConversation(chat.id)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          {editingChatId === chat.id ? (
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="text"
+                                value={editingTitle}
+                                onChange={(e) => setEditingTitle(e.target.value)}
+                                className="flex-1 px-2 py-1 text-sm rounded border"
+                                style={{
+                                  backgroundColor: currentTheme.colors.surface + '80',
+                                  borderColor: currentTheme.colors.border,
+                                  color: currentTheme.colors.text,
+                                  fontSize: '14px'
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleSaveTitle();
+                                  if (e.key === 'Escape') handleCancelEdit();
+                                }}
+                                autoFocus
+                              />
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSaveTitle();
+                                }}
+                                className="p-1 hover:bg-white/10 rounded transition-colors"
+                                style={{ color: currentTheme.colors.success }}
+                              >
+                                <Check className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCancelEdit();
+                                }}
+                                className="p-1 hover:bg-white/10 rounded transition-colors"
+                                style={{ color: currentTheme.colors.error }}
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <h4 className="font-medium text-sm truncate" style={{ color: currentTheme.colors.text }}>
+                                {chat.title}
+                              </h4>
+                              <p className="text-xs mt-1 truncate" style={{ color: currentTheme.colors.textSecondary }}>
+                                {chat.preview}
+                              </p>
+                              <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
+                                {chat.timestamp.toLocaleDateString()}
+                              </p>
+                            </>
+                          )}
+                        </div>
+                        
+                        {editingChatId !== chat.id && (
+                          <div className="flex items-center space-x-1 ml-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditTitle(chat.id, chat.title);
+                              }}
+                              className="p-1 hover:bg-white/10 rounded transition-colors"
+                              style={{ color: currentTheme.colors.textSecondary }}
+                            >
+                              <Edit3 className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteConversation(chat.id);
+                              }}
+                              className="p-1 hover:bg-white/10 rounded transition-colors"
+                              style={{ color: currentTheme.colors.error }}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteConversation(chat.id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded transition-all"
-                      style={{ color: currentTheme.colors.error }}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              
-              {conversations.length === 0 && (
-                <div className="text-center py-8">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" 
-                                 style={{ color: currentTheme.colors.textSecondary }} />
-                  <p className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
-                    No conversations yet
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: currentTheme.colors.textSecondary }}>
-                    Start chatting to see your history
-                  </p>
-                </div>
-              )}
+                  ))
+                )}
+              </div>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 sm:p-6 border-b"
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Fixed Header */}
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0"
                style={{ borderColor: currentTheme.colors.border }}>
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setShowChatHistory(!showChatHistory)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors lg:hidden"
+                style={{ color: currentTheme.colors.textSecondary }}
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              
+              <button
+                onClick={() => setShowChatHistory(!showChatHistory)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors hidden lg:block"
                 style={{ color: currentTheme.colors.textSecondary }}
               >
                 <MessageCircle className="w-5 h-5" />
+              </button>
+              
+              <button
+                onClick={handleNewChat}
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg border transition-all duration-200 hover:scale-105"
+                style={{
+                  background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
+                  borderColor: currentTheme.colors.primary + '40',
+                  color: currentTheme.colors.primary
+                }}
+              >
+                <Plus className="w-4 h-4" />
+                <span className="text-sm font-medium hidden sm:inline">New Chat</span>
               </button>
               
               <div className="relative">
@@ -518,24 +643,9 @@ export const AIChat: React.FC<AIChatProps> = ({
                 </div>
               </div>
             </div>
-            
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={handleNewChat}
-                className="flex items-center space-x-2 px-3 py-2 rounded-lg border transition-all duration-200 hover:scale-105"
-                style={{
-                  background: `linear-gradient(135deg, ${currentTheme.colors.primary}20, ${currentTheme.colors.secondary}20)`,
-                  borderColor: currentTheme.colors.primary + '40',
-                  color: currentTheme.colors.text
-                }}
-              >
-                <Plus className="w-4 h-4" />
-                <span className="text-sm font-medium hidden sm:inline">New Chat</span>
-              </button>
-            </div>
           </div>
 
-          {/* Messages */}
+          {/* Messages Area - Scrollable */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
             {messages.map((message) => (
               <div
@@ -555,7 +665,11 @@ export const AIChat: React.FC<AIChatProps> = ({
                       color: currentTheme.colors.text
                     }}
                   >
-                    <p className="text-sm sm:text-base leading-relaxed">{message.content}</p>
+                    <div className="prose prose-sm max-w-none" style={{ color: currentTheme.colors.text }}>
+                      <div className="whitespace-pre-wrap leading-relaxed">
+                        {message.content}
+                      </div>
+                    </div>
                   </div>
                   
                   {message.suggestions && (
@@ -602,8 +716,8 @@ export const AIChat: React.FC<AIChatProps> = ({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
-          <div className="p-4 sm:p-6 border-t" style={{ borderColor: currentTheme.colors.border }}>
+          {/* Fixed Input Area */}
+          <div className="p-4 sm:p-6 border-t flex-shrink-0" style={{ borderColor: currentTheme.colors.border }}>
             <form onSubmit={handleSendMessage} className="flex items-center space-x-2 sm:space-x-3">
               <input
                 ref={inputRef}
@@ -835,7 +949,11 @@ export const AIChat: React.FC<AIChatProps> = ({
                          }}></div>
                     
                     <div className="relative z-10">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: currentTheme.colors.text }}>{message.content}</p>
+                      <div className="prose prose-sm max-w-none" style={{ color: currentTheme.colors.text }}>
+                        <div className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base">
+                          {message.content}
+                        </div>
+                      </div>
                       
                       {message.sender === 'ai' && (
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 sm:mt-4 pt-3 sm:pt-4 border-t space-y-2 sm:space-y-0"
@@ -899,7 +1017,9 @@ export const AIChat: React.FC<AIChatProps> = ({
                             
                             <div className="flex items-center space-x-1">
                               <Sparkles className="w-3 h-3 animate-pulse" style={{ color: currentTheme.colors.accent }} />
-                              <span className="text-xs font-medium" style={{ color: currentTheme.colors.accent }}>AI Generated</span>
+                              <span className="font-medium text-xs" style={{ color: currentTheme.colors.accent }}>
+                                {agentContext ? `${agentContext.name} AI` : 'Sarah AI v3.7.2'}
+                              </span>
                             </div>
                           </div>
                         </div>
