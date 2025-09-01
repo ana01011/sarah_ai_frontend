@@ -204,19 +204,7 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   const renameConversation = async (conversationId: string, newTitle: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://147.93.102.165:8000/api/v1/chat/conversations/${conversationId}/rename`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ title: newTitle })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to rename conversation');
-      }
+      await apiService.renameConversation(conversationId, newTitle);
 
       // Reload conversations to reflect the change
       await loadConversations();
