@@ -110,7 +110,7 @@ export const AIChat: React.FC<AIChatProps> = ({
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
-  const { currentTheme } = useTheme();
+  const { currentTheme, setTheme } = useTheme();
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -276,6 +276,33 @@ export const AIChat: React.FC<AIChatProps> = ({
     console.log(`Playing ${type} sound`);
   };
 
+  // Theme name mapping from backend to frontend theme IDs
+  const themeNameMapping: Record<string, string> = {
+    'Cyber Dark': 'dark',
+    'Pure Light': 'light',
+    'Neon Nights': 'neon',
+    'Deep Ocean': 'ocean',
+    'Simple Dark': 'simple-dark',
+    'Simple Light': 'simple-light',
+    'Tech Blue': 'tech-blue',
+    'Finance Green': 'finance-green',
+    'Marketing Purple': 'marketing-purple',
+    'Product Teal': 'product-teal',
+    'Developer Dark': 'developer-dark',
+    'AI Neural': 'ai-neural',
+    'Frontend Pink': 'frontend-pink',
+    'Backend Slate': 'backend-slate',
+    'Data Cyan': 'data-cyan'
+  };
+
+  const handleThemeChange = (themeName: string) => {
+    const themeId = themeNameMapping[themeName];
+    if (themeId) {
+      setTheme(themeId);
+      playSound('notification');
+    }
+  };
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) {
       e.preventDefault();
@@ -319,6 +346,11 @@ export const AIChat: React.FC<AIChatProps> = ({
         setCurrentChatId(data.conversation_id);
         // Refresh conversations list to show new chat
         await loadConversations();
+      }
+
+      // Check if backend says to change theme
+      if (data.theme_changed) {
+        handleThemeChange(data.theme_changed);
       }
 
       const aiMessage: Message = {
