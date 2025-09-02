@@ -303,10 +303,6 @@ export const AIChat: React.FC<AIChatProps> = ({
       setTheme(themeId);
       console.log("Called setTheme with:", themeId);
       playSound('notification');
-      // Reload page after short delay to apply theme
-      setTimeout(() => {
-        console.log("Reloading page..."); window.location.reload();
-      }, 500);
     }
   };
 
