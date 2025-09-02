@@ -297,9 +297,16 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   const handleThemeChange = (themeName: string) => {
     const themeId = themeNameMapping[themeName];
+    console.log("Theme change requested:", themeName);
+    console.log("Mapped to theme ID:", themeId);
     if (themeId) {
       setTheme(themeId);
+      console.log("Called setTheme with:", themeId);
       playSound('notification');
+      // Reload page after short delay to apply theme
+      setTimeout(() => {
+        console.log("Reloading page..."); window.location.reload();
+      }, 500);
     }
   };
 
@@ -349,8 +356,30 @@ export const AIChat: React.FC<AIChatProps> = ({
       }
 
       // Check if backend says to change theme
+      console.log("Response from backend:", data);
+      // Check for theme change in multiple places
+      let themeToApply = null;
+      
+      // Check direct theme_changed field
       if (data.theme_changed) {
-        handleThemeChange(data.theme_changed);
+        themeToApply = data.theme_changed;
+        console.log("Theme changed (direct):", themeToApply);
+      }
+      
+      // Check in user_context.theme_action
+      if (data.user_context && data.user_context.theme_action) {
+        // Extract theme name from "Switched to [Theme Name]"
+        const match = data.user_context.theme_action.match(/Switched to (.+)/);
+        if (match) {
+          themeToApply = match[1];
+          console.log("Theme changed (from context):", themeToApply);
+        }
+      }
+      
+      // Apply theme if found
+      if (themeToApply) {
+        console.log("Applying theme:", themeToApply);
+        handleThemeChange(themeToApply);
       }
 
       const aiMessage: Message = {
