@@ -9,7 +9,7 @@
 //   onSwitchTo2FA: () => void;
 // }> = ({ onSwitchToRegister, onSwitchToForgotPassword, onSwitchTo2FA }) => {
 //   const { currentTheme } = useTheme();
-//   const { login, googleLogin, error, isLoading, clearError } = useAuth();
+//   const { login, googleLogin, error, isLoading, clearError, devBypass } = useAuth();
 //   const [formData, setFormData] = useState({
 //     email: '',
 //     password: '',
@@ -83,6 +83,14 @@
 //       }
 //     } catch (error) {
 //       // Error is handled by context
+//     }
+//   };
+
+//   const handleDevBypass = async () => {
+//     try {
+//       await devBypass();
+//     } catch (error) {
+//       console.error('Dev bypass error:', error);
 //     }
 //   };
 
@@ -307,6 +315,33 @@
 //                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform relative z-10" />
 //                 </>
 //               )}
+//             </button>
+
+//             {/* Developer Bypass Button - For Frontend Development Only */}
+//             <button
+//               type="button"
+//               onClick={handleDevBypass}
+//               disabled={isLoading}
+//               className="w-full py-2.5 px-4 rounded-xl font-medium transition-all duration-300 
+//                        hover:scale-[1.02] active:scale-95 hover:shadow-lg
+//                        flex items-center justify-center space-x-2 group relative overflow-hidden
+//                        backdrop-blur-sm border disabled:opacity-50 disabled:cursor-not-allowed"
+//               style={{
+//                 backgroundColor: currentTheme.colors.surface + '80',
+//                 borderColor: currentTheme.colors.secondary + '50',
+//                 color: currentTheme.colors.text,
+//                 boxShadow: `0 4px 12px -4px ${currentTheme.shadows.secondary}`
+//               }}
+//               onMouseEnter={(e) => {
+//                 e.currentTarget.style.backgroundColor = currentTheme.colors.surface + 'a0';
+//                 e.currentTarget.style.borderColor = currentTheme.colors.secondary;
+//               }}
+//               onMouseLeave={(e) => {
+//                 e.currentTarget.style.backgroundColor = currentTheme.colors.surface + '80';
+//                 e.currentTarget.style.borderColor = currentTheme.colors.secondary + '50';
+//               }}
+//             >
+//               <span className="text-xs relative z-10">🔧 Developer Bypass (Dev Only)</span>
 //             </button>
 
 //             {/* Enable 2FA Option */}

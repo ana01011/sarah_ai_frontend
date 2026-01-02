@@ -9,7 +9,7 @@ import {
   User
 } from '../types/Auth';
 
-const API_BASE = 'http://147.93.102.165:8000/api/v1';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api/v1` : 'http://147.93.102.165:8000/api/v1';
 
 class AuthService {
   private getHeaders(includeAuth = false): HeadersInit {

@@ -1,5 +1,5 @@
 // API Service for Sarah AI Backend
-const API_BASE_URL = 'http://147.93.102.165:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://147.93.102.165:8000';
 
 export interface AgentChatRequest {
   role?: string;

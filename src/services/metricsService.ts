@@ -174,7 +174,7 @@ class MetricsService {
   private cache: Map<string, { data: any; timestamp: number }> = new Map();
   private cacheTimeout = 30000; // 30 seconds
 
-  constructor(baseUrl: string = 'http://147.93.102.165:8000') {
+  constructor(baseUrl: string = import.meta.env.VITE_API_BASE_URL || 'http://147.93.102.165:8000') {
     this.baseUrl = baseUrl;
   }
 
