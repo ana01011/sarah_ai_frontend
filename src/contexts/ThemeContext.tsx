@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Palette, Check } from 'lucide-react';
 
 export interface Theme {
   id: string;
@@ -11,7 +12,7 @@ export interface Theme {
     background: string;
     surface: string;
     text: string;
-    textSecondary: string;
+    textSecondary: string;  
     border: string;
     success: string;
     warning: string;
@@ -482,6 +483,36 @@ export const themes: Theme[] = [
       accent: 'rgba(14, 116, 144, 0.4)',
     },
   },
+  {
+  id: 'amesie-gold',
+  name: 'Amesie Gold',
+  description: 'Bright and professional seller dashboard',
+  colors: {
+    primary: '#fdc500',      // Amesie Brand Yellow
+    secondary: '#32343e',    // Amesie Dark Slate
+    accent: '#f59e0b',
+    background: '#f7f8f9',   // Amesie Light Gray Background
+    surface: '#ffffff',      // Pure white cards
+    text: '#32343e',
+    textSecondary: '#676767',
+    border: '#e8e9ec',
+    success: '#059669',
+    warning: '#d97706',
+    error: '#dc2626',
+    info: '#2563eb',
+  },
+  gradients: {
+    primary: 'from-amber-400 to-yellow-500',
+    secondary: 'from-slate-800 to-slate-900',
+    accent: 'from-orange-500 to-amber-500',
+    background: 'from-slate-50 via-white to-slate-50',
+  },
+  shadows: {
+    primary: 'rgba(253, 197, 0, 0.3)',
+    secondary: 'rgba(50, 52, 62, 0.3)',
+    accent: 'rgba(245, 158, 11, 0.3)',
+  },
+  }
 ];
 
 interface ThemeContextType {

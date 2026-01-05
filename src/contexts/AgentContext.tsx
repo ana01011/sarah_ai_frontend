@@ -1,7 +1,16 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Agent, agents } from '../types/Agent';
 
-export type ViewType = 'welcome' | 'dashboard' | 'selector' | 'agent';
+// Added Amesie views to the type
+export type ViewType = 
+  | 'welcome' 
+  | 'dashboard' 
+  | 'selector' 
+  | 'agent' 
+  | 'amesie-dashboard' 
+  | 'amesie-orders' 
+  | 'amesie-menu'
+  | 'profile';
 
 interface AgentContextType {
   currentView: ViewType;
@@ -30,6 +39,8 @@ export const AgentProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   );
 };
 
+// This line below fixes the Fast Refresh error
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAgent = () => {
   const context = useContext(AgentContext);
   if (context === undefined) {
