@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Palette, Check, Sun, Moon, Zap, Waves, Circle, Lightbulb, Code, DollarSign, Megaphone, Users, Briefcase, Brain, Smartphone, Database, BarChart3, Sparkles } from 'lucide-react';
+// Added 'Store' to the imports for the Amesie theme
+import { 
+  Palette, Check, Sun, Moon, Zap, Waves, Circle, Lightbulb, 
+  Code, DollarSign, Megaphone, Users, Briefcase, Brain, 
+  Smartphone, Database, BarChart3, Sparkles, Store 
+} from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const themeIcons = {
@@ -19,6 +24,7 @@ const themeIcons = {
   'frontend-pink': Smartphone,
   'backend-slate': Database,
   'data-cyan': BarChart3,
+  'amesie-gold': Store,
 };
 
 export const ThemeSelector: React.FC = () => {
