@@ -102,6 +102,34 @@
 //   const login = async (email: string, password: string, rememberMe = false) => {
 //     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
+//     // Auto-bypass for frontend development with dev credentials
+//     if ((email === 'dev@sarah.ai' || email === 'dev') && (password === 'dev' || password === 'dev-bypass')) {
+//       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+//       const devUser: User = {
+//         id: 'dev-bypass-id',
+//         email: 'dev@sarah.ai',
+//         username: 'developer',
+//         name: 'Developer Admin',
+//         is_verified: true,
+//         two_factor_enabled: false,
+//         personality: 'sarah',
+//         created_at: new Date().toISOString(),
+//         gender: 'neutral'
+//       };
+//       const devToken = 'dev-bypass-token-12345';
+//       authService.setToken(devToken);
+//       authService.setUser(devUser);
+//       setState(prev => ({
+//         ...prev,
+//         user: devUser,
+//         token: devToken,
+//         isAuthenticated: true,
+//         isLoading: false,
+//         error: null
+//       }));
+//       return {};
+//     }
+
 //     try {
 //       const response = await authService.login({ email, password, rememberMe });
       
