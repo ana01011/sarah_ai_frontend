@@ -9,6 +9,8 @@ import { AgentSelector } from './components/AgentSelector';
 import { AgentDashboard } from './components/AgentDashboard';
 import { Sidebar } from './components/Sidebar';
 import { AmesieDashboard } from './components/amesie/AmesieDashboard';
+import { AmesieOrders } from './components/amesie/AmesieOrders';
+import { AmesieMenu } from './components/amesie/AmesieMenu';
 
 const AppContent: React.FC = () => {
   const { currentView } = useAgent();
@@ -19,7 +21,8 @@ const AppContent: React.FC = () => {
       <Sidebar />
       
       <main className="flex-1 overflow-y-auto relative">
-        <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"> */}
+        <div className="h-full w-full">
           {(() => {
             switch (currentView) {
               case 'welcome': return <WelcomeScreen />;
@@ -27,11 +30,8 @@ const AppContent: React.FC = () => {
               case 'selector': return <AgentSelector />;
               case 'agent': return <AgentDashboard />;
               case 'amesie-dashboard':return <AmesieDashboard />;
-              
-              case 'amesie-orders':
-                return <div className="text-center py-20" style={{ color: currentTheme.colors.text }}>Amesie Orders Coming Soon</div>;
-              case 'amesie-menu':
-                return <div className="text-center py-20" style={{ color: currentTheme.colors.text }}>Amesie Menu Coming Soon</div>;
+              case 'amesie-orders':return <AmesieOrders />;
+              case 'amesie-menu':return <AmesieMenu />;
               case 'profile':
                 return <div className="text-center py-20" style={{ color: currentTheme.colors.text }}>Profile Page Coming Soon</div>;
                 

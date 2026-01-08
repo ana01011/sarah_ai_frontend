@@ -563,7 +563,7 @@ export const LoginPage: React.FC<{
           </h1>
           
           <p className="text-xs sm:text-sm font-light mb-1 sm:mb-2" style={{ color: currentTheme.colors.textSecondary }}>
-            Sign in to your SARAH AI account
+            Sign in to your AMESIE account
           </p>
           
           <div className="flex items-center justify-center space-x-1 sm:space-x-2" style={{ color: currentTheme.colors.secondary }}>

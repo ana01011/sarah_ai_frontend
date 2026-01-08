@@ -105,7 +105,8 @@ export const Dashboard: React.FC = () => {
                     backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
                   }}
                 >
-                  SARAH
+                  {/* SARAHhhhhhhhhh */}
+                  AMESIE
                 </h1>
                 <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.secondary }}>
                   v3.7.3

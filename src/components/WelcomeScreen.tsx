@@ -55,7 +55,8 @@ export const WelcomeScreen: React.FC = () => {
               backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
             }}
           >
-            SARAH
+            {/* SARAH */}
+            AMESIE
           </h1>
           
           <p className="text-lg sm:text-xl md:text-2xl font-light mb-3" style={{ color: currentTheme.colors.textSecondary }}>
@@ -87,7 +88,7 @@ export const WelcomeScreen: React.FC = () => {
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' }}
           />
-          <span className="relative z-10">Enter SARAH</span>
+          <span className="relative z-10">Enter AMESIE</span>
           <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform relative z-10" />
         </button>
 
