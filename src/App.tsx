@@ -11,6 +11,7 @@ import { Sidebar } from './components/Sidebar';
 import { AmesieDashboard } from './components/amesie/AmesieDashboard';
 import { AmesieOrders } from './components/amesie/AmesieOrders';
 import { AmesieMenu } from './components/amesie/AmesieMenu';
+import { AmesieProfile } from './components/AmesieProfile';
 
 const AppContent: React.FC = () => {
   const { currentView } = useAgent();
@@ -32,9 +33,7 @@ const AppContent: React.FC = () => {
               case 'amesie-dashboard':return <AmesieDashboard />;
               case 'amesie-orders':return <AmesieOrders />;
               case 'amesie-menu':return <AmesieMenu />;
-              case 'profile':
-                return <div className="text-center py-20" style={{ color: currentTheme.colors.text }}>Profile Page Coming Soon</div>;
-                
+              case 'profile':return <AmesieProfile />;                
               default: return <WelcomeScreen />;
             }
           })()}

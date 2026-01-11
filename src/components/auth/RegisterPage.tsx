@@ -203,7 +203,7 @@ export const RegisterPage: React.FC<{ onSwitchToLogin: () => void; onSwitchToVer
               backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
             }}
           >
-            Join SARAH
+            Join AMESIE
           </h1>
           
           <p className="text-sm font-light mb-2" style={{ color: currentTheme.colors.textSecondary }}>

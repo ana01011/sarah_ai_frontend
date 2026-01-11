@@ -533,12 +533,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (theme) {
         setCurrentTheme(theme);
       } else {
-        // If saved theme doesn't exist, default to backend-slate
-        setCurrentTheme(themes.find(t => t.id === 'backend-slate') || themes[0]);
+        // If saved theme doesn't exist, default to ameisie-gold
+        setCurrentTheme(themes.find(t => t.id === 'amesie-gold') || themes[0]);
       }
     } else {
       // If no saved theme, default to backend-slate
-      setCurrentTheme(themes.find(t => t.id === 'backend-slate') || themes[0]);
+      setCurrentTheme(themes.find(t => t.id === 'amesie-gold') || themes[0]);
     }
   }, []);
 
