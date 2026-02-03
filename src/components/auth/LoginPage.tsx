@@ -59,7 +59,6 @@ export const LoginPage: React.FC<{
     }
 
     try {
-      // INTEGRATION: Call the real backend login
       await login({ 
         email: formData.email, 
         password: formData.password 

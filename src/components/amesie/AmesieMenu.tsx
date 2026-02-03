@@ -1,55 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { MenuItemCard, MenuItem } from './MenuItemCard';
-import { Search, Plus, Filter } from 'lucide-react';
+import { amesieService } from '../../services/amesieService';
+import { MenuItemCard } from './MenuItemCard';
+import { MenuItem } from '../../types/Amesie';
+import { Search, Plus, Filter, Loader2, X } from 'lucide-react';
 
 export const AmesieMenu: React.FC = () => {
   const { currentTheme } = useTheme();
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newItem, setNewItem] = useState({ name: '', price: '', description: '', imageUrl: '' });
+  const [submitting, setSubmitting] = useState(false);
 
-  // Mock Data
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([
-    {
-      id: '1',
-      name: 'Chicken Burger',
-      price: 180,
-      category: 'Burger',
-      inStock: true,
-      imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=150&q=80'
-    },
-    {
-      id: '2',
-      name: 'Veg Loaded Pizza',
-      price: 240,
-      category: 'Pizza',
-      inStock: true,
-      imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=150&q=80'
-    },
-    {
-      id: '3',
-      name: 'Iced Americano',
-      price: 120,
-      category: 'Drinks',
-      inStock: false,
-      imageUrl: 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=150&q=80'
-    },
-    {
-      id: '4',
-      name: 'French Fries',
-      price: 90,
-      category: 'Sides',
-      inStock: true,
-      imageUrl: 'https://images.unsplash.com/photo-1541592103048-b860a13a4676?auto=format&fit=crop&w=150&q=80'
+  // 1. Fetch Real Data
+  const fetchMenu = async () => {
+    try {
+      const items = await amesieService.getMenuItems();
+      setMenuItems(items as any);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
-  const categories = ['All', 'Burger', 'Pizza', 'Drinks', 'Sides'];
+  useEffect(() => {
+    fetchMenu();
+  }, []);
 
-  const handleStockToggle = (id: string, newStatus: boolean) => {
+  // 2. Handle Stock Toggle
+  const handleStockToggle = async (id: string, newStatus: boolean) => {
     setMenuItems(prev => prev.map(item => 
-      item.id === id ? { ...item, inStock: newStatus } : item
+      String(item.id) === String(id) ? { ...item, inStock: newStatus } : item
     ));
+
+    try {
+      await amesieService.updateStock(id, newStatus);
+    } catch (error) {
+      console.error("Failed to update stock", error);
+      setMenuItems(prev => prev.map(item => 
+        String(item.id) === String(id) ? { ...item, inStock: !newStatus } : item
+      ));
+    }
+  };
+
+  // 3. Handle Add Item
+  const handleAddItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await amesieService.addMenuItem(newItem);
+      setIsModalOpen(false);
+      setNewItem({ name: '', price: '', description: '', imageUrl: '' });
+      fetchMenu();
+    } catch (error) {
+      alert("Failed to create product");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const filteredItems = menuItems.filter(item => {
@@ -59,13 +72,14 @@ export const AmesieMenu: React.FC = () => {
   });
 
   return (
-    <div className="h-full flex flex-col bg-slate-50">
+    <div className="h-full flex flex-col bg-slate-50 relative">
       {/* Header Section */}
       <div className="bg-white border-b sticky top-0 z-10" style={{ borderColor: currentTheme.colors.border }}>
         <div className="px-6 py-4 flex flex-col space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-slate-800">Menu Items</h2>
             <button 
+              onClick={() => setIsModalOpen(true)}
               className="px-4 py-2 rounded-xl text-slate-900 font-bold flex items-center space-x-2 transition-transform hover:scale-[1.02]"
               style={{ backgroundColor: currentTheme.colors.primary }}
             >
@@ -82,54 +96,83 @@ export const AmesieMenu: React.FC = () => {
               placeholder="Search food items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:bg-white transition-all"
+              // UPDATED: Added text-slate-900 for black text
+              className="w-full pl-10 pr-4 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400"
               style={{ '--tw-ring-color': currentTheme.colors.primary } as React.CSSProperties}
             />
           </div>
-        </div>
-
-        {/* Categories Tab */}
-        <div className="flex px-6 space-x-2 overflow-x-auto pb-4 no-scrollbar">
-          {categories.map(category => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
-                activeCategory === category 
-                  ? 'text-slate-900' 
-                  : 'bg-white border text-slate-500 hover:bg-slate-50'
-              }`}
-              style={{ 
-                backgroundColor: activeCategory === category ? currentTheme.colors.primary : undefined,
-                borderColor: currentTheme.colors.border 
-              }}
-            >
-              {category}
-            </button>
-          ))}
         </div>
       </div>
 
       {/* Menu Grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredItems.map(item => (
-            <MenuItemCard 
-              key={item.id} 
-              item={item} 
-              onToggleStock={handleStockToggle}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center pt-20"><Loader2 className="animate-spin text-slate-400" /></div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredItems.map(item => (
+              <MenuItemCard 
+                key={item.id} 
+                item={item} 
+                onToggleStock={() => handleStockToggle(String(item.id), !item.inStock)}
+              />
+            ))}
+          </div>
+        )}
         
-        {filteredItems.length === 0 && (
+        {!loading && filteredItems.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400">
             <Filter size={48} className="mb-4 opacity-50" />
             <p className="text-lg font-medium">No items found</p>
-            <p className="text-sm">Try changing the category or search term</p>
           </div>
         )}
       </div>
+
+      {/* ADD ITEM MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl relative animate-in fade-in zoom-in-95">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
+            >
+              <X size={24} />
+            </button>
+            
+            <h3 className="text-xl font-bold mb-4 text-slate-900">Add New Product</h3>
+            
+            <form onSubmit={handleAddItem} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Product Name</label>
+                {/* UPDATED: Added text-slate-900 */}
+                <input required className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400" 
+                  value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Price (₹)</label>
+                {/* UPDATED: Added text-slate-900 */}
+                <input required type="number" className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400" 
+                  value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Description</label>
+                {/* UPDATED: Added text-slate-900 */}
+                <input className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400" 
+                  value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} />
+              </div>
+              
+              <button 
+                type="submit" 
+                disabled={submitting}
+                className="w-full py-3 rounded-xl font-bold mt-2 text-slate-900 transition-opacity hover:opacity-90"
+                style={{ backgroundColor: currentTheme.colors.primary }}
+              >
+                {submitting ? 'Saving...' : 'Add Product'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
