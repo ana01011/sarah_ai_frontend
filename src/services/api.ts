@@ -102,33 +102,11 @@ export const apiService = {
     }
   },
 
-  // MOCK: Get Conversations
-  // TODO: Replace with real API endpoint: GET ${API_BASE_URL}/api/v1/chat/conversations
+  // Get Conversations - Returns empty array since we use local storage for persistence
+  // Real conversations come from WebSocket session API
   async getConversations(): Promise<ConversationSummary[]> {
-    console.log('[MOCK] Get Conversations endpoint');
-    await simulateNetworkDelay();
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Please login to continue');
-    }
-
-    return [
-      {
-        id: 'conv-1',
-        title: 'Sample Conversation 1',
-        last_message_at: new Date().toISOString(),
-        message_count: 5,
-        started_at: new Date().toISOString()
-      },
-      {
-        id: 'conv-2',
-        title: 'Sample Conversation 2',
-        last_message_at: new Date().toISOString(),
-        message_count: 3,
-        started_at: new Date().toISOString()
-      }
-    ];
+    // Return empty - local storage handles persistence now
+    return [];
   },
 
   // MOCK: Get Conversation Messages

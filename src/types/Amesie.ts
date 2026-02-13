@@ -20,6 +20,15 @@ export interface Order {
   created_at?: string;
 }
 
+export interface ProductImage {
+  id: number;
+  image_url: string;
+  is_primary: boolean;
+  display_order: number;
+  product_id: number;
+  created_at: string;
+}
+
 export interface MenuItem {
   id: string | number; // Backend uses number, frontend often treats IDs as strings
   name: string;
@@ -29,6 +38,9 @@ export interface MenuItem {
   inStock: boolean;
   imageUrl: string;
   isActive?: boolean;
+  sku?: string;
+  stockQuantity?: number;
+  images?: ProductImage[];
 }
 
 export interface DashboardStats {

@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       screens: {
@@ -24,7 +25,78 @@ export default {
           '100%': { transform: 'translateX(0)' },
         },
       },
+      typography: (theme) => ({
+        DEFAULT: {
+          css: {
+            maxWidth: 'none',
+            color: 'inherit',
+            a: {
+              color: theme('colors.blue.600'),
+              '&:hover': {
+                color: theme('colors.blue.700'),
+              },
+            },
+            strong: {
+              color: 'inherit',
+              fontWeight: '600',
+            },
+            code: {
+              color: 'inherit',
+              backgroundColor: 'rgba(0, 0, 0, 0.05)',
+              borderRadius: '0.25rem',
+              padding: '0.125rem 0.375rem',
+              fontWeight: '500',
+            },
+            'code::before': {
+              content: '""',
+            },
+            'code::after': {
+              content: '""',
+            },
+            pre: {
+              backgroundColor: 'transparent',
+              padding: 0,
+              margin: 0,
+              overflow: 'visible',
+            },
+            h1: {
+              color: 'inherit',
+            },
+            h2: {
+              color: 'inherit',
+            },
+            h3: {
+              color: 'inherit',
+            },
+            h4: {
+              color: 'inherit',
+            },
+            p: {
+              color: 'inherit',
+            },
+            li: {
+              color: 'inherit',
+            },
+            blockquote: {
+              color: 'inherit',
+            },
+          },
+        },
+        invert: {
+          css: {
+            color: 'inherit',
+            a: {
+              color: theme('colors.blue.400'),
+            },
+            code: {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            },
+          },
+        },
+      }),
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }

@@ -1,5 +1,5 @@
-import React from 'react';
-import { ArrowLeft, Star, Shield, Zap, Users, MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Star, Zap } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAgent } from '../contexts/AgentContext';
 import { AIChat } from './AIChat';
@@ -7,6 +7,8 @@ import { AIChat } from './AIChat';
 export const AgentDashboard: React.FC = () => {
   const { currentTheme } = useTheme();
   const { selectedAgent, setCurrentView, setSelectedAgent } = useAgent();
+  const [showChatSidebar, setShowChatSidebar] = useState(false);
+  const [newChatTrigger, setNewChatTrigger] = useState(0);
 
   const handleBack = () => {
     setSelectedAgent(null);
@@ -138,6 +140,9 @@ export const AgentDashboard: React.FC = () => {
             onClose={() => {}}
             agentContext={selectedAgent}
             isIntegrated={true}
+            showSidebar={showChatSidebar}
+            onToggleSidebar={() => setShowChatSidebar(!showChatSidebar)}
+            onNewChatTrigger={newChatTrigger}
           />
         </div>
       </div>

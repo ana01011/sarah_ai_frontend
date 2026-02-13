@@ -14,11 +14,11 @@ class AmesieService {
 
   // --- MENU (PRODUCTS) ---
   
-  // GET all products
+  // GET all products (seller's own products)
   async getMenuItems(): Promise<MenuItem[]> {
     try {
-      // Fetching products. Limits to 100 for performance
-      const response = await fetch(`${API_BASE}/products/?limit=100`, {
+      // Using seller products endpoint - no filters to get all products (active & inactive)
+      const response = await fetch(`${API_BASE}/sellers/products`, {
         headers: this.getHeaders()
       });
 
@@ -28,16 +28,25 @@ class AmesieService {
       
       // Map Backend "Product" to Frontend "MenuItem"
       // This conversion prevents frontend crashes if backend fields change
-      return data.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        price: p.price,
-        category: p.category_id ? 'General' : 'Other', 
-        inStock: p.stock_quantity > 0,
-        imageUrl: p.image_url || '',
-        isActive: p.is_active
-      }));
+      return data.map((p: any) => {
+        // Get primary image from images array, or first image, or empty string
+        const primaryImage = p.images?.find((img: any) => img.is_primary);
+        const imageUrl = primaryImage?.image_url || p.images?.[0]?.image_url || '';
+        
+        return {
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          price: p.price,
+          category: p.category_id ? 'General' : 'Other', 
+          inStock: p.stock_quantity > 0,
+          imageUrl: imageUrl,
+          isActive: p.is_active,
+          sku: p.sku,
+          stockQuantity: p.stock_quantity,
+          images: p.images || []
+        };
+      });
     } catch (error) {
       console.error("Menu Fetch Error:", error);
       return [];
@@ -48,11 +57,10 @@ class AmesieService {
   async addMenuItem(item: any): Promise<void> {
     const payload = {
       name: item.name,
-      description: item.description,
+      description: item.description || null,
       price: parseFloat(item.price),
-      category_id: 1, // Defaulting to 1 as placeholder
-      stock_quantity: 100, // Default to in-stock
-      image_url: item.imageUrl || null
+      category_id: parseInt(item.category_id) || 1,
+      stock_quantity: parseInt(item.stock_quantity) || 100
     };
 
     const response = await fetch(`${API_BASE}/sellers/products`, {

@@ -14,7 +14,13 @@ export const AmesieMenu: React.FC = () => {
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newItem, setNewItem] = useState({ name: '', price: '', description: '', imageUrl: '' });
+  const [newItem, setNewItem] = useState({ 
+    name: '', 
+    price: '', 
+    description: '', 
+    stock_quantity: '100',
+    category_id: '1'
+  });
   const [submitting, setSubmitting] = useState(false);
 
   // 1. Fetch Real Data
@@ -56,7 +62,13 @@ export const AmesieMenu: React.FC = () => {
     try {
       await amesieService.addMenuItem(newItem);
       setIsModalOpen(false);
-      setNewItem({ name: '', price: '', description: '', imageUrl: '' });
+      setNewItem({ 
+        name: '', 
+        price: '', 
+        description: '', 
+        stock_quantity: '100',
+        category_id: '1'
+      });
       fetchMenu();
     } catch (error) {
       alert("Failed to create product");
@@ -144,21 +156,62 @@ export const AmesieMenu: React.FC = () => {
             <form onSubmit={handleAddItem} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Product Name</label>
-                {/* UPDATED: Added text-slate-900 */}
                 <input required className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400" 
-                  value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Price (₹)</label>
-                {/* UPDATED: Added text-slate-900 */}
-                <input required type="number" className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400" 
-                  value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} />
+                  value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} 
+                  placeholder="e.g. Coffee Mocha"
+                />
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Description</label>
-                {/* UPDATED: Added text-slate-900 */}
-                <input className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400" 
-                  value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} />
+                <textarea 
+                  className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none" 
+                  rows={3}
+                  value={newItem.description} 
+                  onChange={e => setNewItem({...newItem, description: e.target.value})} 
+                  placeholder="Smooth coffee with steamed milk..."
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Price (₹)</label>
+                  <input 
+                    required 
+                    type="number" 
+                    min="0"
+                    step="0.01"
+                    className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400" 
+                    value={newItem.price} 
+                    onChange={e => setNewItem({...newItem, price: e.target.value})} 
+                    placeholder="99"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Stock Quantity</label>
+                  <input 
+                    required 
+                    type="number" 
+                    min="0"
+                    className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400" 
+                    value={newItem.stock_quantity} 
+                    onChange={e => setNewItem({...newItem, stock_quantity: e.target.value})} 
+                    placeholder="100"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Category</label>
+                <select 
+                  required
+                  className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 appearance-none cursor-pointer"
+                  value={newItem.category_id}
+                  onChange={e => setNewItem({...newItem, category_id: e.target.value})}
+                >
+                  <option value="1">Tea</option>
+                  <option value="2">Coffee</option>
+                  <option value="3">Snacks</option>
+                  <option value="4">Desserts</option>
+                  <option value="5">Beverages</option>
+                </select>
               </div>
               
               <button 
