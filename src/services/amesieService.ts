@@ -59,8 +59,8 @@ class AmesieService {
       name: item.name,
       description: item.description || null,
       price: parseFloat(item.price),
-      category_id: parseInt(item.category_id) || 1,
-      stock_quantity: parseInt(item.stock_quantity) || 100
+      stock_quantity: parseInt(item.stock_quantity) || 100,
+      category: item.category
     };
 
     const response = await fetch(`${API_BASE}/sellers/products`, {

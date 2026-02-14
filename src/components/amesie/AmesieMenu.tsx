@@ -19,7 +19,7 @@ export const AmesieMenu: React.FC = () => {
     price: '', 
     description: '', 
     stock_quantity: '100',
-    category_id: '1'
+    category: 'tea'
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -67,7 +67,7 @@ export const AmesieMenu: React.FC = () => {
         price: '', 
         description: '', 
         stock_quantity: '100',
-        category_id: '1'
+        category: 'tea'
       });
       fetchMenu();
     } catch (error) {
@@ -203,14 +203,14 @@ export const AmesieMenu: React.FC = () => {
                 <select 
                   required
                   className="w-full p-3 rounded-xl border bg-slate-50 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 appearance-none cursor-pointer"
-                  value={newItem.category_id}
-                  onChange={e => setNewItem({...newItem, category_id: e.target.value})}
+                  value={newItem.category}
+                  onChange={e => setNewItem({...newItem, category: e.target.value})}
                 >
-                  <option value="1">Tea</option>
-                  <option value="2">Coffee</option>
-                  <option value="3">Snacks</option>
-                  <option value="4">Desserts</option>
-                  <option value="5">Beverages</option>
+                  <option value="tea">Tea</option>
+                  <option value="coffee">Coffee</option>
+                  <option value="snacks">Snacks</option>
+                  <option value="desserts">Desserts</option>
+                  <option value="beverages">Beverages</option>
                 </select>
               </div>
               
