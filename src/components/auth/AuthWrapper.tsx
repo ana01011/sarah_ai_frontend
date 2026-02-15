@@ -5,6 +5,9 @@ import { RegisterPage } from './RegisterPage';
 import { VerifyEmailPage } from './VerifyEmailPage';
 import { ForgotPasswordPage } from './ForgotPasswordPage';
 import { TwoFactorPage } from './TwoFactorPage';
+// 1. IMPORT YOUR NEW LOADER
+// import { GlobalLoader } from '../../components/ui/GlobalLoader'; 
+import { GlobalLoader } from '../ui/GloabalLoader';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
@@ -17,14 +20,8 @@ export const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
   const [currentView, setCurrentView] = useState<AuthView>('login');
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-300">Loading SARAH AI...</p>
-        </div>
-      </div>
-    );
+    // 2. REPLACE THE OLD LOADING DIV WITH THIS:
+    return <GlobalLoader />;
   }
 
   if (!isAuthenticated) {

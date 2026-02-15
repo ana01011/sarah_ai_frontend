@@ -128,7 +128,8 @@ const AppContent: React.FC = () => {
         </div>
 
         {/* Main Scrollable Content */}
-        <div className="flex-1 overflow-y-auto">
+        {/* <div className="flex-1 overflow-y-auto"> */}
+        <div className="flex-1 min-h-0">
           <div className="h-full w-full">
             {(() => {
               switch (currentView) {
@@ -139,7 +140,7 @@ const AppContent: React.FC = () => {
                 // --- Agent Views ---
                 case 'selector': return <AgentSelector />;
                 case 'agent': return <AgentDashboard />;
-                case 'chat': return <AgentChat />; // <--- 2. ADDED THIS CASE
+                case 'chat': return <AgentChat isIntegrated={true}/>; // <--- 2. ADDED THIS CASE
                 
                 // --- Amesie Specific Views ---
                 case 'amesie-dashboard': return <AmesieDashboard />;

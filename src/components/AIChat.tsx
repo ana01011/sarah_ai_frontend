@@ -898,7 +898,8 @@ export const AIChat: React.FC<AIChatProps> = ({
     const groupedConversations = groupConversationsByDate();
 
     return (
-      <div className="h-full relative bg-transparent">
+      // <div className="h-full bg-transparent">
+      <div className="h-full w-full flex flex-col bg-transparent overflow-hidden">
         {/* Backdrop overlay when sidebar is open */}
         {showChatHistory && (
           <div 
@@ -913,7 +914,6 @@ export const AIChat: React.FC<AIChatProps> = ({
           style={{ width: '288px' }}
         >
           <div className="h-full w-full flex flex-col shadow-2xl" style={{ backgroundColor: currentTheme.colors.surface }}>
-            {/* Sidebar Header */}
             <div className="p-3 flex-shrink-0">
               <button
                 onClick={handleNewChat}
@@ -929,7 +929,6 @@ export const AIChat: React.FC<AIChatProps> = ({
               </button>
             </div>
 
-            {/* Search Bar */}
             <div className="px-3 pb-3 flex-shrink-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: currentTheme.colors.textSecondary }} />
@@ -948,8 +947,6 @@ export const AIChat: React.FC<AIChatProps> = ({
                 />
               </div>
             </div>
-
-            {/* Scrollable Chat List with Date Groups */}
             <div className="flex-1 overflow-y-auto custom-scrollbar px-2">
               {conversations.length === 0 ? (
                 <div className="text-center py-12 px-4">
@@ -1011,7 +1008,6 @@ export const AIChat: React.FC<AIChatProps> = ({
                               )}
                             </div>
                             
-                            {/* Action buttons - visible on hover */}
                             {editingChatId !== chat.id && (
                               <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
@@ -1102,17 +1098,18 @@ export const AIChat: React.FC<AIChatProps> = ({
                }}>
             <div className="flex items-center space-x-3">
               {/* Sidebar Toggle */}
-              <button
+              {/* <button
                 onClick={toggleChatHistory}
                 className="p-2 hover:bg-white/10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
                 style={{ color: currentTheme.colors.textSecondary }}
                 title={showChatHistory ? 'Close chat history' : 'Open chat history'}
               >
                 {showChatHistory ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
+              </button> */}
               
               {/* Branding */}
-              <div className="flex items-center space-x-2">
+
+              {/* <div className="flex items-center space-x-2">
                 <Brain className="w-6 h-6" style={{ color: currentTheme.colors.primary }} />
                 <div>
                   <h2 className="text-sm font-bold" style={{ color: currentTheme.colors.text }}>
@@ -1122,7 +1119,8 @@ export const AIChat: React.FC<AIChatProps> = ({
                     v3.7.3
                   </p>
                 </div>
-              </div>
+              </div> */}
+
             </div>
           </div>
           
