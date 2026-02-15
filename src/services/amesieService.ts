@@ -32,7 +32,7 @@ class AmesieService {
         // Get primary image from images array, or first image, or empty string
         const primaryImage = p.images?.find((img: any) => img.is_primary);
         const imagePath = primaryImage?.image_url || p.images?.[0]?.image_url || '';
-        // Prepend API base for relative paths
+        // Now prepend API base for relative paths
         const imageUrl = imagePath ? `${import.meta.env.VITE_API_URL || 'http://76.13.17.48:8001'}${imagePath}` : '';
         
         return {
@@ -55,20 +55,36 @@ class AmesieService {
     }
   }
 
-  // CREATE a new product
+  // CREATE a new product (multipart/form-data)
   async addMenuItem(item: any): Promise<void> {
-    const payload = {
-      name: item.name,
-      description: item.description || null,
-      price: parseFloat(item.price),
-      stock_quantity: parseInt(item.stock_quantity) || 100,
-      category: item.category
-    };
+    const formData = new FormData();
+    formData.append('name', item.name);
+    formData.append('price', item.price.toString());
+    formData.append('category', item.category);
+    
+    if (item.description) {
+      formData.append('description', item.description);
+    }
+    if (item.stock_quantity) {
+      formData.append('stock_quantity', item.stock_quantity.toString());
+    }
+    
+    // Append images if provided
+    if (item.images && item.images.length > 0) {
+      item.images.forEach((file: File) => {
+        formData.append('images', file);
+      });
+    }
 
+    // Get token for auth header (don't use getHeaders - it sets Content-Type which breaks FormData)
+    const token = localStorage.getItem('token');
+    
     const response = await fetch(`${API_BASE}/sellers/products`, {
       method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify(payload)
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: formData
     });
 
     if (!response.ok) {

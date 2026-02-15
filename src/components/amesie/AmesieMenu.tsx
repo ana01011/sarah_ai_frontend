@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { amesieService } from '../../services/amesieService';
 import { MenuItemCard } from './MenuItemCard';
 import { MenuItem } from '../../types/Amesie';
-import { Search, Plus, Filter, Loader2, X } from 'lucide-react';
+import { Search, Plus, Filter, Loader2, X, Upload, Image as ImageIcon } from 'lucide-react';
 
 export const AmesieMenu: React.FC = () => {
   const { currentTheme } = useTheme();
@@ -21,6 +21,9 @@ export const AmesieMenu: React.FC = () => {
     stock_quantity: '100',
     category: 'tea'
   });
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
 
   // 1. Fetch Real Data
@@ -60,7 +63,7 @@ export const AmesieMenu: React.FC = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await amesieService.addMenuItem(newItem);
+      await amesieService.addMenuItem({ ...newItem, images: selectedImages });
       setIsModalOpen(false);
       setNewItem({ 
         name: '', 
@@ -69,12 +72,38 @@ export const AmesieMenu: React.FC = () => {
         stock_quantity: '100',
         category: 'tea'
       });
+      setSelectedImages([]);
+      setImagePreviews([]);
       fetchMenu();
     } catch (error) {
       alert("Failed to create product");
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Handle image selection
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newFiles = Array.from(files);
+    setSelectedImages(prev => [...prev, ...newFiles]);
+
+    // Generate previews
+    newFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Remove image
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const filteredItems = menuItems.filter(item => {
@@ -212,6 +241,49 @@ export const AmesieMenu: React.FC = () => {
                   <option value="desserts">Desserts</option>
                   <option value="beverages">Beverages</option>
                 </select>
+              </div>
+
+              {/* Image Upload */}
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Product Images</label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageSelect}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full p-3 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500 hover:border-amber-400 hover:bg-amber-50 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Upload size={20} />
+                  <span>Click to upload images</span>
+                </button>
+                
+                {/* Image Previews */}
+                {imagePreviews.length > 0 && (
+                  <div className="mt-3 grid grid-cols-4 gap-2">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img 
+                          src={preview} 
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-16 object-cover rounded-lg border border-slate-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               
               <button 
