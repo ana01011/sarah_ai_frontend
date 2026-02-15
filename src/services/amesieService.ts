@@ -31,7 +31,9 @@ class AmesieService {
       return data.map((p: any) => {
         // Get primary image from images array, or first image, or empty string
         const primaryImage = p.images?.find((img: any) => img.is_primary);
-        const imageUrl = primaryImage?.image_url || p.images?.[0]?.image_url || '';
+        const imagePath = primaryImage?.image_url || p.images?.[0]?.image_url || '';
+        // Prepend API base for relative paths
+        const imageUrl = imagePath ? `${import.meta.env.VITE_API_URL || 'http://76.13.17.48:8001'}${imagePath}` : '';
         
         return {
           id: p.id,

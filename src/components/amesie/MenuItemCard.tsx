@@ -21,6 +21,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onToggleStock,
   const { currentTheme } = useTheme();
   // Local state for immediate UI feedback, though parent controls the actual data
   const [isOn, setIsOn] = useState(item.inStock);
+  const [imgError, setImgError] = useState(false);
 
   const handleToggle = () => {
     setIsOn(!isOn);
@@ -34,11 +35,12 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onToggleStock,
     >
       {/* Image Section */}
       <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 relative group">
-        {item.imageUrl ? (
+        {item.imageUrl && !imgError ? (
           <img 
             src={item.imageUrl} 
             alt={item.name} 
-            className="w-full h-full object-cover transition-transform group-hover:scale-110" 
+            className="w-full h-full object-cover transition-transform group-hover:scale-110"
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-slate-400">
