@@ -1089,9 +1089,9 @@ export const AIChat: React.FC<AIChatProps> = ({
         </div>
 
         {/* Main Chat Area - Full width, sidebar overlays */}
-        <div className="h-full flex flex-col min-w-0 min-h-0">
+        <div className="h-full flex flex-col min-w-10 min-h-0">
           {/* Integrated Mode Header */}
-          <div className="flex items-center px-4 py-3 border-b flex-shrink-0 backdrop-blur-sm"
+          <div className="flexitems-center px-4 py-3 flex-shrink-0 backdrop-blur-sm"
                style={{ 
                  borderColor: currentTheme.colors.border,
                  backgroundColor: currentTheme.colors.surface + '60'
@@ -1128,7 +1128,7 @@ export const AIChat: React.FC<AIChatProps> = ({
           <div 
             ref={messagesContainerRef}
             onScroll={handleMessagesScroll}
-            className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar min-h-0" 
+            className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar min-h-12" 
             style={{ 
               WebkitOverflowScrolling: 'touch',
               overscrollBehavior: 'contain'

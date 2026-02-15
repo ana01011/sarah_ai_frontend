@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { LoginPage } from './LoginPage';
 import { RegisterPage } from './RegisterPage';
 import { VerifyEmailPage } from './VerifyEmailPage';
 import { ForgotPasswordPage } from './ForgotPasswordPage';
 import { TwoFactorPage } from './TwoFactorPage';
-// 1. IMPORT YOUR NEW LOADER
-// import { GlobalLoader } from '../../components/ui/GlobalLoader'; 
 import { GlobalLoader } from '../ui/GloabalLoader';
 
 interface AuthWrapperProps {
@@ -16,11 +14,26 @@ interface AuthWrapperProps {
 type AuthView = 'login' | 'register' | 'verify' | 'forgot-password' | '2fa';
 
 export const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
-  const { isAuthenticated, isLoading, twoFactorRequired } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, twoFactorRequired } = useAuth();
   const [currentView, setCurrentView] = useState<AuthView>('login');
+  
+  const [showLoader, setShowLoader] = useState(true);
 
-  if (isLoading) {
-    // 2. REPLACE THE OLD LOADING DIV WITH THIS:
+  useEffect(() => {
+    const MIN_LOADING_TIME = 1500;
+
+    if (!authLoading) {
+      const timer = setTimeout(() => {
+        setShowLoader(false);
+      }, MIN_LOADING_TIME);
+
+      return () => clearTimeout(timer);
+    } else {
+      setShowLoader(true);
+    }
+  }, [authLoading]);
+
+  if (authLoading || showLoader) {
     return <GlobalLoader />;
   }
 
