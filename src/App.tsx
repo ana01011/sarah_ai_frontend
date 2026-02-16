@@ -5,9 +5,7 @@
 // import { AuthWrapper } from './components/auth/AuthWrapper';
 // import { WelcomeScreen } from './components/WelcomeScreen';
 // import { Dashboard } from './components/Dashboard';
-// // import { AgentSelector } from './components/AgentSelector';
 // import { AgentSelector } from './components/agent/AgentSelector';
-// // import { AgentDashboard } from './components/AgentDashboard';
 // import { AgentDashboard } from './components/AgentDashboard';
 // import { Sidebar } from './components/Sidebar';
 // import { AmesieDashboard } from './components/amesie/AmesieDashboard';
@@ -15,6 +13,9 @@
 // import { AmesieMenu } from './components/amesie/AmesieMenu';
 // import AmesieProfile from './components/amesie/profile';
 // import { Menu } from 'lucide-react';
+
+// // 1. IMPORT THE CHAT COMPONENT
+// import { AgentChat } from './components/agent/AgentChat';
 
 // const AppContent: React.FC = () => {
 //   const { currentView } = useAgent();
@@ -42,21 +43,29 @@
 //         </div>
 
 //         {/* Main Scrollable Content */}
-//         <div className="flex-1 overflow-y-auto">
+//         {/* <div className="flex-1 overflow-y-auto"> */}
+//         <div className="flex-1 min-h-0">
 //           <div className="h-full w-full">
 //             {(() => {
 //               switch (currentView) {
+//                 // --- General Views ---
 //                 case 'welcome': return <WelcomeScreen />;
 //                 case 'dashboard': return <Dashboard />;
+                
+//                 // --- Agent Views ---
 //                 case 'selector': return <AgentSelector />;
 //                 case 'agent': return <AgentDashboard />;
+//                 case 'chat': return <AgentChat isIntegrated={true}/>; // <--- 2. ADDED THIS CASE
                 
+//                 // --- Amesie Specific Views ---
 //                 case 'amesie-dashboard': return <AmesieDashboard />;
 //                 case 'amesie-orders': return <AmesieOrders />;
 //                 case 'amesie-menu': return <AmesieMenu />;
 //                 case 'profile': return <AmesieProfile />;
                   
-//                 default: return <WelcomeScreen />;
+//                 default: 
+//                   console.warn(`Unknown view: ${currentView}`);
+//                   return <WelcomeScreen />;
 //               }
 //             })()}
 //           </div>
@@ -69,9 +78,7 @@
 // function App() {
 //   return (
 //     <ThemeProvider>
-//       {/* 1. AgentProvider MUST be outside AuthProvider */}
 //       <AgentProvider>
-//         {/* 2. Now AuthProvider can safely use useAgent() */}
 //         <AuthProvider>
 //           <AuthWrapper>
 //             <AppContent />
@@ -83,6 +90,7 @@
 // }
 
 // export default App;
+
 import React, { useState } from 'react';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -98,8 +106,6 @@ import { AmesieOrders } from './components/amesie/AmesieOrders';
 import { AmesieMenu } from './components/amesie/AmesieMenu';
 import AmesieProfile from './components/amesie/profile';
 import { Menu } from 'lucide-react';
-
-// 1. IMPORT THE CHAT COMPONENT
 import { AgentChat } from './components/agent/AgentChat';
 
 const AppContent: React.FC = () => {
@@ -110,12 +116,10 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden" style={{ backgroundColor: currentTheme.colors.background }}>
       
-      {/* Responsive Sidebar */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative z-0">
         
-        {/* Mobile Header (Only visible on small screens) */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b sticky top-0 z-30" style={{ borderColor: currentTheme.colors.border }}>
           <button 
             onClick={() => setIsSidebarOpen(true)}
@@ -124,25 +128,20 @@ const AppContent: React.FC = () => {
             <Menu size={24} />
           </button>
           <span className="font-bold text-lg text-slate-800">AMESIE</span>
-          <div className="w-8" /> {/* Spacer for centering */}
+          <div className="w-8" />
         </div>
 
-        {/* Main Scrollable Content */}
-        {/* <div className="flex-1 overflow-y-auto"> */}
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 relative">
           <div className="h-full w-full">
             {(() => {
               switch (currentView) {
-                // --- General Views ---
                 case 'welcome': return <WelcomeScreen />;
                 case 'dashboard': return <Dashboard />;
-                
-                // --- Agent Views ---
                 case 'selector': return <AgentSelector />;
                 case 'agent': return <AgentDashboard />;
-                case 'chat': return <AgentChat isIntegrated={true}/>; // <--- 2. ADDED THIS CASE
                 
-                // --- Amesie Specific Views ---
+                case 'chat': return <AgentChat />;
+                
                 case 'amesie-dashboard': return <AmesieDashboard />;
                 case 'amesie-orders': return <AmesieOrders />;
                 case 'amesie-menu': return <AmesieMenu />;
