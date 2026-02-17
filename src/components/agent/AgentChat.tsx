@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { chatService } from '../../services/chatService';
-// import { chatService } from '../../services/chatSerive';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAgent } from '../../contexts/AgentContext';
-import { Send, ArrowLeft, Bot, User } from 'lucide-react';
+import { Send, ArrowLeft, Bot } from 'lucide-react';
 
 interface Message {
   id: number;
@@ -19,15 +18,9 @@ export const AgentChat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // 1. Connect on Mount
     chatService.connect();
-
-    // 2. Listen for messages
     const unsubscribe = chatService.onMessage((data) => {
-      // NOTE: Adjust 'data.response' depending on what your backend actually sends back
-      // It might be data.text, data.message, or data.answer
       const text = data.response || data.message || JSON.stringify(data);
-      
       const newMessage: Message = {
         id: Date.now(),
         text: text,
@@ -36,7 +29,6 @@ export const AgentChat: React.FC = () => {
       setMessages(prev => [...prev, newMessage]);
     });
 
-    // 3. Cleanup on Unmount
     return () => {
       unsubscribe();
       chatService.disconnect();
@@ -51,23 +43,26 @@ export const AgentChat: React.FC = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    // Add User Message immediately for UI responsiveness
     const userMsg: Message = { id: Date.now(), text: input, sender: 'user' };
     setMessages(prev => [...prev, userMsg]);
 
-    // Send to Backend
     chatService.sendMessage(input);
     setInput('');
   };
 
   return (
     <div className="flex flex-col h-full bg-slate-50">
-      {/* Header */}
-      <div className="bg-white border-b px-4 py-3 flex items-center justify-between shadow-sm z-10" style={{ borderColor: currentTheme.colors.border }}>
+      {/* Header Adjustment:
+         Added 'pl-16' (approx 64px) to the left padding.
+         This pushes the Back Arrow and Brain Icon to the right, 
+         making space for the global Menu button at 'left-4'.
+      */}
+      <div className="bg-white border-b px-4 pl-16 py-3 flex items-center justify-between shadow-sm z-10" style={{ borderColor: currentTheme.colors.border }}>
         <div className="flex items-center gap-3">
-          <button onClick={() => setCurrentView('agent-selector')} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+          <button onClick={() => setCurrentView('selector')} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
             <ArrowLeft size={20} className="text-slate-600" />
           </button>
+          
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: currentTheme.colors.primary }}>
               <Bot size={18} />
@@ -116,7 +111,7 @@ export const AgentChat: React.FC = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask anything about your store..."
+            placeholder="Ask anything..."
             className="w-full pl-4 pr-12 py-3 bg-slate-100 border-none rounded-xl focus:ring-2 focus:bg-white transition-all text-slate-900"
             style={{ '--tw-ring-color': currentTheme.colors.primary } as React.CSSProperties}
           />

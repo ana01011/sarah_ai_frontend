@@ -28,10 +28,10 @@ export const AmesieDashboard: React.FC = () => {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold" style={{ color: currentTheme.colors.text }}>
+          <h2 className="text-2xl font-bold text-center" style={{ color: currentTheme.colors.text }}>
             Seller Dashboard
           </h2>
-          <div className="flex items-center mt-1 text-sm opacity-70" style={{ color: currentTheme.colors.text }}>
+          <div className="flex justify-center items-center mt-1 text-sm opacity-70" style={{ color: currentTheme.colors.text }}>
             <MapPin size={14} className="mr-1" />
             <span>Vadodara, Gujarat</span>
           </div>

@@ -71,13 +71,13 @@ export const Dashboard: React.FC = () => {
 
       {/* Header */}
       <header 
-        className="relative z-50 backdrop-blur-md border-b"
+        className="relative z-50 backdrop-blur-md border-b pl-10"
         style={{ 
           backgroundColor: currentTheme.colors.surface + '80',
           borderColor: currentTheme.colors.border
         }}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+        <div className="max-w-7xl mx-auto px-7 sm:px-4 lg:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="relative">
@@ -85,10 +85,10 @@ export const Dashboard: React.FC = () => {
                   className="absolute -inset-2 rounded-full blur opacity-30 animate-pulse"
                   style={{ background: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})` }}
                 />
-                <Brain 
+                {/* <Brain 
                   className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 animate-pulse relative z-10" 
                   style={{ color: currentTheme.colors.primary }}
-                />
+                /> */}
                 <div 
                   className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 lg:w-4 lg:h-4 rounded-full animate-ping"
                   style={{ backgroundColor: currentTheme.colors.secondary }}
@@ -105,7 +105,6 @@ export const Dashboard: React.FC = () => {
                     backgroundImage: `linear-gradient(135deg, ${currentTheme.colors.primary}, ${currentTheme.colors.secondary})`
                   }}
                 >
-                  {/* SARAHhhhhhhhhh */}
                   AMESIE
                 </h1>
                 <p className="text-xs sm:text-sm" style={{ color: currentTheme.colors.secondary }}>
